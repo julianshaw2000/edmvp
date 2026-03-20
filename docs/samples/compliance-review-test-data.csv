@@ -1,0 +1,9 @@
+EventType,BatchNumber,Location,ActorName,SmelterId,OriginCountry,Description,ExpectedFlag
+PRIMARY_PROCESSING,BATCH-FLAG-001,Kivu Processing Plant,Sanctioned Mining Corp,CID000999,CD,"Smelting with non-conformant smelter in high-risk country - should trigger RMAP FAIL + OECD FLAG",RMAP:FAIL + OECD:FAIL (sanctioned actor)
+PRIMARY_PROCESSING,BATCH-FLAG-002,Wolfram Plant Austria,Clean Processor GmbH,UNKNOWN_SMELTER,AT,"Smelting with unknown smelter ID - should trigger RMAP FLAG",RMAP:FLAG (unknown smelter)
+MINE_EXTRACTION,BATCH-FLAG-003,Bisie Mine North Kivu,Congo Mining Corp,,CD,"Extraction in DRC (high-risk OECD Annex II country) - should trigger OECD FLAG",OECD:FLAG (high-risk origin)
+MINE_EXTRACTION,BATCH-FLAG-004,Bisie Mine,Restricted Trader LLC,,CD,"Extraction by sanctioned entity in high-risk country - should trigger OECD FAIL",OECD:FAIL (sanctioned + high-risk)
+TRADING_TRANSFER,BATCH-FLAG-005,Kigali Trade Center,Sanctioned Mining Corp,,RW,"Trading by sanctioned entity - should trigger OECD FAIL",OECD:FAIL (sanctioned actor)
+EXPORT_SHIPMENT,BATCH-FLAG-006,Bujumbura Port,Clean Exporter Ltd,,BI,"Export from Burundi (high-risk) - should trigger OECD FLAG",OECD:FLAG (high-risk origin)
+PRIMARY_PROCESSING,BATCH-CLEAN-001,Global Tungsten Facility,Global Tungsten & Powders Corp.,CID002158,US,"Smelting with conformant smelter in low-risk country - should PASS all checks",RMAP:PASS + OECD:PASS
+MINE_EXTRACTION,BATCH-CLEAN-002,Mittersill Mine,Wolfram Bergbau,CID001100,AT,"Extraction in Austria (low-risk) by clean actor - should PASS",OECD:PASS

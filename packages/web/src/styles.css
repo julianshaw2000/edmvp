@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Tungsten Design System */
+:root {
+  --color-primary: #2563eb;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uvx python-docx-cli:*)",
+      "Bash(uvx docx2txt:*)",
+      "Bash(uv run --with python-docx python -c \":*)",
+      "Bash(dotnet --version)",
+      "Bash(ng version:*)",
+      "Bash(npx ng:*)",
+      "Bash(dotnet new:*)",
+      "Bash(npm install:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(mv Tungsten.Api.Tests/* .)",
+      "Bash(mv Tungsten.Api.Tests/.* .)",
+      "Bash(rmdir Tungsten.Api.Tests)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(ng new:*)",
+      "Bash(ng build:*)",
+      "Bash(dotnet ef:*)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_fill_form",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "Bash(taskkill //F //IM dotnet.exe)"
+    ],
+    "additionalDirectories": [
+      "\\tmp\\tungsten_build"
+    ]
+  }
+}

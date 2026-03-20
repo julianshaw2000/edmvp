@@ -1,0 +1,16 @@
+SmelterId,SmelterName,Country,ConformanceStatus,LastAuditDate
+CID001100,Wolfram Bergbau und Hütten AG,AT,CONFORMANT,2025-06-15
+CID002158,Global Tungsten & Powders Corp.,US,CONFORMANT,2025-03-10
+CID002082,Xiamen Tungsten Co. Ltd.,CN,ACTIVE_PARTICIPATING,2025-08-22
+CID001070,Japan New Metals Co. Ltd.,JP,CONFORMANT,2025-01-18
+CID000568,Chongyi Zhangyuan Tungsten Co. Ltd.,CN,CONFORMANT,2024-11-05
+CID002044,Kennametal Huntsville,US,CONFORMANT,2025-04-20
+CID001889,Niagara Refining LLC,US,CONFORMANT,2025-02-14
+CID002315,Malipo Haiyu Tungsten Co. Ltd.,CN,ACTIVE_PARTICIPATING,2025-09-01
+CID000999,Unaudited Smelter Example,XX,NON_CONFORMANT,
+CID003001,Hunan Chuangda Vanadium Tungsten Co.,CN,ACTIVE_PARTICIPATING,2025-07-30
+CID002502,H.C. Starck Tungsten Powders,DE,CONFORMANT,2025-05-12
+CID001525,Ganzhou Huaxing Tungsten Products Co.,CN,CONFORMANT,2024-12-20
+CID003200,Masan High-Tech Materials,VN,CONFORMANT,2025-06-28
+CID000750,Jiangxi Yaosheng Tungsten Co. Ltd.,CN,NON_CONFORMANT,2023-08-15
+CID002890,Wolframite Processing Facility,RW,ACTIVE_PARTICIPATING,2025-10-01
