@@ -29,7 +29,8 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(RENDER_TOKEN=\"rnd_fvZfhHvd0bXQAViLZAbuUprYCdpR\" __NEW_LINE_d61dbe111c27804a__ curl -s --ssl-no-revoke -X PATCH \"https://api.render.com/v1/services/srv-d6ugkf2a214c73d45q0g\" -H \"Authorization: Bearer $RENDER_TOKEN\" -H \"Content-Type: application/json\" -d \"{\"\"serviceDetails\"\":{\"\"envSpecificDetails\"\":{\"\"dockerfilePath\"\":\"\"./packages/api/Dockerfile\"\",\"\"dockerContext\"\":\"\".\"\"}}}\")",
-      "Bash(RENDER_TOKEN=\"rnd_fvZfhHvd0bXQAViLZAbuUprYCdpR\" __NEW_LINE_69558c342204457a__ curl -s --ssl-no-revoke -X POST \"https://api.render.com/v1/services/srv-d6ugkf2a214c73d45q0g/deploys\" -H \"Authorization: Bearer $RENDER_TOKEN\" -H \"Content-Type: application/json\")"
+      "Bash(RENDER_TOKEN=\"rnd_fvZfhHvd0bXQAViLZAbuUprYCdpR\" __NEW_LINE_69558c342204457a__ curl -s --ssl-no-revoke -X POST \"https://api.render.com/v1/services/srv-d6ugkf2a214c73d45q0g/deploys\" -H \"Authorization: Bearer $RENDER_TOKEN\" -H \"Content-Type: application/json\")",
+      "Bash(start chrome:*)"
     ],
     "additionalDirectories": [
       "\\tmp\\tungsten_build"

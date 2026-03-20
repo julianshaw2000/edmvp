@@ -138,8 +138,7 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-// Apply migrations and seed data in development
-if (app.Environment.IsDevelopment())
+// Apply migrations and seed data on startup
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -165,7 +164,6 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
         return Results.Ok(result.Value);
 
     // Auto-provision: if user authenticated via Auth0 but not in platform DB, create them
-    if (app.Environment.IsDevelopment())
     {
         var auth0Sub = currentUser.Auth0Sub;
         var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Status == "ACTIVE");

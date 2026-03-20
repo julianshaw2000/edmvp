@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Tungsten.Api.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4214f9edbfc481e69ac91fdc13a60281fc480dd4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6795f652e5ab47855d7649897010216060087a36")]
 [assembly: System.Reflection.AssemblyProductAttribute("Tungsten.Api.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Tungsten.Api.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
