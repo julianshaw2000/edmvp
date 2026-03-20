@@ -76,7 +76,7 @@ import { filter, take, switchMap } from 'rxjs';
             @if (checking) {
               <div class="flex flex-col items-center py-6">
                 <div class="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
-                <p class="text-sm text-slate-400">Checking authentication...</p>
+                <p class="text-sm text-slate-500">{{ loadingMessage }}</p>
               </div>
             } @else {
               <button
@@ -109,26 +109,42 @@ export class LoginComponent implements OnInit {
   private auth0 = inject(Auth0Service);
   private router = inject(Router);
   checking = true;
+  loadingMessage = 'Checking authentication...';
 
   ngOnInit() {
-    // Wait for Auth0 to finish loading, then check if already authenticated
     this.auth0.isLoading$.pipe(
       filter(loading => !loading),
       take(1),
       switchMap(() => this.auth0.isAuthenticated$),
       take(1),
-    ).subscribe(isAuthenticated => {
+    ).subscribe(async isAuthenticated => {
       if (isAuthenticated) {
-        // Load profile and redirect based on role
-        this.auth.loadProfile();
-        // Give profile a moment to load, then redirect
-        setTimeout(() => {
-          const role = this.auth.role();
+        this.loadingMessage = 'Loading your profile...';
+        const profile = await this.auth.loadProfile();
+        if (profile) {
+          this.loadingMessage = 'Redirecting...';
+          const role = profile.role;
           if (role === 'SUPPLIER') this.router.navigate(['/supplier']);
           else if (role === 'BUYER') this.router.navigate(['/buyer']);
           else if (role === 'PLATFORM_ADMIN') this.router.navigate(['/admin']);
-          else this.router.navigate(['/supplier']); // default
-        }, 1500);
+          else this.router.navigate(['/supplier']);
+        } else {
+          this.loadingMessage = 'Could not load profile. Retrying...';
+          // Retry once after 3 seconds (Render cold start)
+          setTimeout(async () => {
+            const retry = await this.auth.loadProfile();
+            if (retry) {
+              const role = retry.role;
+              if (role === 'SUPPLIER') this.router.navigate(['/supplier']);
+              else if (role === 'BUYER') this.router.navigate(['/buyer']);
+              else if (role === 'PLATFORM_ADMIN') this.router.navigate(['/admin']);
+              else this.router.navigate(['/supplier']);
+            } else {
+              this.checking = false;
+              this.loadingMessage = '';
+            }
+          }, 3000);
+        }
       } else {
         this.checking = false;
       }

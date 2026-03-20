@@ -24,7 +24,11 @@ export class AuthService {
   readonly isLoading = toSignal(this.auth0.isLoading$, { initialValue: true });
 
   private _profile = signal<UserProfile | null>(null);
+  private _profileLoading = signal(false);
+  private _profileError = signal<string | null>(null);
   readonly profile = this._profile.asReadonly();
+  readonly profileLoading = this._profileLoading.asReadonly();
+  readonly profileError = this._profileError.asReadonly();
   readonly role = computed(() => this._profile()?.role ?? null);
 
   login() {
@@ -35,11 +39,20 @@ export class AuthService {
     this.auth0.logout({ logoutParams: { returnTo: window.location.origin } });
   }
 
-  loadProfile() {
-    this.http.get<UserProfile>(`${this.apiUrl}/api/me`).pipe(
-      catchError(() => of(null))
-    ).subscribe(profile => {
-      this._profile.set(profile);
+  loadProfile(): Promise<UserProfile | null> {
+    this._profileLoading.set(true);
+    this._profileError.set(null);
+    return new Promise(resolve => {
+      this.http.get<UserProfile>(`${this.apiUrl}/api/me`).pipe(
+        catchError(() => {
+          this._profileError.set('Failed to load profile. The server may be starting up — please wait a moment.');
+          return of(null);
+        })
+      ).subscribe(profile => {
+        this._profile.set(profile);
+        this._profileLoading.set(false);
+        resolve(profile);
+      });
     });
   }
 }

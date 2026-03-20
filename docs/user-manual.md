@@ -1,7 +1,7 @@
 # AccuTrac User Manual
 ## Tungsten Supply Chain Compliance Platform
 
-**Version 1.0 — March 2026**
+**Version 2.0 — March 2026**
 
 ---
 
@@ -15,7 +15,8 @@
 6. [Compliance Engine](#6-compliance-engine)
 7. [Public Features](#7-public-features)
 8. [Tamper Evidence and Data Integrity](#8-tamper-evidence-and-data-integrity)
-9. [Troubleshooting and FAQ](#9-troubleshooting-and-faq)
+9. [Notifications and Email Alerts](#9-notifications-and-email-alerts)
+10. [Troubleshooting and FAQ](#10-troubleshooting-and-faq)
 
 ---
 
@@ -34,10 +35,10 @@ AccuTrac validates compliance against two leading frameworks:
 
 AccuTrac has three user roles:
 
-| Role | Description |
-|---|---|
-| **Supplier** | Miners, traders, processors, and exporters who create batches and record custody events as material moves through the chain. |
-| **Buyer** | Companies that receive material and need to verify compliance, generate reports, and share documentation with customers or auditors. |
+| Role               | Description                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Supplier**       | Miners, traders, processors, and exporters who create batches and record custody events as material moves through the chain.                     |
+| **Buyer**          | Companies that receive material and need to verify compliance, generate reports, and share documentation with customers or auditors.             |
 | **Platform Admin** | AccuTrac platform administrators who manage users, maintain reference data (such as the RMAP smelter list), and review flagged compliance cases. |
 
 ---
@@ -103,23 +104,41 @@ A batch represents a discrete quantity of material that will be tracked through 
 1. Click the **"New Batch"** button on the Supplier Dashboard.
 2. Complete the batch creation form:
 
-| Field | Description |
-|---|---|
-| **Batch Number** | A unique identifier for this batch. Use your organization's internal numbering system or the format provided by your buyer. |
-| **Mineral Type** | The type of mineral material in this batch. |
-| **Origin Country** | The country where the material was extracted. |
-| **Mine Name / Site** | The name of the mine or extraction site. |
-| **Initial Weight (kg)** | The weight of the batch at creation. |
+| Field                   | Description                                                                                                                 |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Batch Number**        | A unique identifier for this batch. Use your organization's internal numbering system or the format provided by your buyer. |
+| **Mineral Type**        | The type of mineral material in this batch.                                                                                 |
+| **Origin Country**      | The country where the material was extracted.                                                                               |
+| **Mine Name / Site**    | The name of the mine or extraction site.                                                                                    |
+| **Initial Weight (kg)** | The weight of the batch at creation.                                                                                        |
 
 3. Click **"Create Batch"** to save.
 
 The batch will appear on your dashboard with a status of **PENDING** until custody events are recorded and compliance checks are completed.
 
-[Screenshot: New Batch form]
-
 > **Note:** Batch numbers must be unique within the platform. If you receive an error stating the batch number already exists, check whether the batch has already been created by a colleague or use a different identifier.
 
-### 3.3 Submitting Custody Events
+### 3.3 Splitting a Batch
+
+When a batch of material is physically divided — for example, when part of a shipment is sold to one buyer and the remainder to another — you can split the batch into two child batches.
+
+**To split a batch:**
+
+1. Open the Batch Detail view for the batch you want to split.
+2. Click **"Split Batch"**.
+3. Enter the weight for **Child A** and **Child B**. The two weights must sum exactly to the parent batch's total weight.
+4. Click **"Confirm Split"**.
+
+AccuTrac will:
+- Create two new child batches with suffixes `-A` and `-B` appended to the original batch number.
+- Mark the parent batch as **COMPLETED** (it has been consumed by the split).
+- Preserve the full custody chain — both child batches inherit the parent's origin, mineral type, and mine site.
+
+Each child batch then continues through the supply chain independently and is subject to its own compliance checks.
+
+> **Note:** A completed batch cannot be split. You must split the batch before marking it as completed.
+
+### 3.4 Submitting Custody Events
 
 A custody event records a specific activity that occurred with the batch — such as extraction, processing, transfer, or export. Events form a chronological chain that documents the full journey of the material.
 
@@ -142,11 +161,11 @@ Once submitted, an event cannot be deleted. If a correction is needed, a correct
 
 Records the extraction of material from the mine.
 
-| Field | Description |
-|---|---|
-| **GPS Coordinates** | Latitude and longitude of the extraction site (e.g., 47.3769° N, 8.5417° E). |
-| **Mine Operator** | Name of the company or individual operating the mine. |
-| **Mineralogical Certificate Reference** | Reference number of the mineralogical certificate issued at extraction. |
+| Field                                   | Description                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------- |
+| **GPS Coordinates**                     | Latitude and longitude of the extraction site (e.g., 47.3769° N, 8.5417° E). |
+| **Mine Operator**                       | Name of the company or individual operating the mine.                        |
+| **Mineralogical Certificate Reference** | Reference number of the mineralogical certificate issued at extraction.      |
 
 ---
 
@@ -154,13 +173,13 @@ Records the extraction of material from the mine.
 
 Records a concentration or beneficiation process applied to the material.
 
-| Field | Description |
-|---|---|
-| **Facility Name** | Name of the processing facility. |
+| Field                   | Description                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| **Facility Name**       | Name of the processing facility.                                                            |
 | **Process Description** | A brief description of the concentration method used (e.g., gravity separation, flotation). |
-| **Input Weight (kg)** | Weight of material entering the process. |
-| **Output Weight (kg)** | Weight of material leaving the process. |
-| **Concentration Ratio** | The ratio of output to input weight (calculated automatically if left blank). |
+| **Input Weight (kg)**   | Weight of material entering the process.                                                    |
+| **Output Weight (kg)**  | Weight of material leaving the process.                                                     |
+| **Concentration Ratio** | The ratio of output to input weight (calculated automatically if left blank).               |
 
 ---
 
@@ -168,11 +187,11 @@ Records a concentration or beneficiation process applied to the material.
 
 Records the transfer of ownership or custody of the material between parties.
 
-| Field | Description |
-|---|---|
-| **Seller** | Name of the party transferring the material. |
-| **Buyer** | Name of the party receiving the material. |
-| **Transfer Date** | The date on which the transfer took place. |
+| Field                  | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| **Seller**             | Name of the party transferring the material.                         |
+| **Buyer**              | Name of the party receiving the material.                            |
+| **Transfer Date**      | The date on which the transfer took place.                           |
 | **Contract Reference** | The reference number of the purchase contract or transfer agreement. |
 
 ---
@@ -181,12 +200,12 @@ Records the transfer of ownership or custody of the material between parties.
 
 Records an analytical test performed on the material.
 
-| Field | Description |
-|---|---|
-| **Laboratory Name** | Name of the laboratory that conducted the assay. |
-| **Method** | The analytical method used (e.g., XRF, ICP-MS). |
-| **Tungsten Content (%)** | The tungsten content of the material as determined by the assay. |
-| **Certificate Reference** | Reference number of the assay certificate. |
+| Field                     | Description                                                      |
+| ------------------------- | ---------------------------------------------------------------- |
+| **Laboratory Name**       | Name of the laboratory that conducted the assay.                 |
+| **Method**                | The analytical method used (e.g., XRF, ICP-MS).                  |
+| **Tungsten Content (%)**  | The tungsten content of the material as determined by the assay. |
+| **Certificate Reference** | Reference number of the assay certificate.                       |
 
 ---
 
@@ -194,12 +213,12 @@ Records an analytical test performed on the material.
 
 Records a smelting or primary processing step.
 
-| Field | Description |
-|---|---|
-| **Smelter ID (RMAP)** | The RMAP-assigned identifier for the smelter facility. This field triggers an RMAP compliance check. |
-| **Process Type** | The type of smelting or refining process (e.g., electric arc furnace, hydrometallurgical). |
-| **Input Weight (kg)** | Weight of material entering the smelter. |
-| **Output Weight (kg)** | Weight of material leaving the smelter. |
+| Field                  | Description                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Smelter ID (RMAP)**  | The RMAP-assigned identifier for the smelter facility. This field triggers an RMAP compliance check. |
+| **Process Type**       | The type of smelting or refining process (e.g., electric arc furnace, hydrometallurgical).           |
+| **Input Weight (kg)**  | Weight of material entering the smelter.                                                             |
+| **Output Weight (kg)** | Weight of material leaving the smelter.                                                              |
 
 > **Important:** The Smelter ID must match an entry in the current RMAP-approved smelter list. If the smelter is not listed, the batch will be flagged for compliance review. Contact your Platform Admin if you believe the smelter should be on the list.
 
@@ -209,16 +228,16 @@ Records a smelting or primary processing step.
 
 Records the export or international shipment of the material.
 
-| Field | Description |
-|---|---|
-| **Origin Country** | The country from which the shipment departs. |
-| **Destination Country** | The country to which the shipment is sent. |
-| **Transport Mode** | The method of transport (e.g., air freight, sea freight, road). |
-| **Export Permit Reference** | Reference number of the export permit or customs declaration. |
+| Field                       | Description                                                     |
+| --------------------------- | --------------------------------------------------------------- |
+| **Origin Country**          | The country from which the shipment departs.                    |
+| **Destination Country**     | The country to which the shipment is sent.                      |
+| **Transport Mode**          | The method of transport (e.g., air freight, sea freight, road). |
+| **Export Permit Reference** | Reference number of the export permit or customs declaration.   |
 
 ---
 
-### 3.4 Uploading Documents
+### 3.5 Uploading Documents
 
 Supporting documents can be attached to a batch or to specific custody events. Accepted file formats are:
 
@@ -241,26 +260,36 @@ Supporting documents can be attached to a batch or to specific custody events. A
 
 Uploaded documents are stored securely and are accessible to authorized buyers and administrators. Documents cannot be deleted once uploaded; if an incorrect document was uploaded, upload the correct version and add a note in the description to indicate which version supersedes the other.
 
-### 3.5 Viewing Batch Details
+### 3.6 Viewing Batch Details
 
-Click on any batch card on the dashboard to open the Batch Detail view. This view contains three tabs:
+Click on any batch card on the dashboard to open the Batch Detail view. This view is organized into four tabs:
 
-- **Timeline** — a chronological list of all custody events recorded for this batch. Each event shows the event type, date, the user who submitted it, and a summary of key fields.
-- **Documents** — a list of all documents attached to the batch and its events.
-- **Compliance** — the current compliance status and a summary of any checks that have been run.
+- **Overview** — batch identification, origin, weight, current status, and compliance summary at a glance.
+- **Events** — a chronological timeline of all custody events recorded for this batch. Each event shows the event type, date, the user who submitted it, and a summary of key fields.
+- **Documents** — a list of all documents attached to the batch and its events, with download links.
+- **Compliance** — detailed compliance check results for RMAP, OECD DDG, mass balance, and sequence checks.
 
-[Screenshot: Batch Detail view — Timeline tab]
+### 3.7 Updating Batch Status
 
-### 3.6 Understanding Compliance Statuses
+As a batch progresses through the supply chain, you can update its status:
+
+- **CREATED** → **ACTIVE** — when the first custody events are being recorded and the batch is in transit.
+- **ACTIVE** → **COMPLETED** — when the batch has reached its final destination and all events have been recorded.
+
+**To update the status:** Open the Batch Detail view and click the status button (e.g., "Mark Active" or "Mark Completed").
+
+> **Note:** Status transitions are one-way. A completed batch cannot be reverted to active.
+
+### 3.8 Understanding Compliance Statuses
 
 Each batch displays one of the following compliance statuses:
 
-| Status | Color | Meaning |
-|---|---|---|
-| **COMPLIANT** | Green | All compliance checks have passed. The batch meets RMAP and OECD DDG requirements based on the information recorded. |
-| **FLAGGED** | Red | One or more compliance checks have failed. The batch requires review. Common causes include an unrecognized smelter ID, a high-risk origin country, or a sanctions match. |
-| **INSUFFICIENT_DATA** | Amber | The compliance engine does not have enough information to make a determination. Additional events or documents are needed. |
-| **PENDING** | Grey | The batch has been created but no compliance checks have been triggered yet. |
+| Status                | Color | Meaning                                                                                                                                                                   |
+| --------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **COMPLIANT**         | Green | All compliance checks have passed. The batch meets RMAP and OECD DDG requirements based on the information recorded.                                                      |
+| **FLAGGED**           | Red   | One or more compliance checks have failed. The batch requires review. Common causes include an unrecognized smelter ID, a high-risk origin country, or a sanctions match. |
+| **INSUFFICIENT_DATA** | Amber | The compliance engine does not have enough information to make a determination. Additional events or documents are needed.                                                |
+| **PENDING**           | Grey  | The batch has been created but no compliance checks have been triggered yet.                                                                                              |
 
 Compliance statuses are recalculated automatically each time a new event is submitted. You will receive a notification if a batch you are responsible for is flagged.
 
@@ -283,8 +312,10 @@ The Buyer Dashboard provides an at-a-glance overview of all batches associated w
 
 Below the summary cards, a **batch table** lists all batches. You can:
 
-- **Search** by batch number or supplier name using the search bar.
-- **Filter** by compliance status, origin country, or date range using the filter panel.
+- **Search** by batch number, origin country, or mineral type using the text search bar.
+- **Filter by compliance status** using the dropdown (ALL, COMPLIANT, FLAGGED, PENDING, INSUFFICIENT_DATA).
+- **Filter by date range** using the From and To date pickers to narrow results to a specific time period.
+- **Clear filters** by clicking the "Clear" button that appears when any filter is active.
 - **Sort** by clicking any column header.
 
 Click on any row in the table to open the Batch Detail view.
@@ -316,8 +347,10 @@ The Material Passport includes:
 - Batch identification information (batch number, mineral type, origin).
 - A summary of the custody chain (key events and parties).
 - Compliance summary (RMAP and OECD DDG results).
+- Hash chain integrity verification status.
 - A QR code that links to the publicly verifiable batch record.
-- AccuTrac platform verification details.
+- Platform version and compliance rule set version (for audit traceability).
+- The name of the user who generated the report and the generation timestamp.
 
 **To generate a Material Passport:**
 
@@ -332,7 +365,7 @@ The Material Passport includes:
 
 ### 4.4 Generating an Audit Dossier
 
-An Audit Dossier is a comprehensive PDF report intended for formal audits and due diligence reviews. It contains the complete event log, all compliance check results with supporting detail, and references to all attached documents.
+An Audit Dossier is a comprehensive PDF report intended for formal audits and due diligence reviews. It contains the complete event log, all compliance check results with supporting detail, references to all attached documents with their SHA-256 file hashes, and hash chain integrity verification. Platform version and rule set version are included in the footer for audit traceability.
 
 **To generate an Audit Dossier:**
 
@@ -354,9 +387,8 @@ You can share a Material Passport with external parties — such as customers, a
 
 1. Generate the Material Passport (see Section 4.3).
 2. Click **"Share"** next to the Material Passport.
-3. AccuTrac generates a unique URL. Copy this link and send it to the recipient.
-
-[Screenshot: Share Material Passport dialog with link]
+3. AccuTrac generates a unique URL and displays it in a green confirmation box.
+4. Click **"Copy"** to copy the link to your clipboard, then send it to the recipient via email, messaging, or any other channel.
 
 The recipient can open the link in any browser to view the Material Passport. The link will expire automatically after 30 days. If the recipient needs access after expiry, generate a new shared link.
 
@@ -439,7 +471,24 @@ The new list takes effect immediately. Any batches with smelter IDs that were pr
 
 **CSV format requirements:** The file must include at minimum a column for the RMAP Smelter ID and the smelter name. Consult your Platform Admin technical contact for the exact column specification if you encounter import errors.
 
-### 5.4 Compliance Review
+### 5.4 System Health and Job Monitor
+
+The System Health page provides platform administrators with visibility into the operational status of the AccuTrac platform.
+
+**To access:** Navigate to **System Health** from the Admin Dashboard or click **Jobs** in the admin navigation.
+
+The page displays:
+- **API Health Status** — a green or red indicator showing whether the API is responding normally.
+- **Job Queue** — a table of recent background jobs (compliance checks, document generation, email dispatch) showing:
+  - Job type and status (PENDING, PROCESSING, COMPLETED, FAILED)
+  - Creation and completion timestamps
+  - Error details for failed jobs
+
+The job queue auto-refreshes every 10 seconds. Click **"Refresh"** for an immediate update.
+
+> **Note:** Failed jobs are automatically retried by the background worker. If a job remains in FAILED status after multiple retries, investigate the error detail and contact the AccuTrac support team if needed.
+
+### 5.5 Compliance Review
 
 The Compliance Review section lists all batches with a **FLAGGED** status that require administrator attention.
 
@@ -483,15 +532,37 @@ OECD DDG checks evaluate a broader range of risk factors in accordance with the 
 
 **What is checked:**
 
-| Check | Description |
-|---|---|
-| **Origin Country Risk** | The origin country recorded for the batch is assessed against a risk classification. Countries identified as conflict-affected or high-risk under OECD guidance trigger a flag. |
-| **Sanctions Screening** | The origin country, trading parties, and smelter are checked against applicable sanctions lists. Any match results in a flag. |
+| Check                     | Description                                                                                                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Origin Country Risk**   | The origin country recorded for the batch is assessed against a risk classification. Countries identified as conflict-affected or high-risk under OECD guidance trigger a flag.                        |
+| **Sanctions Screening**   | The origin country, trading parties, and smelter are checked against applicable sanctions lists. Any match results in a flag.                                                                          |
 | **Document Completeness** | AccuTrac verifies that the expected documentation is present for the events recorded. Missing key documents (such as an export permit for an export event) will result in an INSUFFICIENT_DATA status. |
 
 **When triggered:** OECD DDG checks run automatically when relevant events are submitted (for example, an origin country risk check runs when a batch is created; a document completeness check runs continuously as events are added).
 
-### 6.3 Batch Compliance Rollup
+### 6.3 Mass Balance Checks
+
+**When triggered:** A mass balance check runs automatically when a **Concentration** or **Primary Processing** event is submitted with both input and output weights.
+
+**What is checked:** AccuTrac compares the output weight to the input weight. If the output exceeds the input by more than 5%, the batch is flagged. This guards against reporting errors or fraudulent weight inflation.
+
+**What to do if a mass balance check fails:** Review the input and output weights on the event. If there is a genuine error, submit a correction event (see Section 8.3). If the process legitimately produces more output than input (e.g., due to added materials), document this with a note and contact your Platform Admin.
+
+### 6.4 Sequence Checks
+
+**When triggered:** A sequence check runs automatically every time a new custody event is submitted.
+
+**What is checked:** AccuTrac verifies that the new event's date is not earlier than the most recent existing event for the batch. Out-of-order events are flagged, as they may indicate a data entry error or a process irregularity.
+
+**What to do if a sequence check fails:** Verify the event date. If the date was entered incorrectly, submit a correction. If events genuinely occurred out of chronological order (e.g., backdated lab results), document the reason.
+
+### 6.5 GPS Coordinate Validation
+
+**When triggered:** GPS coordinates are validated at event submission time.
+
+**What is checked:** AccuTrac verifies that GPS coordinates are in valid `latitude,longitude` format with latitude between -90 and 90, and longitude between -180 and 180.
+
+### 6.6 Batch Compliance Rollup
 
 A batch's overall compliance status is determined by combining the results of all individual checks:
 
@@ -506,11 +577,11 @@ The overall status is recalculated every time a new event is submitted.
 
 AccuTrac sends email notifications when compliance-relevant events occur:
 
-| Event | Recipients |
-|---|---|
-| Batch flagged (any compliance failure) | The supplier who submitted the triggering event, all buyers associated with the batch, Platform Admins. |
-| Batch status changes from FLAGGED to COMPLIANT | The supplier, all buyers associated with the batch. |
-| Compliance review action taken by admin | The supplier and buyers associated with the batch. |
+| Event                                          | Recipients                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Batch flagged (any compliance failure)         | The supplier who submitted the triggering event, all buyers associated with the batch, Platform Admins. |
+| Batch status changes from FLAGGED to COMPLIANT | The supplier, all buyers associated with the batch.                                                     |
+| Compliance review action taken by admin        | The supplier and buyers associated with the batch.                                                      |
 
 Ensure your registered email address is current so you receive these notifications promptly.
 
@@ -590,7 +661,37 @@ The correction will be reviewed and linked to the original event in the timeline
 
 ---
 
-## 9. Troubleshooting and FAQ
+## 9. Notifications and Email Alerts
+
+### 9.1 In-App Notifications
+
+AccuTrac displays notifications in the **notification bell** in the top navigation bar. A red dot appears on the bell when you have unread notifications.
+
+Click the bell to open the notification dropdown, which shows your most recent notifications. Click on any notification to view details or navigate to the relevant batch.
+
+### 9.2 Email Notifications
+
+AccuTrac sends email notifications for the following events:
+
+| Event                        | Recipients                                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| **User Invitation**          | The invited user receives a welcome email with a sign-in link.                                   |
+| **Compliance Flag**          | The supplier who submitted the triggering event, and all Platform Admins.                        |
+| **Compliance Status Change** | The supplier and buyers associated with the batch.                                               |
+| **Document Generated**       | The user who requested the Material Passport or Audit Dossier.                                   |
+| **48-Hour Escalation**       | All Platform Admins are notified if a compliance flag remains unresolved for more than 48 hours. |
+
+Email notifications are sent automatically. If emails are not being delivered, check your spam/junk folder and ensure your organization's email system allows messages from the AccuTrac platform address.
+
+> **Note:** The platform retries failed email deliveries up to 3 times. If you are not receiving emails after multiple days, contact your Platform Admin.
+
+### 9.3 Escalation Policy
+
+Compliance flags that remain unresolved for more than **48 hours** trigger an automatic escalation. All Platform Admins in the affected tenant receive an escalation notification (both in-app and via email) prompting them to review and resolve the flagged batch.
+
+---
+
+## 10. Troubleshooting and FAQ
 
 ### Sign-In Issues
 
@@ -666,6 +767,6 @@ Contact your Platform Admin in the first instance. For platform-level issues tha
 
 ---
 
-*AccuTrac User Manual — Version 1.0 — March 2026*
+*AccuTrac User Manual — Version 2.0 — March 2026*
 
 *This document is provided for guidance purposes. Features and interfaces may change as the platform is updated. For the most current information, refer to the latest version of this manual.*
