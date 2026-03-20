@@ -163,19 +163,36 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
     if (result.IsSuccess)
         return Results.Ok(result.Value);
 
-    // Auto-provision: if user authenticated via Auth0 but not in platform DB, create them
+    // Auto-provision: link Auth0 identity to platform user
     {
         var auth0Sub = currentUser.Auth0Sub;
+        var email = httpContext.User.FindFirst("email")?.Value
+            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? "user@accutrac.org";
+        var name = httpContext.User.FindFirst("name")?.Value
+            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+            ?? "Pilot User";
+
+        // Check if this user was invited (exists by email with pending Auth0Sub)
+        var invited = await db.Users
+            .FirstOrDefaultAsync(u => u.Email == email && u.Auth0Sub.StartsWith("pending|"));
+        if (invited is not null)
+        {
+            // Link the invited user to their Auth0 identity
+            invited.Auth0Sub = auth0Sub;
+            invited.DisplayName = name;
+            invited.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+
+            var retry = await mediator.Send(new GetMe.Query());
+            if (retry.IsSuccess)
+                return Results.Ok(retry.Value);
+        }
+
+        // Otherwise create a new user as PLATFORM_ADMIN
         var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Status == "ACTIVE");
         if (tenant is not null)
         {
-            var email = httpContext.User.FindFirst("email")?.Value
-                ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-                ?? "user@accutrac.org";
-            var name = httpContext.User.FindFirst("name")?.Value
-                ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
-                ?? "Pilot User";
-
             var newUser = new UserEntity
             {
                 Id = Guid.NewGuid(),
