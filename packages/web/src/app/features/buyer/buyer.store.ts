@@ -47,10 +47,12 @@ export class BuyerStore {
   private _generating = signal(false);
   private _generatedDoc = signal<GeneratedDocumentResponse | null>(null);
   private _generateError = signal<string | null>(null);
+  private _shareUrl = signal<string | null>(null);
 
   readonly generating = this._generating.asReadonly();
   readonly generatedDoc = this._generatedDoc.asReadonly();
   readonly generateError = this._generateError.asReadonly();
+  readonly shareUrl = this._shareUrl.asReadonly();
 
   loadBatches(page = 1) {
     this._batchesLoading.set(true);
@@ -72,6 +74,7 @@ export class BuyerStore {
     this._detailLoading.set(true);
     this._generatedDoc.set(null);
     this._generateError.set(null);
+    this._shareUrl.set(null);
 
     this.api.getBatch(batchId).subscribe({
       next: (batch) => {
@@ -127,6 +130,7 @@ export class BuyerStore {
   shareDocument(docId: string) {
     this.api.shareDocument(docId).subscribe({
       next: (res) => {
+        this._shareUrl.set(res.shareUrl);
         // Update the generated doc with share info if available
         const current = this._generatedDoc();
         if (current) {

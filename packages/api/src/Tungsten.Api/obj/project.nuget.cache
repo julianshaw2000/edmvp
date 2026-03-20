@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "pRsjh89LCb4=",
+  "dgSpecHash": "ud6szPf6aas=",
   "success": true,
   "projectFilePath": "C:\\__edMVP\\packages\\api\\src\\Tungsten.Api\\Tungsten.Api.csproj",
   "expectedPackageFiles": [
@@ -46,9 +46,11 @@
     "C:\\Users\\julia\\.nuget\\packages\\opentelemetry.instrumentation.aspnetcore\\1.15.1\\opentelemetry.instrumentation.aspnetcore.1.15.1.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\opentelemetry.instrumentation.http\\1.15.0\\opentelemetry.instrumentation.http.1.15.0.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\questpdf\\2026.2.3\\questpdf.2026.2.3.nupkg.sha512",
+    "C:\\Users\\julia\\.nuget\\packages\\sendgrid\\9.29.3\\sendgrid.9.29.3.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\sentry\\6.2.0\\sentry.6.2.0.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\sentry.aspnetcore\\6.2.0\\sentry.aspnetcore.6.2.0.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\sentry.extensions.logging\\6.2.0\\sentry.extensions.logging.6.2.0.nupkg.sha512",
+    "C:\\Users\\julia\\.nuget\\packages\\starkbank-ecdsa\\1.3.3\\starkbank-ecdsa.1.3.3.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\system.codedom\\6.0.0\\system.codedom.6.0.0.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\system.composition\\9.0.0\\system.composition.9.0.0.nupkg.sha512",
     "C:\\Users\\julia\\.nuget\\packages\\system.composition.attributedmodel\\9.0.0\\system.composition.attributedmodel.9.0.0.nupkg.sha512",

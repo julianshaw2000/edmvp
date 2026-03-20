@@ -78,7 +78,10 @@ if (!string.IsNullOrEmpty(builder.Configuration["R2:AccountId"]))
     builder.Services.AddSingleton<IFileStorageService, R2FileStorageService>();
 else
     builder.Services.AddSingleton<IFileStorageService, LocalFileStorageService>();
-builder.Services.AddSingleton<IEmailService, LogEmailService>();
+if (!string.IsNullOrEmpty(builder.Configuration["SendGrid:ApiKey"]))
+    builder.Services.AddSingleton<IEmailService, SendGridEmailService>();
+else
+    builder.Services.AddSingleton<IEmailService, LogEmailService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetMe.Handler>());

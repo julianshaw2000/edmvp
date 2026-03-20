@@ -503,3 +503,5 @@ C:\__edMVP\packages\api\tests\Tungsten.Api.Tests\bin\Debug\net10.0\runtimes\win-
 C:\__edMVP\packages\api\tests\Tungsten.Api.Tests\bin\Debug\net10.0\runtimes\win-x86\native\zlib1.dll
 C:\__edMVP\packages\api\tests\Tungsten.Api.Tests\bin\Debug\net10.0\AWSSDK.Core.dll
 C:\__edMVP\packages\api\tests\Tungsten.Api.Tests\bin\Debug\net10.0\AWSSDK.S3.dll
+C:\__edMVP\packages\api\tests\Tungsten.Api.Tests\bin\Debug\net10.0\SendGrid.dll
+C:\__edMVP\packages\api\tests\Tungsten.Api.Tests\bin\Debug\net10.0\StarkbankEcdsa.dll

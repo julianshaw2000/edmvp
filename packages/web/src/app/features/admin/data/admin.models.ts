@@ -28,3 +28,13 @@ export interface ComplianceFlagResponse {
   batchNumber: string;
   eventType: string;
 }
+
+export interface JobResponse {
+  id: string;
+  jobType: string;
+  status: string;
+  referenceId: string;
+  errorDetail: string | null;
+  createdAt: string;
+  completedAt: string | null;
+}

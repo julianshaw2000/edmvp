@@ -79,9 +79,14 @@ namespace Tungsten.Api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
 
+                    b.Property<Guid?>("ParentBatchId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("ParentBatchId");
 
                     b.HasIndex("TenantId", "BatchNumber")
                         .IsUnique();
@@ -630,13 +635,22 @@ namespace Tungsten.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Tungsten.Api.Infrastructure.Persistence.Entities.BatchEntity", "ParentBatch")
+                        .WithMany("ChildBatches")
+                        .HasForeignKey("ParentBatchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Tungsten.Api.Infrastructure.Persistence.Entities.TenantEntity", "Tenant")
                         .WithMany("Batches")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ChildBatches");
+
                     b.Navigation("Creator");
+
+                    b.Navigation("ParentBatch");
 
                     b.Navigation("Tenant");
                 });
@@ -798,6 +812,8 @@ namespace Tungsten.Api.Migrations
 
             modelBuilder.Entity("Tungsten.Api.Infrastructure.Persistence.Entities.BatchEntity", b =>
                 {
+                    b.Navigation("ChildBatches");
+
                     b.Navigation("CustodyEvents");
 
                     b.Navigation("Documents");

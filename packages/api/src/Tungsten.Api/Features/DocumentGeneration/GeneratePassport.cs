@@ -67,7 +67,7 @@ public static class GeneratePassport
                 batch.BatchNumber, user.Tenant.Name, batch.MineralType,
                 batch.OriginCountry, batch.OriginMine, batch.WeightKg,
                 batch.Status, batch.ComplianceStatus, verificationUrl,
-                events, checks, docs, hashChainIntact, DateTime.UtcNow);
+                events, checks, docs, hashChainIntact, user.DisplayName, DateTime.UtcNow);
 
             // Generate PDF
             var template = new PassportTemplate(passportData);
@@ -91,6 +91,19 @@ public static class GeneratePassport
             };
 
             db.GeneratedDocuments.Add(genDoc);
+
+            db.Notifications.Add(new NotificationEntity
+            {
+                Id = Guid.NewGuid(),
+                TenantId = user.TenantId,
+                UserId = user.Id,
+                Type = "DOCUMENT_GENERATED",
+                Title = "Material Passport generated",
+                Message = $"Material Passport for batch {batch.BatchNumber} is ready for download.",
+                ReferenceId = genDoc.Id,
+                CreatedAt = DateTime.UtcNow
+            });
+
             await db.SaveChangesAsync(ct);
 
             return Result<Response>.Success(new Response(

@@ -11,11 +11,14 @@ public class BatchEntity
     public decimal WeightKg { get; set; }
     public required string Status { get; set; }
     public required string ComplianceStatus { get; set; }
+    public Guid? ParentBatchId { get; set; }
     public Guid CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public TenantEntity Tenant { get; set; } = null!;
     public UserEntity Creator { get; set; } = null!;
+    public BatchEntity? ParentBatch { get; set; }
+    public ICollection<BatchEntity> ChildBatches { get; set; } = [];
     public ICollection<CustodyEventEntity> CustodyEvents { get; set; } = [];
     public ICollection<DocumentEntity> Documents { get; set; } = [];
 }

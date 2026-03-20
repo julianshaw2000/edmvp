@@ -61,13 +61,21 @@ public static class GenerateDossier
 
             var docs = rawDocs.Select(x => new DossierDocumentData(
                 x.d.FileName, x.d.DocumentType, x.d.FileSizeBytes,
-                x.u.DisplayName, x.d.CreatedAt)).ToList();
+                x.u.DisplayName, x.d.CreatedAt, x.d.Sha256Hash)).ToList();
+
+            // Verify hash chain integrity
+            var allEvents = await db.CustodyEvents.AsNoTracking()
+                .Where(e => e.BatchId == cmd.BatchId)
+                .OrderBy(e => e.CreatedAt)
+                .ToListAsync(ct);
+
+            var hashChainIntact = VerifyChain(allEvents);
 
             var dossierData = new DossierData(
                 batch.BatchNumber, user.Tenant.Name, batch.MineralType,
                 batch.OriginCountry, batch.OriginMine, batch.WeightKg,
                 batch.Status, batch.ComplianceStatus,
-                events, checks, docs, DateTime.UtcNow);
+                events, checks, docs, hashChainIntact, user.DisplayName, DateTime.UtcNow);
 
             var template = new DossierTemplate(dossierData);
             using var pdfStream = new MemoryStream();
@@ -89,10 +97,35 @@ public static class GenerateDossier
             };
 
             db.GeneratedDocuments.Add(genDoc);
+
+            db.Notifications.Add(new NotificationEntity
+            {
+                Id = Guid.NewGuid(),
+                TenantId = user.TenantId,
+                UserId = user.Id,
+                Type = "DOCUMENT_GENERATED",
+                Title = "Audit Dossier generated",
+                Message = $"Audit Dossier for batch {batch.BatchNumber} is ready for download.",
+                ReferenceId = genDoc.Id,
+                CreatedAt = DateTime.UtcNow
+            });
+
             await db.SaveChangesAsync(ct);
 
             return Result<Response>.Success(new Response(
                 genDoc.Id, storage.GetDownloadUrl(storageKey), genDoc.GeneratedAt));
+        }
+
+        private static bool VerifyChain(List<CustodyEventEntity> events)
+        {
+            string? previousHash = null;
+            foreach (var evt in events)
+            {
+                if (evt.PreviousEventHash != previousHash)
+                    return false;
+                previousHash = evt.Sha256Hash;
+            }
+            return true;
         }
     }
 }

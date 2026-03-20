@@ -56,5 +56,11 @@ public class BatchConfiguration : IEntityTypeConfiguration<BatchEntity>
             .WithMany()
             .HasForeignKey(b => b.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(b => b.ParentBatch)
+            .WithMany(b => b.ChildBatches)
+            .HasForeignKey(b => b.ParentBatchId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

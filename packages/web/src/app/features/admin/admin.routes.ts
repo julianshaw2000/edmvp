@@ -17,4 +17,8 @@ export const ADMIN_ROUTES: Routes = [
     path: 'compliance',
     loadComponent: () => import('./compliance-review.component').then(m => m.ComplianceReviewComponent),
   },
+  {
+    path: 'jobs',
+    loadComponent: () => import('./job-monitor.component').then(m => m.JobMonitorComponent),
+  },
 ];

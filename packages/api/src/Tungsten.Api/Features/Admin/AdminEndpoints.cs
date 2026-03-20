@@ -26,6 +26,14 @@ public static class AdminEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
 
+        app.MapGet("/api/admin/jobs", async (IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ListJobs.Query(), ct);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+
         return app;
     }
 }

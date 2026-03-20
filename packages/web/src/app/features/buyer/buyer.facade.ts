@@ -26,6 +26,7 @@ export class BuyerFacade {
   readonly generating = this.store.generating;
   readonly generatedDoc = this.store.generatedDoc;
   readonly generateError = this.store.generateError;
+  readonly shareUrl = this.store.shareUrl;
 
   loadBatches(page?: number) { this.store.loadBatches(page); }
   loadBatchDetail(batchId: string) { this.store.loadBatchDetail(batchId); }

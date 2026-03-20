@@ -9,40 +9,42 @@ import { CreateUserRequest } from '../data/admin.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form (ngSubmit)="onSubmit()" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1" for="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          [(ngModel)]="email"
-          name="email"
-          required
-          placeholder="user@example.com"
-          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            required
+            placeholder="user@example.com"
+            class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-400 transition-shadow"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" for="displayName">Display Name</label>
+          <input
+            id="displayName"
+            type="text"
+            [(ngModel)]="displayName"
+            name="displayName"
+            required
+            placeholder="Full name"
+            class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-400 transition-shadow"
+          />
+        </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1" for="displayName">Display Name</label>
-        <input
-          id="displayName"
-          type="text"
-          [(ngModel)]="displayName"
-          name="displayName"
-          required
-          placeholder="Full name"
-          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1" for="role">Role</label>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5" for="role">Role</label>
         <select
           id="role"
           [(ngModel)]="role"
           name="role"
           required
-          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
         >
           <option value="">Select a role</option>
           <option value="SUPPLIER">Supplier</option>
@@ -55,14 +57,14 @@ import { CreateUserRequest } from '../data/admin.models';
         <button
           type="submit"
           [disabled]="!email || !displayName || !role"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-indigo-600/20 transition-all duration-150"
         >
-          Invite User
+          Send Invite
         </button>
         <button
           type="button"
           (click)="cancelled.emit()"
-          class="border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+          class="border border-slate-300 text-slate-600 px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all duration-150"
         >
           Cancel
         </button>

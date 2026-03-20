@@ -101,6 +101,10 @@
               "target": "Package",
               "version": "[2026.2.3, )"
             },
+            "SendGrid": {
+              "target": "Package",
+              "version": "[9.*, )"
+            },
             "Sentry.AspNetCore": {
               "target": "Package",
               "version": "[6.2.0, )"

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '../../../core/http/api-url.token';
-import { UserResponse, CreateUserRequest, RmapSmelterResponse, ComplianceFlagResponse } from './admin.models';
+import { UserResponse, CreateUserRequest, RmapSmelterResponse, ComplianceFlagResponse, JobResponse } from './admin.models';
 import { BatchResponse, PagedResponse, ComplianceSummary } from '../../supplier/data/supplier.models';
 
 @Injectable({ providedIn: 'root' })
@@ -48,5 +48,10 @@ export class AdminApiService {
     return this.http.get<PagedResponse<BatchResponse>>(
       `${this.apiUrl}/api/batches?page=${page}&pageSize=${pageSize}`
     );
+  }
+
+  // Jobs
+  listJobs(): Observable<{ jobs: JobResponse[]; totalCount: number }> {
+    return this.http.get<{ jobs: JobResponse[]; totalCount: number }>(`${this.apiUrl}/api/admin/jobs`);
   }
 }
