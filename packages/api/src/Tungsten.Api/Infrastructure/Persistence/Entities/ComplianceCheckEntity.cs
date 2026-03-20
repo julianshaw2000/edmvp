@@ -12,6 +12,7 @@ public class ComplianceCheckEntity
     public required string Status { get; set; }
     public JsonElement? Details { get; set; }
     public DateTime CheckedAt { get; set; }
+    public string RuleVersion { get; set; } = "1.0.0-pilot";
     public CustodyEventEntity CustodyEvent { get; set; } = null!;
     public BatchEntity Batch { get; set; } = null!;
 }

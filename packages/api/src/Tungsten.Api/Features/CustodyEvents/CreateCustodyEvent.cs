@@ -45,6 +45,22 @@ public static class CreateCustodyEvent
             RuleFor(x => x.Location).NotEmpty().MaximumLength(500);
             RuleFor(x => x.ActorName).NotEmpty().MaximumLength(300);
             RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
+            RuleFor(x => x.GpsCoordinates)
+                .Must(BeValidGpsCoordinates)
+                .When(x => !string.IsNullOrEmpty(x.GpsCoordinates))
+                .WithMessage("GpsCoordinates must be in 'lat,lon' format where lat is -90 to 90 and lon is -180 to 180");
+        }
+
+        private static bool BeValidGpsCoordinates(string? value)
+        {
+            if (string.IsNullOrEmpty(value)) return true;
+            var parts = value.Split(',');
+            if (parts.Length != 2) return false;
+            if (!double.TryParse(parts[0].Trim(), System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var lat)) return false;
+            if (!double.TryParse(parts[1].Trim(), System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var lon)) return false;
+            return lat is >= -90 and <= 90 && lon is >= -180 and <= 180;
         }
     }
 
@@ -120,7 +136,8 @@ public static class CreateCustodyEvent
 
             await publisher.Publish(new CustodyEventCreated(
                 entity.Id, entity.BatchId, entity.TenantId,
-                entity.EventType, entity.ActorName, entity.SmelterId), ct);
+                entity.EventType, entity.ActorName, entity.SmelterId,
+                entity.Metadata, entity.EventDate), ct);
 
             return Result<Response>.Success(new Response(
                 entity.Id, entity.BatchId, entity.EventType,

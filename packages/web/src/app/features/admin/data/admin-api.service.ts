@@ -34,6 +34,10 @@ export class AdminApiService {
     return this.http.post<{ count: number }>(`${this.apiUrl}/api/admin/rmap/upload`, formData);
   }
 
+  listSmelters(): Observable<{ smelters: RmapSmelterResponse[]; totalCount: number }> {
+    return this.http.get<{ smelters: RmapSmelterResponse[]; totalCount: number }>(`${this.apiUrl}/api/admin/rmap`);
+  }
+
   // Compliance
   getBatchCompliance(batchId: string): Observable<ComplianceSummary> {
     return this.http.get<ComplianceSummary>(`${this.apiUrl}/api/batches/${batchId}/compliance`);

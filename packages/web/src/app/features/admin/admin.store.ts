@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { AdminApiService } from './data/admin-api.service';
-import { UserResponse, CreateUserRequest, ComplianceFlagResponse } from './data/admin.models';
+import { UserResponse, CreateUserRequest, ComplianceFlagResponse, RmapSmelterResponse } from './data/admin.models';
 import { BatchResponse } from '../supplier/data/supplier.models';
 import { extractErrorMessage } from '../../shared/utils/error.utils';
 
@@ -38,10 +38,14 @@ export class AdminStore {
   private _rmapUploading = signal(false);
   private _rmapUploadSuccess = signal(false);
   private _rmapUploadError = signal<string | null>(null);
+  private _smelters = signal<RmapSmelterResponse[]>([]);
+  private _smeltersLoading = signal(false);
 
   readonly rmapUploading = this._rmapUploading.asReadonly();
   readonly rmapUploadSuccess = this._rmapUploadSuccess.asReadonly();
   readonly rmapUploadError = this._rmapUploadError.asReadonly();
+  readonly smelters = this._smelters.asReadonly();
+  readonly smeltersLoading = this._smeltersLoading.asReadonly();
 
   // Submission state
   private _submitting = signal(false);
@@ -133,10 +137,24 @@ export class AdminStore {
       next: () => {
         this._rmapUploading.set(false);
         this._rmapUploadSuccess.set(true);
+        this.loadSmelters();
       },
       error: (err) => {
         this._rmapUploadError.set(extractErrorMessage(err));
         this._rmapUploading.set(false);
+      },
+    });
+  }
+
+  loadSmelters() {
+    this._smeltersLoading.set(true);
+    this.api.listSmelters().subscribe({
+      next: (res) => {
+        this._smelters.set(res.smelters);
+        this._smeltersLoading.set(false);
+      },
+      error: () => {
+        this._smeltersLoading.set(false);
       },
     });
   }

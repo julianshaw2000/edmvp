@@ -1,11 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { AdminFacade } from './admin.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
 
 @Component({
   selector: 'app-rmap-management',
   standalone: true,
-  imports: [PageHeaderComponent],
+  imports: [PageHeaderComponent, StatusBadgeComponent],
   template: `
     <app-page-header
       title="RMAP Smelter List"
@@ -69,15 +70,62 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
       }
     </div>
 
-    <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
-      <p class="text-slate-500 text-sm">RMAP list management will display current smelters after upload.</p>
-    </div>
+    <!-- Smelter Table -->
+    @if (facade.smeltersLoading()) {
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center text-slate-500 text-sm">
+        Loading smelters...
+      </div>
+    } @else if (facade.smelters().length > 0) {
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="text-base font-semibold text-slate-900">
+            Smelters ({{ facade.smelters().length }})
+          </h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200">
+                <th class="text-left px-4 py-3 font-medium text-slate-600">Smelter ID</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">Name</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">Country</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">Status</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">Last Audit</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (smelter of facade.smelters(); track smelter.smelterId) {
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                  <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ smelter.smelterId }}</td>
+                  <td class="px-4 py-3 text-slate-900">{{ smelter.smelterName }}</td>
+                  <td class="px-4 py-3 text-slate-700">{{ smelter.country }}</td>
+                  <td class="px-4 py-3">
+                    <app-status-badge [status]="smelter.conformanceStatus" />
+                  </td>
+                  <td class="px-4 py-3 text-slate-500">
+                    {{ smelter.lastAuditDate ?? '—' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
+        <p class="text-slate-500 text-sm">No smelters loaded. Upload a CSV to populate the smelter list.</p>
+      </div>
+    }
   `,
 })
-export class RmapManagementComponent {
+export class RmapManagementComponent implements OnInit {
   protected facade = inject(AdminFacade);
   protected selectedFile = signal<File | null>(null);
   protected selectedFileName = signal<string | null>(null);
+
+  ngOnInit() {
+    this.facade.loadSmelters();
+  }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;

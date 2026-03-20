@@ -23,6 +23,8 @@ export class AdminFacade {
   readonly rmapUploading = this.store.rmapUploading;
   readonly rmapUploadSuccess = this.store.rmapUploadSuccess;
   readonly rmapUploadError = this.store.rmapUploadError;
+  readonly smelters = this.store.smelters;
+  readonly smeltersLoading = this.store.smeltersLoading;
 
   readonly submitting = this.store.submitting;
   readonly submitError = this.store.submitError;
@@ -36,4 +38,5 @@ export class AdminFacade {
   deactivateUser(id: string) { this.store.deactivateUser(id); }
 
   uploadRmapList(file: File) { this.store.uploadRmapList(file); }
+  loadSmelters() { this.store.loadSmelters(); }
 }

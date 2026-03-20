@@ -44,7 +44,7 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "PRIMARY_PROCESSING", userId);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Clean Corp", "CID001100");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Clean Corp", "CID001100", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -80,7 +80,7 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "PRIMARY_PROCESSING", userId);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Mining Corp", "CID000999");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Mining Corp", "CID000999", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -116,7 +116,7 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "PRIMARY_PROCESSING", userId);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Sanctioned Corp", "GHOST_SMELTER");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Sanctioned Corp", "GHOST_SMELTER", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -145,7 +145,7 @@ public class ComplianceIntegrationTests
         var (batchId, tenantId, eventId, _) = await SeedMineExtractionEvent(db, "CD", "Mining Corp");
         // No documents attached
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null);
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null, null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -176,7 +176,7 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION", userId);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Miner", null);
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Miner", null, null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -213,11 +213,11 @@ public class ComplianceIntegrationTests
         var event2Id = await SeedAdditionalEvent(db, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID000999");
 
         // First event: PASS
-        var notification1 = new CustodyEventCreated(event1Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001100");
+        var notification1 = new CustodyEventCreated(event1Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001100", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification1, CancellationToken.None);
 
         // Second event: FAIL
-        var notification2 = new CustodyEventCreated(event2Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID000999");
+        var notification2 = new CustodyEventCreated(event2Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID000999", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification2, CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -246,10 +246,10 @@ public class ComplianceIntegrationTests
         var (batchId, tenantId, event1Id, _) = await SeedPrimaryProcessingEvent(db, "AT", "Corp A", "CID001100");
         var event2Id = await SeedAdditionalEvent(db, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001101");
 
-        var notification1 = new CustodyEventCreated(event1Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001100");
+        var notification1 = new CustodyEventCreated(event1Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001100", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification1, CancellationToken.None);
 
-        var notification2 = new CustodyEventCreated(event2Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001101");
+        var notification2 = new CustodyEventCreated(event2Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001101", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification2, CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -293,7 +293,7 @@ public class ComplianceIntegrationTests
 
         // Handlers treat correction events the same as regular ones
         var correctionNotification = new CustodyEventCreated(
-            correctionEventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001100");
+            correctionEventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp A", "CID001100", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(correctionNotification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(correctionNotification, CancellationToken.None);
 
@@ -325,7 +325,7 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "PRIMARY_PROCESSING", userId);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Miner", "GHOST_SMELTER");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Miner", "GHOST_SMELTER", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -359,8 +359,8 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, event2Id, "PRIMARY_PROCESSING", userId);
         await db.SaveChangesAsync();
 
-        var notification1 = new CustodyEventCreated(event1Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100");
-        var notification2 = new CustodyEventCreated(event2Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100");
+        var notification1 = new CustodyEventCreated(event1Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow);
+        var notification2 = new CustodyEventCreated(event2Id, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow);
 
         await new RmapChecker(db).Handle(notification1, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification1, CancellationToken.None);
@@ -393,7 +393,7 @@ public class ComplianceIntegrationTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "PRIMARY_PROCESSING", userId);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Clean Corp", "CID000999");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Clean Corp", "CID000999", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -424,7 +424,7 @@ public class ComplianceIntegrationTests
         // No documents for PRIMARY_PROCESSING → INSUFFICIENT_DATA from OECD
         var (batchId, tenantId, eventId, _) = await SeedPrimaryProcessingEvent(db, "AT", "Good Corp", "CID001100");
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Good Corp", "CID001100");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Good Corp", "CID001100", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -453,7 +453,7 @@ public class ComplianceIntegrationTests
         var (batchId, tenantId, eventId, _) = await SeedPrimaryProcessingEvent(db, "AT", "Corp", "GHOST_SMELTER");
         // No documents
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "GHOST_SMELTER");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "GHOST_SMELTER", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(notification, CancellationToken.None);
 
@@ -523,13 +523,13 @@ public class ComplianceIntegrationTests
         await db.SaveChangesAsync();
 
         // MINE_EXTRACTION: no RMAP check; OECD → FLAG (high-risk, no docs)
-        var mineNotif = new CustodyEventCreated(mineEvent.Id, batch.Id, tenant.Id, "MINE_EXTRACTION", "Miner", null);
+        var mineNotif = new CustodyEventCreated(mineEvent.Id, batch.Id, tenant.Id, "MINE_EXTRACTION", "Miner", null, null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(mineNotif, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(mineNotif, CancellationToken.None);
 
         // PRIMARY_PROCESSING: RMAP → PASS; OECD → PASS (low risk country via default, conformant smelter)
         // Note: batch OriginCountry is "CD" which is HIGH risk — OECD will also FLAG here
-        var processNotif = new CustodyEventCreated(processEvent.Id, batch.Id, tenant.Id, "PRIMARY_PROCESSING", "Smelter Corp", "CID001100");
+        var processNotif = new CustodyEventCreated(processEvent.Id, batch.Id, tenant.Id, "PRIMARY_PROCESSING", "Smelter Corp", "CID001100", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(processNotif, CancellationToken.None);
         await new OecdDdgChecker(db).Handle(processNotif, CancellationToken.None);
 
@@ -560,7 +560,7 @@ public class ComplianceIntegrationTests
         db.Users.Add(buyer);
         await db.SaveChangesAsync();
 
-        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999");
+        var notification = new CustodyEventCreated(eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow);
         await new RmapChecker(db).Handle(notification, CancellationToken.None);
 
         // Notifications should be created for the FAIL result

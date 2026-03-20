@@ -79,6 +79,7 @@ public class OecdDdgChecker(AppDbContext db) : INotificationHandler<CustodyEvent
                 checks = subChecks.Select(s => new { s.name, s.status, s.detail })
             }),
             CheckedAt = DateTime.UtcNow,
+            RuleVersion = "1.0.0-pilot",
         };
 
         db.ComplianceChecks.Add(check);

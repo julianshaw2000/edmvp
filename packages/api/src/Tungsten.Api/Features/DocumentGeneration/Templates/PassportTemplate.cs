@@ -150,8 +150,23 @@ public class PassportTemplate(PassportData data) : IDocument
                     : "Hash chain verification: BROKEN - Potential tampering detected")
                     .FontColor(data.HashChainIntact ? Colors.Green.Darken2 : Colors.Red.Darken2);
 
-                // Verification URL
-                col.Item().PaddingTop(10).Text($"Verify online: {data.VerificationUrl}").FontSize(8);
+                // Verification URL with QR code placeholder
+                col.Item().PaddingTop(10).Row(row =>
+                {
+                    row.RelativeItem().Column(inner =>
+                    {
+                        inner.Item().Text("Verify online:").FontSize(8).Bold();
+                        inner.Item().Text(data.VerificationUrl).FontSize(8);
+                    });
+                    row.ConstantItem(80).Border(1).BorderColor(Colors.Grey.Medium)
+                        .Padding(4).AlignCenter().AlignMiddle()
+                        .Column(qr =>
+                        {
+                            qr.Item().AlignCenter().Text("[QR CODE]").FontSize(6).Bold();
+                            qr.Item().AlignCenter().Text(data.VerificationUrl)
+                                .FontSize(4).FontColor(Colors.Grey.Darken1);
+                        });
+                });
             });
 
             page.Footer().AlignCenter().Text(text =>

@@ -6,6 +6,10 @@ export const SUPPLIER_ROUTES: Routes = [
     loadComponent: () => import('./supplier-dashboard.component').then(m => m.SupplierDashboardComponent),
   },
   {
+    path: 'new-batch',
+    loadComponent: () => import('./create-batch.component').then(m => m.CreateBatchComponent),
+  },
+  {
     path: 'submit',
     loadComponent: () => import('./submit-event.component').then(m => m.SubmitEventComponent),
   },

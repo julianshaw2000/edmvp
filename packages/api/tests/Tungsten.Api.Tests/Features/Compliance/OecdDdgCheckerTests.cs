@@ -32,7 +32,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -55,7 +55,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -78,7 +78,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -98,7 +98,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -122,7 +122,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -145,7 +145,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "bad corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "bad corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -169,7 +169,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -187,7 +187,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -202,7 +202,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "CONCENTRATION", "Good Corp", null),
+            eventId, batchId, tenantId, "CONCENTRATION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -217,7 +217,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Good Corp", null),
+            eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -240,7 +240,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -276,7 +276,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -309,7 +309,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -335,7 +335,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Good Corp", null),
+            eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -363,7 +363,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Sanctioned Miner", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Sanctioned Miner", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -387,7 +387,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -409,7 +409,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -433,7 +433,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Miner GmbH", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Miner GmbH", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");
@@ -455,7 +455,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -476,7 +476,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -503,7 +503,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var notifCount = await db.Notifications.CountAsync();
@@ -524,7 +524,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var notifCount = await db.Notifications.CountAsync();
@@ -541,7 +541,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync();
@@ -572,7 +572,7 @@ public class OecdDdgCheckerTests
 
         var handler = new OecdDdgChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "LABORATORY_ASSAY", "Good Corp", null),
+            eventId, batchId, tenantId, "LABORATORY_ASSAY", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "OECD_DDG");

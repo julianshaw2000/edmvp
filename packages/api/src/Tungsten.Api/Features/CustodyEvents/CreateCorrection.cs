@@ -101,7 +101,8 @@ public static class CreateCorrection
 
             await publisher.Publish(new CustodyEventCreated(
                 entity.Id, entity.BatchId, entity.TenantId,
-                entity.EventType, entity.ActorName, entity.SmelterId), ct);
+                entity.EventType, entity.ActorName, entity.SmelterId,
+                entity.Metadata, entity.EventDate), ct);
 
             return Result<Response>.Success(new Response(
                 entity.Id, entity.BatchId, entity.EventType,

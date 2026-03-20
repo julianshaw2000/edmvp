@@ -18,6 +18,14 @@ public static class AdminEndpoints
         .RequireAuthorization(AuthorizationPolicies.RequireAdmin)
         .DisableAntiforgery();
 
+        app.MapGet("/api/admin/rmap", async (IMediator mediator) =>
+        {
+            var result = await mediator.Send(new ListRmapSmelters.Query());
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+
         return app;
     }
 }

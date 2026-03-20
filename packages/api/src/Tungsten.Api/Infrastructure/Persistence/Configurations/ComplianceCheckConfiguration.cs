@@ -26,6 +26,11 @@ public class ComplianceCheckConfiguration : IEntityTypeConfiguration<ComplianceC
         builder.Property(c => c.CheckedAt)
             .HasDefaultValueSql("now()");
 
+        builder.Property(c => c.RuleVersion)
+            .IsRequired()
+            .HasMaxLength(30)
+            .HasDefaultValue("1.0.0-pilot");
+
         builder.HasOne(c => c.CustodyEvent)
             .WithMany(e => e.ComplianceChecks)
             .HasForeignKey(c => c.CustodyEventId);

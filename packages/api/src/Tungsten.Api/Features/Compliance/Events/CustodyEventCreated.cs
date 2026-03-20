@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MediatR;
 
 namespace Tungsten.Api.Features.Compliance.Events;
@@ -8,4 +9,6 @@ public record CustodyEventCreated(
     Guid TenantId,
     string EventType,
     string ActorName,
-    string? SmelterId) : INotification;
+    string? SmelterId,
+    JsonElement? Metadata,
+    DateTime EventDate) : INotification;

@@ -49,6 +49,7 @@ public class RmapChecker(AppDbContext db) : INotificationHandler<CustodyEventCre
             Status = status,
             Details = JsonSerializer.SerializeToElement(new { detail }),
             CheckedAt = DateTime.UtcNow,
+            RuleVersion = "1.0.0-pilot",
         };
 
         db.ComplianceChecks.Add(check);

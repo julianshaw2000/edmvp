@@ -33,6 +33,15 @@ public static class BatchEndpoints
                 : Results.BadRequest(new { error = result.Error });
         });
 
+        group.MapPatch("/{id:guid}/status", async (Guid id, UpdateBatchStatus.Command command, IMediator mediator) =>
+        {
+            var cmd = command with { BatchId = id };
+            var result = await mediator.Send(cmd);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplier);
+
         return app;
     }
 }

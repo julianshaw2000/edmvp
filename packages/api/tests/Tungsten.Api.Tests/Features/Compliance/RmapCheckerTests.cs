@@ -31,7 +31,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstOrDefaultAsync(c => c.Framework == "RMAP");
@@ -52,7 +52,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "RMAP");
@@ -76,7 +76,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID002082"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID002082", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "RMAP");
@@ -98,7 +98,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "RMAP");
@@ -118,7 +118,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -136,7 +136,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "UNKNOWN"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "UNKNOWN", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync(c => c.Framework == "RMAP");
@@ -151,7 +151,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "GHOST_ID"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "GHOST_ID", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -168,7 +168,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "MINE_EXTRACTION", "Corp", null),
+            eventId, batchId, tenantId, "MINE_EXTRACTION", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var checks = await db.ComplianceChecks.CountAsync();
@@ -183,7 +183,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "CONCENTRATION", "Corp", null),
+            eventId, batchId, tenantId, "CONCENTRATION", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var checks = await db.ComplianceChecks.CountAsync();
@@ -198,7 +198,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "TRADING_TRANSFER", "Corp", null),
+            eventId, batchId, tenantId, "TRADING_TRANSFER", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var checks = await db.ComplianceChecks.CountAsync();
@@ -213,7 +213,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Corp", null),
+            eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var checks = await db.ComplianceChecks.CountAsync();
@@ -230,7 +230,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", null),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
 
         var checks = await db.ComplianceChecks.CountAsync();
@@ -247,7 +247,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", ""),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var checks = await db.ComplianceChecks.CountAsync();
@@ -269,7 +269,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var batch = await db.Batches.FirstAsync(b => b.Id == batchId);
@@ -299,7 +299,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var notifCount = await db.Notifications.CountAsync();
@@ -319,7 +319,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var notifCount = await db.Notifications.CountAsync();
@@ -341,7 +341,7 @@ public class RmapCheckerTests
 
         var handler = new RmapChecker(db);
         await handler.Handle(new CustodyEventCreated(
-            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100"),
+            eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
 
         var check = await db.ComplianceChecks.FirstAsync();

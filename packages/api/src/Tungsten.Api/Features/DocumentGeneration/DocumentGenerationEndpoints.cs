@@ -1,5 +1,6 @@
 using MediatR;
 using Tungsten.Api.Common.Auth;
+using Tungsten.Api.Features.Documents;
 
 namespace Tungsten.Api.Features.DocumentGeneration;
 
@@ -29,6 +30,14 @@ public static class DocumentGenerationEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.NotFound(new { error = result.Error });
+        }).RequireAuthorization();
+
+        app.MapGet("/api/generated-documents", async (Guid batchId, IMediator mediator) =>
+        {
+            var result = await mediator.Send(new ListGeneratedDocuments.Query(batchId));
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization();
 
         app.MapPost("/api/generated-documents/{id:guid}/share", async (Guid id, IMediator mediator) =>

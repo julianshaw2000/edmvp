@@ -43,7 +43,7 @@ export class SupplierDashboardComponent implements OnInit {
   }
 
   onNewBatch() {
-    this.router.navigate(['/supplier/submit']);
+    this.router.navigate(['/supplier/new-batch']);
   }
 
   onBatchSelected(batchId: string) {
