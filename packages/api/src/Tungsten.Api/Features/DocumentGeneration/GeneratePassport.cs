@@ -60,8 +60,8 @@ public static class GeneratePassport
 
             var hashChainIntact = VerifyChain(allEvents);
 
-            var baseUrl = config["App:BaseUrl"] ?? "https://tungsten.example.com";
-            var verificationUrl = $"{baseUrl}/api/verify/{cmd.BatchId}";
+            var baseUrl = config["App:BaseUrl"] ?? "https://accutrac.org";
+            var verificationUrl = $"{baseUrl}/verify/{batch.BatchNumber}";
 
             var passportData = new PassportData(
                 batch.BatchNumber, user.Tenant.Name, batch.MineralType,

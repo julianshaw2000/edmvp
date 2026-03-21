@@ -1,6 +1,7 @@
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using QRCoder;
 using Tungsten.Api.Common;
 
 namespace Tungsten.Api.Features.DocumentGeneration.Templates;
@@ -36,6 +37,14 @@ public class PassportTemplate(PassportData data) : IDocument
 {
     public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
 
+    private static byte[] GenerateQrCode(string url)
+    {
+        using var qrGenerator = new QRCodeGenerator();
+        using var qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.M);
+        using var qrCode = new PngByteQRCode(qrCodeData);
+        return qrCode.GetGraphic(5);
+    }
+
     public void Compose(IDocumentContainer container)
     {
         container.Page(page =>
@@ -48,11 +57,19 @@ public class PassportTemplate(PassportData data) : IDocument
             {
                 col.Item().Row(row =>
                 {
-                    row.RelativeItem().Text("MATERIAL PASSPORT").Bold().FontSize(18);
-                    row.ConstantItem(150).AlignRight().Text(data.TenantName).FontSize(10);
+                    row.RelativeItem().Column(left =>
+                    {
+                        left.Item().Text("MATERIAL PASSPORT").Bold().FontSize(18);
+                        left.Item().Text(data.TenantName).FontSize(10);
+                        left.Item().PaddingTop(5).Text($"Batch: {data.BatchNumber}").FontSize(12).Bold();
+                        left.Item().Text($"Generated: {data.GeneratedAt:yyyy-MM-dd HH:mm:ss UTC}").FontSize(8).FontColor(Colors.Grey.Medium);
+                    });
+                    row.ConstantItem(90).AlignRight().Column(qrCol =>
+                    {
+                        qrCol.Item().Width(80).Height(80).Image(GenerateQrCode(data.VerificationUrl));
+                        qrCol.Item().AlignCenter().Text("Scan to verify").FontSize(6).FontColor(Colors.Grey.Darken1);
+                    });
                 });
-                col.Item().PaddingTop(5).Text($"Batch: {data.BatchNumber}").FontSize(12).Bold();
-                col.Item().Text($"Generated: {data.GeneratedAt:yyyy-MM-dd HH:mm:ss UTC}").FontSize(8).FontColor(Colors.Grey.Medium);
                 col.Item().PaddingTop(5).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
             });
 
@@ -152,22 +169,11 @@ public class PassportTemplate(PassportData data) : IDocument
                     : "Hash chain verification: BROKEN - Potential tampering detected")
                     .FontColor(data.HashChainIntact ? Colors.Green.Darken2 : Colors.Red.Darken2);
 
-                // Verification URL with QR code placeholder
-                col.Item().PaddingTop(10).Row(row =>
+                // Verification URL
+                col.Item().PaddingTop(10).Column(inner =>
                 {
-                    row.RelativeItem().Column(inner =>
-                    {
-                        inner.Item().Text("Verify online:").FontSize(8).Bold();
-                        inner.Item().Text(data.VerificationUrl).FontSize(8);
-                    });
-                    row.ConstantItem(80).Border(1).BorderColor(Colors.Grey.Medium)
-                        .Padding(4).AlignCenter().AlignMiddle()
-                        .Column(qr =>
-                        {
-                            qr.Item().AlignCenter().Text("[QR CODE]").FontSize(6).Bold();
-                            qr.Item().AlignCenter().Text(data.VerificationUrl)
-                                .FontSize(4).FontColor(Colors.Grey.Darken1);
-                        });
+                    inner.Item().Text("Verify online:").FontSize(8).Bold();
+                    inner.Item().Text(data.VerificationUrl).FontSize(8).FontColor(Colors.Blue.Darken2);
                 });
             });
 

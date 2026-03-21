@@ -217,3 +217,9 @@ C:\Users\julia\AppData\Local\Temp\tungsten_build\Tungsten.Api.dll
 C:\Users\julia\AppData\Local\Temp\tungsten_build\Tungsten.Api.pdb
 C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\SendGrid.dll
 C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\StarkbankEcdsa.dll
+C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\Microsoft.Win32.SystemEvents.dll
+C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\QRCoder.dll
+C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\System.Drawing.Common.dll
+C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\__edMVP\packages\api\src\Tungsten.Api\bin\Debug\net10.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
