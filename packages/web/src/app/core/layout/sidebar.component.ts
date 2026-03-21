@@ -69,6 +69,11 @@ interface NavGroup {
           </div>
         </div>
       }
+
+      <!-- Version -->
+      <div class="px-5 py-2 border-t border-slate-700/50">
+        <div class="text-[10px] text-slate-600">AccuTrac v2.0 — Pilot MVP</div>
+      </div>
     </aside>
   `,
 })
