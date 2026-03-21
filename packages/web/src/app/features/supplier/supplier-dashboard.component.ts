@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupplierFacade } from './supplier.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
@@ -83,9 +83,34 @@ import { BatchCardComponent } from './ui/batch-card.component';
         (ctaClicked)="onNewBatch()"
       />
     } @else {
+      <div class="flex items-center gap-3 mb-6">
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search batches..."
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          />
+        </div>
+        <select
+          [value]="statusFilter()"
+          (change)="statusFilter.set($any($event.target).value)"
+          class="px-4 py-2.5 border border-slate-300 rounded-xl text-sm"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="COMPLIANT">Compliant</option>
+          <option value="FLAGGED">Flagged</option>
+          <option value="PENDING">Pending</option>
+        </select>
+      </div>
+
       <h2 class="text-lg font-semibold text-slate-900 mb-4">Recent Batches</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        @for (batch of facade.batches(); track batch.id) {
+        @for (batch of filteredBatches(); track batch.id) {
           <app-batch-card
             [batch]="batch"
             (selected)="onBatchSelected(batch.id)"
@@ -98,6 +123,24 @@ import { BatchCardComponent } from './ui/batch-card.component';
 export class SupplierDashboardComponent implements OnInit {
   protected facade = inject(SupplierFacade);
   private router = inject(Router);
+
+  searchQuery = signal('');
+  statusFilter = signal<string>('ALL');
+
+  filteredBatches = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    const status = this.statusFilter();
+    return this.facade.batches().filter(b => {
+      const matchesSearch = !query ||
+        b.batchNumber.toLowerCase().includes(query) ||
+        b.originCountry.toLowerCase().includes(query);
+      const matchesStatus = status === 'ALL' ||
+        b.complianceStatus === status ||
+        (status === 'FLAGGED' && b.complianceStatus === 'FLAG') ||
+        (status === 'PENDING' && b.complianceStatus === 'INSUFFICIENT_DATA');
+      return matchesSearch && matchesStatus;
+    });
+  });
 
   ngOnInit() {
     this.facade.loadBatches();
