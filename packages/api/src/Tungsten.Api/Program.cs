@@ -103,7 +103,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:4200"];
+            ?? ["http://localhost:4200", "https://accutrac-web.onrender.com", "https://accutrac.org"];
         policy.WithOrigins(origins)
             .AllowAnyHeader()
             .AllowAnyMethod();
