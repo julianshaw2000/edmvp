@@ -15,6 +15,7 @@ export class SupplierFacade {
   readonly selectedBatch = this.store.selectedBatch;
   readonly events = this.store.events;
   readonly documents = this.store.documents;
+  readonly compliance = this.store.compliance;
   readonly detailLoading = this.store.detailLoading;
   readonly submitting = this.store.submitting;
   readonly submitError = this.store.submitError;

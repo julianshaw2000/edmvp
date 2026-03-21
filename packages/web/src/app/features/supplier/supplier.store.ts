@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { SupplierApiService } from './data/supplier-api.service';
-import { BatchResponse, CustodyEventResponse, DocumentResponse } from './data/supplier.models';
+import { BatchResponse, CustodyEventResponse, DocumentResponse, ComplianceSummary } from './data/supplier.models';
 import { extractErrorMessage } from '../../shared/utils/error.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -23,11 +23,13 @@ export class SupplierStore {
   private _selectedBatch = signal<BatchResponse | null>(null);
   private _events = signal<CustodyEventResponse[]>([]);
   private _documents = signal<DocumentResponse[]>([]);
+  private _compliance = signal<ComplianceSummary | null>(null);
   private _detailLoading = signal(false);
 
   readonly selectedBatch = this._selectedBatch.asReadonly();
   readonly events = this._events.asReadonly();
   readonly documents = this._documents.asReadonly();
+  readonly compliance = this._compliance.asReadonly();
   readonly detailLoading = this._detailLoading.asReadonly();
 
   // Submission state
@@ -69,6 +71,11 @@ export class SupplierStore {
 
     this.api.listDocuments(batchId).subscribe({
       next: (res) => this._documents.set(res.documents),
+    });
+
+    this.api.getBatchCompliance(batchId).subscribe({
+      next: (res) => this._compliance.set(res),
+      error: () => this._compliance.set(null),
     });
   }
 
