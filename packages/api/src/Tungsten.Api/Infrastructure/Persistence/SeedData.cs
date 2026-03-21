@@ -65,21 +65,25 @@ public static class SeedData
         if (await db.Batches.AnyAsync())
             return;
 
-        // Create a demo supplier user for batch ownership
-        var demoUser = new UserEntity
+        // Find or create a demo supplier user for batch ownership
+        var demoUser = await db.Users.FirstOrDefaultAsync(u => u.Email == "supplier@accutrac.org");
+        if (demoUser is null)
         {
-            Id = Guid.NewGuid(),
-            Auth0Sub = "auth0|demo-supplier-001",
-            Email = "supplier@accutrac.org",
-            DisplayName = "Demo Supplier (Nyungwe Mining Co.)",
-            Role = "SUPPLIER",
-            TenantId = tenantId,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-        db.Users.Add(demoUser);
-        await db.SaveChangesAsync();
+            demoUser = new UserEntity
+            {
+                Id = Guid.NewGuid(),
+                Auth0Sub = $"seed|demo-supplier-{Guid.NewGuid():N}",
+                Email = "supplier@accutrac.org",
+                DisplayName = "Demo Supplier (Nyungwe Mining Co.)",
+                Role = "SUPPLIER",
+                TenantId = tenantId,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            db.Users.Add(demoUser);
+            await db.SaveChangesAsync();
+        }
 
         var now = DateTime.UtcNow;
 
