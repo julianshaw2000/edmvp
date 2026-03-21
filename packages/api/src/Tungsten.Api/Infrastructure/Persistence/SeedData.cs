@@ -49,6 +49,17 @@ public static class SeedData
         await SeedDemoBatchesAsync(db, tenant.Id);
     }
 
+    // Seed demo batches independently — runs even if reference data already exists
+    public static async Task SeedDemoBatchesIfNeededAsync(AppDbContext db)
+    {
+        if (await db.Batches.AnyAsync())
+            return;
+        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Status == "ACTIVE");
+        if (tenant is null)
+            return;
+        await SeedDemoBatchesAsync(db, tenant.Id);
+    }
+
     private static async Task SeedDemoBatchesAsync(AppDbContext db, Guid tenantId)
     {
         if (await db.Batches.AnyAsync())

@@ -19,6 +19,7 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await db.Database.MigrateAsync(stoppingToken);
             await SeedData.SeedAsync(db);
+            await SeedData.SeedDemoBatchesIfNeededAsync(db);
             IsReady = true;
             logger.LogInformation("Database migration completed.");
         }
