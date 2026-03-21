@@ -167,54 +167,78 @@ app.MapGet("/health", () =>
 // Auth endpoints
 app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser) =>
 {
-    var result = await mediator.Send(new GetMe.Query());
-    if (result.IsSuccess)
-        return Results.Ok(result.Value);
+    var auth0Sub = currentUser.Auth0Sub;
 
-    // Auto-provision: link Auth0 identity to platform user
+    // Extract email and name from token claims
+    var email = httpContext.User.FindFirst("email")?.Value
+        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+        ?? httpContext.User.FindFirst("https://accutrac.org/email")?.Value;
+    var name = httpContext.User.FindFirst("name")?.Value
+        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+        ?? httpContext.User.FindFirst("https://accutrac.org/name")?.Value
+        ?? "User";
+
+    // Check if a user with this Auth0Sub exists but has the wrong email (mis-linked)
+    if (!string.IsNullOrEmpty(email))
     {
-        var auth0Sub = currentUser.Auth0Sub;
-
-        // Try multiple claim types for email (Auth0 uses different formats)
-        var email = httpContext.User.FindFirst("email")?.Value
-            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-            ?? httpContext.User.FindFirst("https://accutrac.org/email")?.Value;
-        var name = httpContext.User.FindFirst("name")?.Value
-            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
-            ?? httpContext.User.FindFirst("https://accutrac.org/name")?.Value
-            ?? "User";
-
-        // If no email in token, try to find user by Auth0Sub directly
-        if (string.IsNullOrEmpty(email))
+        var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Auth0Sub == auth0Sub);
+        if (existingUser is not null && existingUser.Email != email)
         {
-            var existingByAuth0 = await db.Users.FirstOrDefaultAsync(u => u.Auth0Sub == auth0Sub);
-            if (existingByAuth0 is not null)
-            {
-                var retryResult = await mediator.Send(new GetMe.Query());
-                if (retryResult.IsSuccess)
-                    return Results.Ok(retryResult.Value);
-            }
-            // Cannot provision without email
-            return Results.Problem("Email claim missing from token. Configure Auth0 to include email in access tokens.", statusCode: 400);
+            // This Auth0Sub was linked to the wrong user (e.g. fallback "user@accutrac.org").
+            // Unlink it so the correct user can be found/created below.
+            existingUser.Auth0Sub = $"unlinked|{existingUser.Auth0Sub}";
+            existingUser.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+        }
+        else if (existingUser is not null)
+        {
+            // Correct match — return the user
+            var result = await mediator.Send(new GetMe.Query());
+            if (result.IsSuccess)
+                return Results.Ok(result.Value);
         }
 
-        // Check if this user was invited (exists by email with pending Auth0Sub)
+        // Check if there's an invited user with this email waiting to be linked
         var invited = await db.Users
             .FirstOrDefaultAsync(u => u.Email == email && u.Auth0Sub.StartsWith("pending|"));
         if (invited is not null)
         {
-            // Link the invited user to their Auth0 identity
             invited.Auth0Sub = auth0Sub;
             invited.DisplayName = name;
             invited.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
 
-            var retry = await mediator.Send(new GetMe.Query());
-            if (retry.IsSuccess)
-                return Results.Ok(retry.Value);
+            var retryResult = await mediator.Send(new GetMe.Query());
+            if (retryResult.IsSuccess)
+                return Results.Ok(retryResult.Value);
         }
 
-        // Otherwise create a new user as PLATFORM_ADMIN
+        // Check if there's already a user with this email (linked to another identity)
+        var existingByEmail = await db.Users
+            .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
+        if (existingByEmail is not null)
+        {
+            existingByEmail.Auth0Sub = auth0Sub;
+            existingByEmail.DisplayName = name;
+            existingByEmail.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+
+            var retryResult = await mediator.Send(new GetMe.Query());
+            if (retryResult.IsSuccess)
+                return Results.Ok(retryResult.Value);
+        }
+    }
+
+    var meResult = await mediator.Send(new GetMe.Query());
+    if (meResult.IsSuccess)
+        return Results.Ok(meResult.Value);
+
+    // Auto-provision: no matching user found, create new one
+    {
+        if (string.IsNullOrEmpty(email))
+            return Results.Problem("Email claim missing from token. Configure Auth0 to include email in access tokens.", statusCode: 400);
+
+        // Create a new user as PLATFORM_ADMIN
         var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Status == "ACTIVE");
         if (tenant is not null)
         {
@@ -239,7 +263,7 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
         }
     }
 
-    return Results.NotFound(new { error = result.Error });
+    return Results.NotFound(new { error = meResult.Error });
 }).RequireAuthorization();
 
 app.MapBatchEndpoints();
