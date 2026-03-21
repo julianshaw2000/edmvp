@@ -68,17 +68,17 @@ type ComplianceFilter = 'ALL' | 'COMPLIANT' | 'FLAGGED' | 'PENDING' | 'INSUFFICI
         <table class="min-w-full table-zebra">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-50/50">
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Batch #</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Origin</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Weight (kg)</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Compliance</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Events</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Created</th>
+              <th (click)="toggleSort('batchNumber')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Batch # {{ sortArrow('batchNumber') }}</th>
+              <th (click)="toggleSort('originMine')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Origin {{ sortArrow('originMine') }}</th>
+              <th (click)="toggleSort('weightKg')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Weight (kg) {{ sortArrow('weightKg') }}</th>
+              <th (click)="toggleSort('status')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Status {{ sortArrow('status') }}</th>
+              <th (click)="toggleSort('complianceStatus')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Compliance {{ sortArrow('complianceStatus') }}</th>
+              <th (click)="toggleSort('eventCount')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Events {{ sortArrow('eventCount') }}</th>
+              <th (click)="toggleSort('createdAt')" class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none">Created {{ sortArrow('createdAt') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (batch of filteredBatches(); track batch.id) {
+            @for (batch of sortedBatches(); track batch.id) {
               <tr
                 class="hover:bg-indigo-50/50 cursor-pointer transition-colors"
                 (click)="batchSelected.emit(batch.id)"
@@ -118,6 +118,9 @@ export class BatchTableComponent {
   dateFrom = signal('');
   dateTo = signal('');
 
+  sortColumn = signal<string>('batchNumber');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
   filteredBatches = computed(() => {
     const text = this.filterText().toLowerCase().trim();
     const compliance = this.complianceFilter();
@@ -141,6 +144,32 @@ export class BatchTableComponent {
       return true;
     });
   });
+
+  sortedBatches = computed(() => {
+    const batches = [...this.filteredBatches()];
+    const col = this.sortColumn();
+    const dir = this.sortDirection();
+    return batches.sort((a, b) => {
+      const aVal = (a as any)[col] ?? '';
+      const bVal = (b as any)[col] ?? '';
+      const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+      return dir === 'asc' ? cmp : -cmp;
+    });
+  });
+
+  toggleSort(column: string) {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  sortArrow(column: string): string {
+    if (this.sortColumn() !== column) return '';
+    return this.sortDirection() === 'asc' ? '▲' : '▼';
+  }
 
   clearFilters() {
     this.filterText.set('');
