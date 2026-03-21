@@ -18,6 +18,23 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
             using var scope = services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await db.Database.MigrateAsync(stoppingToken);
+
+            // Fix: add ParentBatchId if missing (migration was recorded but column never created)
+            await db.Database.ExecuteSqlRawAsync("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'batches' AND column_name = 'ParentBatchId'
+                    ) THEN
+                        ALTER TABLE batches ADD COLUMN "ParentBatchId" uuid;
+                        CREATE INDEX "IX_batches_ParentBatchId" ON batches ("ParentBatchId");
+                        ALTER TABLE batches ADD CONSTRAINT "FK_batches_batches_ParentBatchId"
+                            FOREIGN KEY ("ParentBatchId") REFERENCES batches("Id") ON DELETE RESTRICT;
+                    END IF;
+                END $$;
+                """, stoppingToken);
+
             await SeedData.SeedAsync(db);
 
             try
