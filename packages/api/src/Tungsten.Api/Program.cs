@@ -174,12 +174,29 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
     // Auto-provision: link Auth0 identity to platform user
     {
         var auth0Sub = currentUser.Auth0Sub;
+
+        // Try multiple claim types for email (Auth0 uses different formats)
         var email = httpContext.User.FindFirst("email")?.Value
             ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-            ?? "user@accutrac.org";
+            ?? httpContext.User.FindFirst("https://accutrac.org/email")?.Value;
         var name = httpContext.User.FindFirst("name")?.Value
             ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
-            ?? "Pilot User";
+            ?? httpContext.User.FindFirst("https://accutrac.org/name")?.Value
+            ?? "User";
+
+        // If no email in token, try to find user by Auth0Sub directly
+        if (string.IsNullOrEmpty(email))
+        {
+            var existingByAuth0 = await db.Users.FirstOrDefaultAsync(u => u.Auth0Sub == auth0Sub);
+            if (existingByAuth0 is not null)
+            {
+                var retryResult = await mediator.Send(new GetMe.Query());
+                if (retryResult.IsSuccess)
+                    return Results.Ok(retryResult.Value);
+            }
+            // Cannot provision without email
+            return Results.Problem("Email claim missing from token. Configure Auth0 to include email in access tokens.", statusCode: 400);
+        }
 
         // Check if this user was invited (exists by email with pending Auth0Sub)
         var invited = await db.Users
