@@ -19,14 +19,23 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await db.Database.MigrateAsync(stoppingToken);
             await SeedData.SeedAsync(db);
-            await SeedData.SeedDemoBatchesIfNeededAsync(db);
+
+            try
+            {
+                await SeedData.SeedDemoBatchesIfNeededAsync(db);
+            }
+            catch (Exception seedEx)
+            {
+                logger.LogWarning(seedEx, "Demo seed data failed (non-fatal). App will continue.");
+            }
+
             IsReady = true;
             logger.LogInformation("Database migration completed.");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Database migration failed.");
-            throw; // Let the host know startup is broken
+            throw;
         }
     }
 }
