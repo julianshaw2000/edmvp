@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'verify/:batchId',
+    loadComponent: () => import('./features/public/verify-batch.component').then(m => m.VerifyBatchComponent),
+  },
+  {
     path: '',
     component: ShellComponent,
     canActivate: [authGuard],
