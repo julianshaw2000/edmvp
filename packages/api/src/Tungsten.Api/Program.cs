@@ -30,9 +30,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
-// Database
+// Database — with Neon serverless resilience
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsql =>
+    {
+        npgsql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorCodesToAdd: null);
+        npgsql.CommandTimeout(30);
+    }));
+
+// Run migrations in background so Kestrel starts accepting requests immediately
+builder.Services.AddHostedService<DatabaseMigrationService>();
 
 // Auth0
 var auth0Domain = builder.Configuration["Auth0:Domain"];
@@ -123,13 +130,12 @@ if (!string.IsNullOrEmpty(builder.Configuration["Sentry:Dsn"]))
     });
 }
 
-// OpenTelemetry
+// OpenTelemetry (console exporter removed — noisy and adds I/O latency)
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService("tungsten-api"))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddConsoleExporter());
+        .AddHttpClientInstrumentation());
 
 // JSON
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -141,13 +147,7 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-// Apply migrations and seed data on startup
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
-    await SeedData.SeedAsync(db);
-}
+// Migrations now run in DatabaseMigrationService (background)
 
 app.UseExceptionHandler();
 app.UseCors();
@@ -156,8 +156,13 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
-// Health check
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+// Health check — reports "starting" until migrations complete, so frontend can poll
+app.MapGet("/health", () =>
+{
+    if (!DatabaseMigrationService.IsReady)
+        return Results.Ok(new { status = "starting" });
+    return Results.Ok(new { status = "healthy" });
+});
 
 // Auth endpoints
 app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser) =>

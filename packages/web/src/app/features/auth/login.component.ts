@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
 import { AuthService } from '../../core/auth/auth.service';
+import { API_URL } from '../../core/http/api-url.token';
 import { filter, take, switchMap } from 'rxjs';
 
 @Component({
@@ -104,12 +105,14 @@ import { filter, take, switchMap } from 'rxjs';
     </div>
   `,
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   protected auth = inject(AuthService);
   private auth0 = inject(Auth0Service);
   private router = inject(Router);
+  private apiUrl = inject(API_URL);
   checking = true;
   loadingMessage = 'Checking authentication...';
+  private destroyed = false;
 
   ngOnInit() {
     this.auth0.isLoading$.pipe(
@@ -122,32 +125,52 @@ export class LoginComponent implements OnInit {
         this.loadingMessage = 'Loading your profile...';
         const profile = await this.auth.loadProfile();
         if (profile) {
-          this.loadingMessage = 'Redirecting...';
-          const role = profile.role;
-          if (role === 'SUPPLIER') this.router.navigate(['/supplier']);
-          else if (role === 'BUYER') this.router.navigate(['/buyer']);
-          else if (role === 'PLATFORM_ADMIN') this.router.navigate(['/admin']);
-          else this.router.navigate(['/supplier']);
+          this.navigateByRole(profile.role);
         } else {
-          this.loadingMessage = 'Could not load profile. Retrying...';
-          // Retry once after 3 seconds (Render cold start)
-          setTimeout(async () => {
-            const retry = await this.auth.loadProfile();
-            if (retry) {
-              const role = retry.role;
-              if (role === 'SUPPLIER') this.router.navigate(['/supplier']);
-              else if (role === 'BUYER') this.router.navigate(['/buyer']);
-              else if (role === 'PLATFORM_ADMIN') this.router.navigate(['/admin']);
-              else this.router.navigate(['/supplier']);
-            } else {
-              this.checking = false;
-              this.loadingMessage = '';
-            }
-          }, 3000);
+          // Backend may be cold-starting — poll health until ready, then retry
+          this.loadingMessage = 'Server is starting up, please wait...';
+          await this.waitForBackend();
+          if (this.destroyed) return;
+          this.loadingMessage = 'Loading your profile...';
+          const retry = await this.auth.loadProfile();
+          if (retry) {
+            this.navigateByRole(retry.role);
+          } else {
+            this.checking = false;
+            this.loadingMessage = '';
+          }
         }
       } else {
         this.checking = false;
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
+  }
+
+  private navigateByRole(role: string) {
+    this.loadingMessage = 'Redirecting...';
+    if (role === 'SUPPLIER') this.router.navigate(['/supplier']);
+    else if (role === 'BUYER') this.router.navigate(['/buyer']);
+    else if (role === 'PLATFORM_ADMIN') this.router.navigate(['/admin']);
+    else this.router.navigate(['/supplier']);
+  }
+
+  /** Poll /health every 2s until backend reports "healthy" (max 30s). */
+  private async waitForBackend(): Promise<void> {
+    const maxAttempts = 15;
+    for (let i = 0; i < maxAttempts && !this.destroyed; i++) {
+      try {
+        const res = await fetch(`${this.apiUrl}/health`);
+        if (res.ok) {
+          const body = await res.json();
+          if (body.status === 'healthy') return;
+        }
+      } catch { /* server not up yet */ }
+      this.loadingMessage = `Server is starting up, please wait... (${i + 1}/${maxAttempts})`;
+      await new Promise(r => setTimeout(r, 2000));
+    }
   }
 }
