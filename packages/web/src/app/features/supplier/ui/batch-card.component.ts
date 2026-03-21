@@ -31,7 +31,10 @@ import { StatusBadgeComponent } from '../../../shared/ui/status-badge.component'
           </svg>
           {{ batch().eventCount }} events
         </span>
-        <span class="ml-auto">
+        <span class="ml-auto flex items-center gap-2">
+          <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-indigo-500 rounded-full transition-all" [style.width.%]="Math.min((batch().eventCount / 6) * 100, 100)"></div>
+          </div>
           <app-status-badge [status]="batch().status" />
         </span>
       </div>
@@ -39,6 +42,7 @@ import { StatusBadgeComponent } from '../../../shared/ui/status-badge.component'
   `,
 })
 export class BatchCardComponent {
+  protected Math = Math;
   batch = input.required<{
     batchNumber: string; originMine: string; originCountry: string;
     complianceStatus: string; weightKg: number; eventCount: number; status: string;
