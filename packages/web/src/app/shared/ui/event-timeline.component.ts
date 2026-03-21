@@ -30,6 +30,12 @@ import { DatePipe } from '@angular/common';
               {{ event.location }} &middot; {{ event.actorName }}
             </p>
             <p class="text-xs text-slate-400 mt-1">{{ event.eventDate | date:'medium' }}</p>
+            @if (event.sha256Hash) {
+              <div class="mt-2 px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                <span class="text-[10px] text-slate-300 font-mono">SHA-256:</span>
+                <span class="text-[10px] text-slate-400 font-mono ml-1">{{ event.sha256Hash.slice(0, 12) }}...{{ event.sha256Hash.slice(-4) }}</span>
+              </div>
+            }
           </div>
         </div>
       } @empty {
@@ -47,5 +53,6 @@ export class EventTimelineComponent {
   events = input.required<{
     id: string; eventType: string; eventDate: string;
     location: string; actorName: string; isCorrection: boolean;
+    sha256Hash?: string;
   }[]>();
 }
