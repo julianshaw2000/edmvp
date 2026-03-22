@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminApiService } from './data/admin-api.service';
 import { JobResponse } from './data/admin.models';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
@@ -8,8 +9,14 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
   selector: 'app-admin-job-monitor',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageHeaderComponent, DatePipe],
+  imports: [RouterLink, PageHeaderComponent, DatePipe],
   template: `
+    <a routerLink="/admin" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+      <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Dashboard
+    </a>
     <app-page-header
       title="System Health"
       subtitle="Background job monitor — auto-refreshes every 10 s"

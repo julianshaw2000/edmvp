@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupplierFacade } from './supplier.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
@@ -14,8 +14,14 @@ const MINERAL_TYPES = [
 @Component({
   selector: 'app-create-batch',
   standalone: true,
-  imports: [FormsModule, PageHeaderComponent],
+  imports: [FormsModule, RouterLink, PageHeaderComponent],
   template: `
+    <a routerLink="/supplier" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+      <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Dashboard
+    </a>
     <app-page-header
       title="Create New Batch"
       subtitle="Register a new mineral batch in the supply chain"

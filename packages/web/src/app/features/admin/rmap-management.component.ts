@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AdminFacade } from './admin.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
@@ -6,8 +7,14 @@ import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
 @Component({
   selector: 'app-rmap-management',
   standalone: true,
-  imports: [PageHeaderComponent, StatusBadgeComponent],
+  imports: [RouterLink, PageHeaderComponent, StatusBadgeComponent],
   template: `
+    <a routerLink="/admin" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+      <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Dashboard
+    </a>
     <app-page-header
       title="RMAP Smelter List"
       subtitle="Upload and manage the Responsible Minerals Assurance Process smelter list"

@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupplierFacade } from './supplier.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
@@ -55,8 +55,23 @@ const METADATA_FIELDS: Record<string, { key: string; label: string; type: string
 @Component({
   selector: 'app-submit-event',
   standalone: true,
-  imports: [FormsModule, PageHeaderComponent],
+  imports: [FormsModule, RouterLink, PageHeaderComponent],
   template: `
+    @if (backBatchId) {
+      <a [routerLink]="'/supplier/batch/' + backBatchId" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Batch
+      </a>
+    } @else {
+      <a routerLink="/supplier" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Dashboard
+      </a>
+    }
     <app-page-header title="Submit Custody Event" subtitle="Record a new event in the batch lifecycle" />
 
     <div class="max-w-2xl">
@@ -201,6 +216,7 @@ export class SubmitEventComponent {
   eventTypes = EVENT_TYPES;
 
   batchId = '';
+  backBatchId = '';
   eventType = '';
   eventDate = '';
   location = '';
@@ -212,7 +228,10 @@ export class SubmitEventComponent {
 
   constructor() {
     const qp = this.route.snapshot.queryParams;
-    if (qp['batchId']) this.batchId = qp['batchId'];
+    if (qp['batchId']) {
+      this.batchId = qp['batchId'];
+      this.backBatchId = qp['batchId'];
+    }
   }
 
   onEventTypeChange() {
