@@ -34,6 +34,7 @@ public class R2FileStorageService : IFileStorageService
             Key = key,
             InputStream = content,
             ContentType = contentType,
+            DisablePayloadSigning = true,
         };
 
         await _s3.PutObjectAsync(request, ct);
