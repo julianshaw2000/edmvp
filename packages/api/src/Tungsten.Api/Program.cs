@@ -25,6 +25,7 @@ using Tungsten.Api.Features.Public;
 using Tungsten.Api.Features.Users;
 using Tungsten.Api.Features.Admin;
 using Tungsten.Api.Features.Platform;
+using Tungsten.Api.Features.Signup;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -122,6 +123,11 @@ builder.Services.AddRateLimiter(options =>
         opt.Window = TimeSpan.FromMinutes(1);
     });
 });
+
+// Stripe
+var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+if (!string.IsNullOrEmpty(stripeSecretKey))
+    Stripe.StripeConfiguration.ApiKey = stripeSecretKey;
 
 // Sentry
 if (!string.IsNullOrEmpty(builder.Configuration["Sentry:Dsn"]))
@@ -273,6 +279,7 @@ app.MapNotificationEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();
 app.MapPlatformEndpoints();
+app.MapSignupEndpoints();
 
 app.Run();
 
