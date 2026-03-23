@@ -15,6 +15,27 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
       subtitle="System overview and management"
     />
 
+    <!-- Tenant Status Banner (TENANT_ADMIN only) -->
+    @if (isTenantAdmin()) {
+      @if (tenantStatus() === 'trial') {
+        <div class="mb-6 flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3">
+          <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm font-medium text-amber-800">
+            Trial &mdash; {{ trialDaysRemaining() }} day{{ trialDaysRemaining() === 1 ? '' : 's' }} remaining
+          </p>
+        </div>
+      } @else if (tenantStatus() === 'active') {
+        <div class="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3">
+          <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm font-medium text-emerald-800">Pro Plan &mdash; Active</p>
+        </div>
+      }
+    }
+
     <!-- Metric Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
@@ -174,6 +195,14 @@ export class AdminDashboardComponent implements OnInit {
   protected facade = inject(AdminFacade);
   protected auth = inject(AuthService);
   protected isPlatformAdmin = computed(() => this.auth.role() === 'PLATFORM_ADMIN');
+  protected isTenantAdmin = computed(() => this.auth.role() === 'TENANT_ADMIN');
+  protected tenantStatus = computed(() => this.auth.profile()?.tenantStatus?.toLowerCase() ?? null);
+  protected trialDaysRemaining = computed(() => {
+    const endsAt = this.auth.profile()?.trialEndsAt;
+    if (!endsAt) return 0;
+    const ms = new Date(endsAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(ms / 86_400_000));
+  });
 
   ngOnInit() {
     this.facade.loadUsers();

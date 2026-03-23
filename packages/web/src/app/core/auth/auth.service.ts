@@ -12,6 +12,8 @@ export interface UserProfile {
   role: 'SUPPLIER' | 'BUYER' | 'PLATFORM_ADMIN' | 'TENANT_ADMIN';
   tenantId: string;
   tenantName: string;
+  tenantStatus: string;
+  trialEndsAt: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

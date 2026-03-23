@@ -39,5 +39,13 @@ export const routes: Routes = [
     path: 'shared/:token',
     loadComponent: () => import('./features/shared/shared-document.component').then(m => m.SharedDocumentComponent),
   },
+  {
+    path: 'signup',
+    loadComponent: () => import('./features/signup/signup.component').then(m => m.SignupComponent),
+  },
+  {
+    path: 'signup/success',
+    loadComponent: () => import('./features/signup/signup-success.component').then(m => m.SignupSuccessComponent),
+  },
   { path: '**', loadComponent: () => import('./features/not-found.component').then(m => m.NotFoundComponent) },
 ];
