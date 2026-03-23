@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -11,7 +12,11 @@ namespace Tungsten.Api.Features.Users;
 
 public static class CreateUser
 {
-    public record Command(string Email, string DisplayName, string Role) : IRequest<Result<Response>>;
+    public record Command(string Email, string DisplayName, string Role) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "CreateUser";
+        public string EntityType => "User";
+    }
 
     public record Response(Guid Id, string Email, string DisplayName, string Role);
 

@@ -2,6 +2,7 @@ using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.Compliance.Events;
@@ -20,7 +21,11 @@ public static class CreateCorrection
         string ActorName,
         string? SmelterId,
         string Description,
-        JsonElement Metadata) : IRequest<Result<Response>>;
+        JsonElement Metadata) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "CreateCorrection";
+        public string EntityType => "CustodyEvent";
+    }
 
     public record Response(
         Guid Id,

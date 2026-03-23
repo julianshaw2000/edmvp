@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
@@ -10,7 +11,11 @@ namespace Tungsten.Api.Features.Batches;
 
 public static class SplitBatch
 {
-    public record Command(Guid BatchId, decimal ChildAWeightKg, decimal ChildBWeightKg) : IRequest<Result<Response>>;
+    public record Command(Guid BatchId, decimal ChildAWeightKg, decimal ChildBWeightKg) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "SplitBatch";
+        public string EntityType => "Batch";
+    }
 
     public record Response(Guid ChildAId, string ChildABatchNumber, Guid ChildBId, string ChildBBatchNumber);
 
