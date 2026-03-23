@@ -17,7 +17,8 @@ public static class ListAuditLogs
         string? Action,
         string? EntityType,
         DateTime? From,
-        DateTime? To) : IRequest<Result<PagedResponse<AuditLogDto>>>;
+        DateTime? To,
+        Guid? TenantId) : IRequest<Result<PagedResponse<AuditLogDto>>>;
 
     public record AuditLogDto(
         Guid Id,
@@ -37,10 +38,21 @@ public static class ListAuditLogs
     {
         public async Task<Result<PagedResponse<AuditLogDto>>> Handle(Query query, CancellationToken ct)
         {
-            var tenantId = await currentUser.GetTenantIdAsync(ct);
+            var callerRole = await currentUser.GetRoleAsync(ct);
+            var q = db.AuditLogs.AsNoTracking();
 
-            var q = db.AuditLogs.AsNoTracking()
-                .Where(a => a.TenantId == tenantId);
+            if (callerRole == Roles.Admin)
+            {
+                // PLATFORM_ADMIN: see all tenants, optionally filter by one
+                if (query.TenantId.HasValue)
+                    q = q.Where(a => a.TenantId == query.TenantId.Value);
+            }
+            else
+            {
+                // TENANT_ADMIN: scoped to own tenant only
+                var tenantId = await currentUser.GetTenantIdAsync(ct);
+                q = q.Where(a => a.TenantId == tenantId);
+            }
 
             if (query.UserId.HasValue)
                 q = q.Where(a => a.UserId == query.UserId.Value);

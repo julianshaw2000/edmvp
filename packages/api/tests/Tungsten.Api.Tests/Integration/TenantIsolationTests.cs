@@ -120,12 +120,13 @@ public class TenantIsolationTests
         // ListAuditLogs.Handler resolves tenant via GetTenantIdAsync (direct mock)
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.GetTenantIdAsync(Arg.Any<CancellationToken>()).Returns(tenant1Id);
+        currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns("TENANT_ADMIN");
 
         var handler = new ListAuditLogs.Handler(db, currentUser);
 
         // Act
         var result = await handler.Handle(
-            new ListAuditLogs.Query(1, 20, null, null, null, null, null),
+            new ListAuditLogs.Query(1, 20, null, null, null, null, null, null),
             CancellationToken.None);
 
         // Assert: only tenant1 log returned, tenant2 log is absent

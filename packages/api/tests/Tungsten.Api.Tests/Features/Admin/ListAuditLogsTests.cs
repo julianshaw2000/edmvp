@@ -30,9 +30,10 @@ public class ListAuditLogsTests
 
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.GetTenantIdAsync(Arg.Any<CancellationToken>()).Returns(tenantId);
+        currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns("TENANT_ADMIN");
 
         var handler = new ListAuditLogs.Handler(db, currentUser);
-        var result = await handler.Handle(new ListAuditLogs.Query(1, 20, null, null, null, null, null), CancellationToken.None);
+        var result = await handler.Handle(new ListAuditLogs.Query(1, 20, null, null, null, null, null, null), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(1, result.Value.TotalCount);

@@ -36,11 +36,11 @@ public static class AdminEndpoints
 
         app.MapGet("/api/admin/audit-logs", async (
             int? page, int? pageSize, Guid? userId, string? action,
-            string? entityType, DateTime? from, DateTime? to,
+            string? entityType, DateTime? from, DateTime? to, Guid? tenantId,
             IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new ListAuditLogs.Query(
-                page ?? 1, pageSize ?? 20, userId, action, entityType, from, to), ct);
+                page ?? 1, pageSize ?? 20, userId, action, entityType, from, to, tenantId), ct);
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
