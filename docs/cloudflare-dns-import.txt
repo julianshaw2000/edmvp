@@ -1,0 +1,3 @@
+www CNAME accutrac-web.onrender.com
+@ CNAME accutrac-web.onrender.com
+api CNAME accutrac-api.onrender.com
