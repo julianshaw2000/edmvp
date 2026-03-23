@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence;
 
@@ -8,7 +9,11 @@ namespace Tungsten.Api.Features.Users;
 
 public static class UpdateUser
 {
-    public record Command(Guid Id, string? Role, bool? IsActive) : IRequest<Result>;
+    public record Command(Guid Id, string? Role, bool? IsActive) : IRequest<Result>, IAuditable
+    {
+        public string AuditAction => "UpdateUser";
+        public string EntityType => "User";
+    }
 
     public class Handler(AppDbContext db, ICurrentUserService currentUser)
         : IRequestHandler<Command, Result>

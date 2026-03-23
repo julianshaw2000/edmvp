@@ -34,6 +34,18 @@ public static class AdminEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
 
+        app.MapGet("/api/admin/audit-logs", async (
+            int? page, int? pageSize, Guid? userId, string? action,
+            string? entityType, DateTime? from, DateTime? to,
+            IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ListAuditLogs.Query(
+                page ?? 1, pageSize ?? 20, userId, action, entityType, from, to), ct);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+
         return app;
     }
 }

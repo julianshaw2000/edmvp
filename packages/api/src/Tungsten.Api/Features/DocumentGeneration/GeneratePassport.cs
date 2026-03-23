@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.DocumentGeneration.Templates;
@@ -12,7 +13,11 @@ namespace Tungsten.Api.Features.DocumentGeneration;
 
 public static class GeneratePassport
 {
-    public record Command(Guid BatchId) : IRequest<Result<Response>>;
+    public record Command(Guid BatchId) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "GeneratePassport";
+        public string EntityType => "GeneratedDocument";
+    }
 
     public record Response(Guid Id, string DownloadUrl, DateTime GeneratedAt);
 

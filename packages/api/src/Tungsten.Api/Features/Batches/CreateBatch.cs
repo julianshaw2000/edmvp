@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
@@ -15,7 +16,11 @@ public static class CreateBatch
         string MineralType,
         string OriginCountry,
         string OriginMine,
-        decimal WeightKg) : IRequest<Result<Response>>;
+        decimal WeightKg) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "CreateBatch";
+        public string EntityType => "Batch";
+    }
 
     public record Response(
         Guid Id,

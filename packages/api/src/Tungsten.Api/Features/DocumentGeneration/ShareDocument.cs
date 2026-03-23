@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence;
 
@@ -9,7 +10,11 @@ namespace Tungsten.Api.Features.DocumentGeneration;
 
 public static class ShareDocument
 {
-    public record Command(Guid DocumentId) : IRequest<Result<Response>>;
+    public record Command(Guid DocumentId) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "ShareDocument";
+        public string EntityType => "GeneratedDocument";
+    }
 
     public record Response(string ShareUrl, DateTime ExpiresAt);
 

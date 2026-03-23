@@ -6,6 +6,7 @@ import {
   BatchResponse, CreateBatchRequest, CustodyEventResponse,
   CreateEventRequest, DocumentResponse, PagedResponse, ComplianceSummary
 } from './supplier.models';
+import { BatchActivity } from '../../admin/data/audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class SupplierApiService {
@@ -54,5 +55,10 @@ export class SupplierApiService {
   // Compliance
   getBatchCompliance(batchId: string): Observable<ComplianceSummary> {
     return this.http.get<ComplianceSummary>(`${this.apiUrl}/api/batches/${batchId}/compliance`);
+  }
+
+  // Activity feed
+  getBatchActivity(batchId: string): Observable<BatchActivity[]> {
+    return this.http.get<BatchActivity[]>(`${this.apiUrl}/api/batches/${batchId}/activity`);
   }
 }

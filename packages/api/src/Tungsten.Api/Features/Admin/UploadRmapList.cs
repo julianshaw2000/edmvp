@@ -2,6 +2,7 @@ using System.Globalization;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
 
@@ -9,7 +10,11 @@ namespace Tungsten.Api.Features.Admin;
 
 public static class UploadRmapList
 {
-    public record Command(Stream CsvStream) : IRequest<Result<Response>>;
+    public record Command(Stream CsvStream) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "UploadRmapList";
+        public string EntityType => "RmapSmelter";
+    }
 
     public record Response(int Imported, int Updated, int Total);
 

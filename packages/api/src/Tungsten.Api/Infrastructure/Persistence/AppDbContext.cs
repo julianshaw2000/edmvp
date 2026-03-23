@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RmapSmelterEntity> RmapSmelters => Set<RmapSmelterEntity>();
     public DbSet<RiskCountryEntity> RiskCountries => Set<RiskCountryEntity>();
     public DbSet<SanctionedEntityEntity> SanctionedEntities => Set<SanctionedEntityEntity>();
+    public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

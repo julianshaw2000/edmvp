@@ -1,12 +1,16 @@
 import { Component, inject, OnInit, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { switchMap, of } from 'rxjs';
 import { BuyerFacade } from './buyer.facade';
+import { BuyerApiService } from './data/buyer-api.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { EventTimelineComponent } from '../../shared/ui/event-timeline.component';
 import { DocumentListComponent } from '../../shared/ui/document-list.component';
 import { ComplianceSummaryComponent } from './ui/compliance-summary.component';
+import { ActivityFeedComponent } from '../supplier/ui/activity-feed.component';
 
 @Component({
   selector: 'app-buyer-batch-detail',
@@ -15,6 +19,7 @@ import { ComplianceSummaryComponent } from './ui/compliance-summary.component';
     RouterLink,
     PageHeaderComponent, StatusBadgeComponent, LoadingSpinnerComponent,
     EventTimelineComponent, DocumentListComponent, ComplianceSummaryComponent,
+    ActivityFeedComponent,
   ],
   template: `
     @if (facade.detailLoading()) {
@@ -91,6 +96,14 @@ import { ComplianceSummaryComponent } from './ui/compliance-summary.component';
       @if (activeTab() === 'documents') {
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <app-document-list [documents]="facade.documents()" />
+        </div>
+      }
+
+      <!-- Tab: Activity -->
+      @if (activeTab() === 'activity') {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Batch Activity</h3>
+          <app-activity-feed [activities]="batchActivity()" />
         </div>
       }
 
@@ -219,11 +232,20 @@ import { ComplianceSummaryComponent } from './ui/compliance-summary.component';
 export class BuyerBatchDetailComponent implements OnInit {
   id = input.required<string>();
   protected facade = inject(BuyerFacade);
+  private buyerApi = inject(BuyerApiService);
+
+  batchActivity = toSignal(
+    toObservable(this.id).pipe(
+      switchMap(id => id ? this.buyerApi.getBatchActivity(id) : of([]))
+    ),
+    { initialValue: [] }
+  );
 
   tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'events', label: 'Events' },
     { id: 'documents', label: 'Documents' },
+    { id: 'activity', label: 'Activity' },
     { id: 'generate', label: 'Generate & Share' },
   ];
   activeTab = signal('overview');

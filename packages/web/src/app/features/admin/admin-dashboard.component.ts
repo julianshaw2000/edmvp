@@ -134,6 +134,21 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
           <p class="text-xs text-slate-500 mt-0.5">Monitor background jobs</p>
         </div>
       </a>
+
+      <a
+        routerLink="/admin/audit-log"
+        class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-violet-300 hover:shadow-md transition-all duration-200 group"
+      >
+        <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+          <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+        </div>
+        <div>
+          <p class="font-semibold text-slate-900 text-sm">Audit Log</p>
+          <p class="text-xs text-slate-500 mt-0.5">Browse system action history</p>
+        </div>
+      </a>
     </div>
   `,
 })

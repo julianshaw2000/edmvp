@@ -3,6 +3,7 @@ import { AdminApiService } from './data/admin-api.service';
 import { UserResponse, CreateUserRequest, ComplianceFlagResponse, RmapSmelterResponse } from './data/admin.models';
 import { BatchResponse } from '../supplier/data/supplier.models';
 import { extractErrorMessage } from '../../shared/utils/error.utils';
+import { AuditLogEntry, AuditLogFilters, PagedAuditLogs } from './data/audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminStore {
@@ -46,6 +47,24 @@ export class AdminStore {
   readonly rmapUploadError = this._rmapUploadError.asReadonly();
   readonly smelters = this._smelters.asReadonly();
   readonly smeltersLoading = this._smeltersLoading.asReadonly();
+
+  // Audit logs
+  private _auditLogs = signal<AuditLogEntry[]>([]);
+  private _auditLogsTotalCount = signal(0);
+  private _auditLogsPage = signal(1);
+  private _auditLogsPageSize = signal(20);
+  private _auditLogsLoading = signal(false);
+  private _auditLogsError = signal<string | null>(null);
+
+  readonly auditLogs = this._auditLogs.asReadonly();
+  readonly auditLogsTotalCount = this._auditLogsTotalCount.asReadonly();
+  readonly auditLogsPage = this._auditLogsPage.asReadonly();
+  readonly auditLogsPageSize = this._auditLogsPageSize.asReadonly();
+  readonly auditLogsLoading = this._auditLogsLoading.asReadonly();
+  readonly auditLogsError = this._auditLogsError.asReadonly();
+  readonly auditLogsTotalPages = computed(() =>
+    Math.ceil(this._auditLogsTotalCount() / this._auditLogsPageSize())
+  );
 
   // Submission state
   private _submitting = signal(false);
@@ -155,6 +174,24 @@ export class AdminStore {
       },
       error: () => {
         this._smeltersLoading.set(false);
+      },
+    });
+  }
+
+  loadAuditLogs(filters: AuditLogFilters) {
+    this._auditLogsLoading.set(true);
+    this._auditLogsError.set(null);
+    this._auditLogsPage.set(filters.page);
+    this._auditLogsPageSize.set(filters.pageSize);
+    this.api.getAuditLogs(filters).subscribe({
+      next: (res) => {
+        this._auditLogs.set(res.items);
+        this._auditLogsTotalCount.set(res.totalCount);
+        this._auditLogsLoading.set(false);
+      },
+      error: (err) => {
+        this._auditLogsError.set(extractErrorMessage(err));
+        this._auditLogsLoading.set(false);
       },
     });
   }

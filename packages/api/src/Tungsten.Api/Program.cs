@@ -93,6 +93,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetMe.Handler>());
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditBehaviour<,>));
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<GetMe.Handler>();
@@ -145,6 +146,11 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddProblemDetails();
 
+builder.Services.AddHealthChecks()
+    .AddCheck("migrations", () => DatabaseMigrationService.IsReady
+        ? Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy()
+        : Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Degraded("Migrations running"));
+
 var app = builder.Build();
 
 // Migrations now run in DatabaseMigrationService (background)
@@ -156,13 +162,28 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
-// Health check — reports "starting" until migrations complete, so frontend can poll
-app.MapGet("/health", () =>
+// Sentry user context (Auth0 sub only — no PII)
+app.Use(async (context, next) =>
 {
-    if (!DatabaseMigrationService.IsReady)
-        return Results.Ok(new { status = "starting" });
-    return Results.Ok(new { status = "healthy" });
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var sub = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (sub is not null)
+        {
+            SentrySdk.ConfigureScope(scope =>
+            {
+                scope.User = new Sentry.SentryUser { Id = sub };
+            });
+        }
+    }
+    await next();
 });
+
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false,
+});
+app.MapHealthChecks("/health/ready");
 
 // Auth endpoints
 app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser) =>

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -34,7 +35,11 @@ public static class UploadDocument
         string ContentType,
         Stream FileStream,
         long FileSizeBytes,
-        string DocumentType) : IRequest<Result<Response>>;
+        string DocumentType) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "UploadDocument";
+        public string EntityType => "Document";
+    }
 
     public record Response(
         Guid Id,

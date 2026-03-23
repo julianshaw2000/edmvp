@@ -1,0 +1,49 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api:
+    name: API — Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build
+        working-directory: packages/api
+      - run: dotnet test --no-build
+        working-directory: packages/api
+      - run: dotnet format --verify-no-changes
+        working-directory: packages/api
+
+  web:
+    name: Web — Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: packages/web/package-lock.json
+      - run: npm ci
+        working-directory: packages/web
+      - run: npx ng build
+        working-directory: packages/web
+
+  deploy:
+    name: Deploy to Render
+    needs: [api, web]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy API
+        run: curl -s "${{ secrets.RENDER_API_DEPLOY_HOOK }}"
+      - name: Deploy Web
+        run: curl -s "${{ secrets.RENDER_WEB_DEPLOY_HOOK }}"

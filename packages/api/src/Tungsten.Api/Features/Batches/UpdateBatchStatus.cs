@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence;
 
@@ -9,7 +10,11 @@ namespace Tungsten.Api.Features.Batches;
 
 public static class UpdateBatchStatus
 {
-    public record Command(Guid BatchId, string NewStatus) : IRequest<Result<Response>>;
+    public record Command(Guid BatchId, string NewStatus) : IRequest<Result<Response>>, IAuditable
+    {
+        public string AuditAction => "UpdateBatchStatus";
+        public string EntityType => "Batch";
+    }
 
     public record Response(Guid Id, string BatchNumber, string Status, DateTime UpdatedAt);
 
