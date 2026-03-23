@@ -31,6 +31,20 @@ public class AuditBehaviourTests
         public string EntityType => "CustodyEvent";
     }
 
+    // Non-generic Result command (like UpdateUser)
+    public record TestVoidCommand(string Name) : IRequest<Result>, IAuditable
+    {
+        public string AuditAction => "UpdateUser";
+        public string EntityType => "User";
+    }
+
+    // Batch entity type command (BatchId = EntityId)
+    public record TestBatchCommand(string Name) : IRequest<Result<TestResponse>>, IAuditable
+    {
+        public string AuditAction => "CreateBatch";
+        public string EntityType => "Batch";
+    }
+
     private static (AppDbContext db, AuditBehaviour<TRequest, TResponse> behaviour) CreateBehaviour<TRequest, TResponse>(
         string auth0Sub = "auth0|test") where TRequest : IRequest<TResponse>
     {
@@ -155,5 +169,42 @@ public class AuditBehaviourTests
 
         var count = await db.AuditLogs.CountAsync();
         Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task Handle_NonGenericResult_Failure_WritesAuditLogWithReason()
+    {
+        var (db, behaviour) = CreateBehaviour<TestVoidCommand, Result>();
+        var response = Result.Failure("User not found");
+
+        var result = await behaviour.Handle(
+            new TestVoidCommand("test"),
+            _ => Task.FromResult(response),
+            CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        var log = await db.AuditLogs.FirstOrDefaultAsync();
+        Assert.NotNull(log);
+        Assert.Equal("Failure", log.Result);
+        Assert.Equal("User not found", log.FailureReason);
+        Assert.Equal("UpdateUser", log.Action);
+    }
+
+    [Fact]
+    public async Task Handle_BatchEntityType_SetsBatchIdToEntityId()
+    {
+        var (db, behaviour) = CreateBehaviour<TestBatchCommand, Result<TestResponse>>();
+        var entityId = Guid.NewGuid();
+        var response = Result<TestResponse>.Success(new TestResponse(entityId, "batch"));
+
+        await behaviour.Handle(
+            new TestBatchCommand("test"),
+            _ => Task.FromResult(response),
+            CancellationToken.None);
+
+        var log = await db.AuditLogs.FirstOrDefaultAsync();
+        Assert.NotNull(log);
+        Assert.Equal(entityId, log.EntityId);
+        Assert.Equal(entityId, log.BatchId);
     }
 }
