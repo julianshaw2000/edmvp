@@ -24,6 +24,7 @@ using Tungsten.Api.Features.Notifications;
 using Tungsten.Api.Features.Public;
 using Tungsten.Api.Features.Users;
 using Tungsten.Api.Features.Admin;
+using Tungsten.Api.Features.Platform;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -301,6 +302,7 @@ app.MapPublicEndpoints();
 app.MapNotificationEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();
+app.MapPlatformEndpoints();
 
 app.Run();
 
