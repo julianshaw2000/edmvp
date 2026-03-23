@@ -146,6 +146,11 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddProblemDetails();
 
+builder.Services.AddHealthChecks()
+    .AddCheck("migrations", () => DatabaseMigrationService.IsReady
+        ? Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy()
+        : Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Degraded("Migrations running"));
+
 var app = builder.Build();
 
 // Migrations now run in DatabaseMigrationService (background)
@@ -157,13 +162,11 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
-// Health check — reports "starting" until migrations complete, so frontend can poll
-app.MapGet("/health", () =>
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
-    if (!DatabaseMigrationService.IsReady)
-        return Results.Ok(new { status = "starting" });
-    return Results.Ok(new { status = "healthy" });
+    Predicate = _ => false,
 });
+app.MapHealthChecks("/health/ready");
 
 // Auth endpoints
 app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser) =>

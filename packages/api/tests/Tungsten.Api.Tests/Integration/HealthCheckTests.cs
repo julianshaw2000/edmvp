@@ -5,13 +5,20 @@ namespace Tungsten.Api.Tests.Integration;
 
 public class HealthCheckTests(TestWebApplicationFactory factory) : IClassFixture<TestWebApplicationFactory>
 {
+    private readonly HttpClient _client = factory.CreateClient();
+
     [Fact]
-    public async Task Health_ReturnsOk()
+    public async Task HealthLive_ReturnsHealthy()
     {
-        var client = factory.CreateClient();
+        var response = await _client.GetAsync("/health/live");
+        response.EnsureSuccessStatusCode();
+    }
 
-        var response = await client.GetAsync("/health");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    [Fact]
+    public async Task HealthReady_ReturnsStatus()
+    {
+        var response = await _client.GetAsync("/health/ready");
+        // May be 200 or 503 depending on migration state
+        Assert.True(response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.ServiceUnavailable);
     }
 }
