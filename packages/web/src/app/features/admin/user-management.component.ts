@@ -38,6 +38,7 @@ import { UserResponse, CreateUserRequest } from './data/admin.models';
           <h2 class="text-lg font-semibold text-slate-900">Invite New User</h2>
         </div>
         <app-user-form
+          [roles]="availableRoles()"
           (submitted)="onInviteUser($event)"
           (cancelled)="showInviteForm.set(false)"
         />
