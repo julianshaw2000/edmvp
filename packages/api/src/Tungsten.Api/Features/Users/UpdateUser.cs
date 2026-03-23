@@ -30,6 +30,15 @@ public static class UpdateUser
             if (target is null)
                 return Result.Failure("Target user not found");
 
+            var callerRole = await currentUser.GetRoleAsync(ct);
+            if (callerRole == Roles.TenantAdmin)
+            {
+                if (target.Role is Roles.Admin or Roles.TenantAdmin)
+                    return Result.Failure("You cannot modify this user");
+                if (cmd.Role is Roles.Admin or Roles.TenantAdmin)
+                    return Result.Failure("You cannot assign this role");
+            }
+
             if (cmd.Role is not null) target.Role = cmd.Role;
             if (cmd.IsActive.HasValue) target.IsActive = cmd.IsActive.Value;
             target.UpdatedAt = DateTime.UtcNow;

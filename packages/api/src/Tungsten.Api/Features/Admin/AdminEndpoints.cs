@@ -15,7 +15,7 @@ public static class AdminEndpoints
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
         })
-        .RequireAuthorization(AuthorizationPolicies.RequireAdmin)
+        .RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin)
         .DisableAntiforgery();
 
         app.MapGet("/api/admin/rmap", async (IMediator mediator) =>
@@ -24,7 +24,7 @@ public static class AdminEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+        }).RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin);
 
         app.MapGet("/api/admin/jobs", async (IMediator mediator, CancellationToken ct) =>
         {
@@ -32,7 +32,7 @@ public static class AdminEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+        }).RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin);
 
         app.MapGet("/api/admin/audit-logs", async (
             int? page, int? pageSize, Guid? userId, string? action,

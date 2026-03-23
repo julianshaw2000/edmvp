@@ -5,4 +5,5 @@ public static class Roles
     public const string Supplier = "SUPPLIER";
     public const string Buyer = "BUYER";
     public const string Admin = "PLATFORM_ADMIN";
+    public const string TenantAdmin = "TENANT_ADMIN";
 }

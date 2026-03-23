@@ -24,8 +24,14 @@ public static class ListUsers
             if (user is null)
                 return Result<Response>.Failure("User not found");
 
-            var users = await db.Users.AsNoTracking()
-                .Where(u => u.TenantId == user.TenantId)
+            var callerRole = await currentUser.GetRoleAsync(ct);
+            var dbQuery = db.Users.AsNoTracking()
+                .Where(u => u.TenantId == user.TenantId);
+
+            if (callerRole == Roles.TenantAdmin)
+                dbQuery = dbQuery.Where(u => u.Role != Roles.Admin);
+
+            var users = await dbQuery
                 .OrderBy(u => u.DisplayName)
                 .Select(u => new UserItem(u.Id, u.Email, u.DisplayName, u.Role, u.IsActive))
                 .ToListAsync(ct);

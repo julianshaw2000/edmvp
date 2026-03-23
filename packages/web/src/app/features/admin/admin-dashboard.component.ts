@@ -1,6 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AdminFacade } from './admin.facade';
+import { AuthService } from '../../core/auth/auth.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 
@@ -90,50 +91,67 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
         </div>
       </a>
 
-      <a
-        routerLink="/admin/rmap"
-        class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
-      >
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
-          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold text-slate-900 text-sm">RMAP Smelter List</p>
-          <p class="text-xs text-slate-500 mt-0.5">View conformant smelters</p>
-        </div>
-      </a>
+      @if (isPlatformAdmin()) {
+        <a
+          routerLink="/admin/tenants"
+          class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-900 text-sm">Tenants</p>
+            <p class="text-xs text-slate-500 mt-0.5">Manage platform tenants</p>
+          </div>
+        </a>
 
-      <a
-        routerLink="/admin/compliance"
-        class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-amber-300 hover:shadow-md transition-all duration-200 group"
-      >
-        <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
-          <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold text-slate-900 text-sm">Compliance Review</p>
-          <p class="text-xs text-slate-500 mt-0.5">Review flagged batches</p>
-        </div>
-      </a>
+        <a
+          routerLink="/admin/rmap"
+          class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-900 text-sm">RMAP Smelter List</p>
+            <p class="text-xs text-slate-500 mt-0.5">View conformant smelters</p>
+          </div>
+        </a>
 
-      <a
-        routerLink="/admin/jobs"
-        class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-slate-400 hover:shadow-md transition-all duration-200 group"
-      >
-        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
-          <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold text-slate-900 text-sm">System Health</p>
-          <p class="text-xs text-slate-500 mt-0.5">Monitor background jobs</p>
-        </div>
-      </a>
+        <a
+          routerLink="/admin/compliance"
+          class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-amber-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-900 text-sm">Compliance Review</p>
+            <p class="text-xs text-slate-500 mt-0.5">Review flagged batches</p>
+          </div>
+        </a>
+
+        <a
+          routerLink="/admin/jobs"
+          class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-slate-400 hover:shadow-md transition-all duration-200 group"
+        >
+          <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-900 text-sm">System Health</p>
+            <p class="text-xs text-slate-500 mt-0.5">Monitor background jobs</p>
+          </div>
+        </a>
+      }
 
       <a
         routerLink="/admin/audit-log"
@@ -154,6 +172,8 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
 })
 export class AdminDashboardComponent implements OnInit {
   protected facade = inject(AdminFacade);
+  protected auth = inject(AuthService);
+  protected isPlatformAdmin = computed(() => this.auth.role() === 'PLATFORM_ADMIN');
 
   ngOnInit() {
     this.facade.loadUsers();
