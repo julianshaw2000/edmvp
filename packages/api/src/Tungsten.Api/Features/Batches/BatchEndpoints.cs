@@ -51,6 +51,14 @@ public static class BatchEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequireSupplier);
 
+        group.MapGet("/{id:guid}/activity", async (Guid id, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetBatchActivity.Query(id), ct);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        });
+
         return app;
     }
 }
