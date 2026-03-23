@@ -162,6 +162,23 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
+// Sentry user context (Auth0 sub only — no PII)
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var sub = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (sub is not null)
+        {
+            SentrySdk.ConfigureScope(scope =>
+            {
+                scope.User = new Sentry.SentryUser { Id = sub };
+            });
+        }
+    }
+    await next();
+});
+
 app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     Predicate = _ => false,
