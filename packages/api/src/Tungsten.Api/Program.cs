@@ -260,37 +260,7 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
     if (meResult.IsSuccess)
         return Results.Ok(meResult.Value);
 
-    // Auto-provision: no matching user found, create new one
-    {
-        if (string.IsNullOrEmpty(email))
-            return Results.Problem("Email claim missing from token. Configure Auth0 to include email in access tokens.", statusCode: 400);
-
-        // Create a new user as PLATFORM_ADMIN
-        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Status == "ACTIVE");
-        if (tenant is not null)
-        {
-            var newUser = new UserEntity
-            {
-                Id = Guid.NewGuid(),
-                Auth0Sub = auth0Sub,
-                Email = email,
-                DisplayName = name,
-                Role = "PLATFORM_ADMIN",
-                TenantId = tenant.Id,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-            };
-            db.Users.Add(newUser);
-            await db.SaveChangesAsync();
-
-            var retry = await mediator.Send(new GetMe.Query());
-            if (retry.IsSuccess)
-                return Results.Ok(retry.Value);
-        }
-    }
-
-    return Results.NotFound(new { error = meResult.Error });
+    return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
 }).RequireAuthorization();
 
 app.MapBatchEndpoints();
