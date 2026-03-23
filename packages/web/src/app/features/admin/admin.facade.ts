@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AdminStore } from './admin.store';
 import { CreateUserRequest } from './data/admin.models';
+import { AuditLogFilters } from './data/audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminFacade {
@@ -29,6 +30,15 @@ export class AdminFacade {
   readonly submitting = this.store.submitting;
   readonly submitError = this.store.submitError;
 
+  // Audit log signals
+  readonly auditLogs = this.store.auditLogs;
+  readonly auditLogsTotalCount = this.store.auditLogsTotalCount;
+  readonly auditLogsPage = this.store.auditLogsPage;
+  readonly auditLogsPageSize = this.store.auditLogsPageSize;
+  readonly auditLogsLoading = this.store.auditLogsLoading;
+  readonly auditLogsError = this.store.auditLogsError;
+  readonly auditLogsTotalPages = this.store.auditLogsTotalPages;
+
   // Actions
   loadUsers() { this.store.loadUsers(); }
   loadBatches() { this.store.loadBatches(); }
@@ -39,4 +49,6 @@ export class AdminFacade {
 
   uploadRmapList(file: File) { this.store.uploadRmapList(file); }
   loadSmelters() { this.store.loadSmelters(); }
+
+  loadAuditLogs(filters: AuditLogFilters) { this.store.loadAuditLogs(filters); }
 }

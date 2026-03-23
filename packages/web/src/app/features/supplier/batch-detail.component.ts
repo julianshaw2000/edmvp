@@ -2,12 +2,18 @@ import { Component, inject, OnInit, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { of, switchMap } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { SupplierFacade } from './supplier.facade';
+import { SupplierApiService } from './data/supplier-api.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { EventTimelineComponent } from './ui/event-timeline.component';
 import { DocumentListComponent } from './ui/document-list.component';
+import { ActivityFeedComponent } from './ui/activity-feed.component';
+import { BatchActivity } from '../admin/data/audit-log.models';
 
 @Component({
   selector: 'app-batch-detail',
@@ -15,7 +21,7 @@ import { DocumentListComponent } from './ui/document-list.component';
   imports: [
     FormsModule, DatePipe, RouterLink,
     PageHeaderComponent, StatusBadgeComponent, LoadingSpinnerComponent,
-    EventTimelineComponent, DocumentListComponent,
+    EventTimelineComponent, DocumentListComponent, ActivityFeedComponent,
   ],
   template: `
     @if (facade.detailLoading()) {
@@ -175,6 +181,14 @@ import { DocumentListComponent } from './ui/document-list.component';
         </div>
       }
 
+      <!-- Tab: Activity -->
+      @if (activeTab() === 'activity') {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Activity Feed</h3>
+          <app-activity-feed [activities]="batchActivity()" />
+        </div>
+      }
+
       <!-- Tab: Compliance -->
       @if (activeTab() === 'compliance') {
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
@@ -231,14 +245,23 @@ export class BatchDetailComponent implements OnInit {
   id = input.required<string>();
   protected facade = inject(SupplierFacade);
   private router = inject(Router);
+  private api = inject(SupplierApiService);
 
   tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'events', label: 'Events' },
     { id: 'documents', label: 'Documents' },
     { id: 'compliance', label: 'Compliance' },
+    { id: 'activity', label: 'Activity' },
   ];
   activeTab = signal('overview');
+
+  protected batchActivity = toSignal(
+    toObservable(this.id).pipe(
+      switchMap(id => id ? this.api.getBatchActivity(id) : of([] as BatchActivity[]))
+    ),
+    { initialValue: [] as BatchActivity[] }
+  );
 
   uploadEventId = '';
   uploadDocumentType = 'CERTIFICATE';

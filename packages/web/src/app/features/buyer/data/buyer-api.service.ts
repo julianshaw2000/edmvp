@@ -6,6 +6,7 @@ import {
   BatchResponse, CustodyEventResponse, DocumentResponse,
   PagedResponse, ComplianceSummary, GeneratedDocumentResponse, ShareResponse
 } from './buyer.models';
+import { BatchActivity } from '../../admin/data/audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class BuyerApiService {
@@ -48,6 +49,10 @@ export class BuyerApiService {
   getGeneratedDocument(id: string): Observable<GeneratedDocumentResponse> {
     return this.http.get<GeneratedDocumentResponse>(
       `${this.apiUrl}/api/generated-documents/${id}`);
+  }
+
+  getBatchActivity(batchId: string): Observable<BatchActivity[]> {
+    return this.http.get<BatchActivity[]>(`${this.apiUrl}/api/batches/${batchId}/activity`);
   }
 
   shareDocument(id: string): Observable<ShareResponse> {

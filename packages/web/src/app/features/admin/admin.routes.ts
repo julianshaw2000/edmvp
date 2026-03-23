@@ -21,4 +21,8 @@ export const ADMIN_ROUTES: Routes = [
     path: 'jobs',
     loadComponent: () => import('./job-monitor.component').then(m => m.JobMonitorComponent),
   },
+  {
+    path: 'audit-log',
+    loadComponent: () => import('./audit-log.component').then(m => m.AuditLogComponent),
+  },
 ];

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '../../../core/http/api-url.token';
 import { UserResponse, CreateUserRequest, RmapSmelterResponse, ComplianceFlagResponse, JobResponse } from './admin.models';
 import { BatchResponse, PagedResponse, ComplianceSummary } from '../../supplier/data/supplier.models';
+import { AuditLogFilters, PagedAuditLogs } from './audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
@@ -53,5 +54,18 @@ export class AdminApiService {
   // Jobs
   listJobs(): Observable<{ jobs: JobResponse[]; totalCount: number }> {
     return this.http.get<{ jobs: JobResponse[]; totalCount: number }>(`${this.apiUrl}/api/admin/jobs`);
+  }
+
+  // Audit logs
+  getAuditLogs(filters: AuditLogFilters): Observable<PagedAuditLogs> {
+    let params = new HttpParams()
+      .set('page', filters.page)
+      .set('pageSize', filters.pageSize);
+    if (filters.userId) params = params.set('userId', filters.userId);
+    if (filters.action) params = params.set('action', filters.action);
+    if (filters.entityType) params = params.set('entityType', filters.entityType);
+    if (filters.from) params = params.set('from', filters.from);
+    if (filters.to) params = params.set('to', filters.to);
+    return this.http.get<PagedAuditLogs>(`${this.apiUrl}/api/admin/audit-logs`, { params });
   }
 }
