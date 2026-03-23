@@ -9,12 +9,16 @@ public interface ICurrentUserService
     string Auth0Sub { get; }
     Task<Guid> GetUserIdAsync(CancellationToken ct);
     Task<Guid> GetTenantIdAsync(CancellationToken ct);
+    Task<string> GetTenantStatusAsync(CancellationToken ct);
+    Task<string> GetRoleAsync(CancellationToken ct);
 }
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor, AppDbContext db) : ICurrentUserService
 {
     private Guid? _userId;
     private Guid? _tenantId;
+    private string? _role;
+    private string? _tenantStatus;
 
     public string Auth0Sub =>
         httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -34,16 +38,32 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, AppDbC
         return _tenantId!.Value;
     }
 
+    public async Task<string> GetTenantStatusAsync(CancellationToken ct)
+    {
+        if (_tenantStatus is not null) return _tenantStatus;
+        await ResolveUserAsync(ct);
+        return _tenantStatus!;
+    }
+
+    public async Task<string> GetRoleAsync(CancellationToken ct)
+    {
+        if (_role is not null) return _role;
+        await ResolveUserAsync(ct);
+        return _role!;
+    }
+
     private async Task ResolveUserAsync(CancellationToken ct)
     {
         var sub = Auth0Sub;
         var user = await db.Users.AsNoTracking()
             .Where(u => u.Auth0Sub == sub && u.IsActive)
-            .Select(u => new { u.Id, u.TenantId })
+            .Join(db.Tenants, u => u.TenantId, t => t.Id, (u, t) => new { u.Id, u.TenantId, u.Role, TenantStatus = t.Status })
             .FirstOrDefaultAsync(ct)
             ?? throw new UnauthorizedAccessException("User not found");
 
         _userId = user.Id;
         _tenantId = user.TenantId;
+        _role = user.Role;
+        _tenantStatus = user.TenantStatus;
     }
 }
