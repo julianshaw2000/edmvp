@@ -60,9 +60,9 @@ public static class CreateUser
             var loginUrl = configuration["App:BaseUrl"] ?? "https://accutrac-web.onrender.com";
             await emailService.SendAsync(
                 cmd.Email,
-                "You've been invited to AccuTrac",
-                $"<h2>Welcome to AccuTrac</h2><p>{cmd.DisplayName}, you've been invited to the AccuTrac supply chain compliance platform.</p><p><a href=\"{loginUrl}\">Sign in here</a></p>",
-                $"{cmd.DisplayName}, you've been invited to AccuTrac. Sign in at {loginUrl}",
+                "You've been invited to auditraks",
+                $"<h2>Welcome to auditraks</h2><p>{cmd.DisplayName}, you've been invited to the auditraks supply chain compliance platform.</p><p><a href=\"{loginUrl}\">Sign in here</a></p>",
+                $"{cmd.DisplayName}, you've been invited to auditraks. Sign in at {loginUrl}",
                 ct);
 
             return Result<Response>.Success(new Response(

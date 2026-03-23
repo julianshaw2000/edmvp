@@ -1,4 +1,4 @@
-# AccuTrac User Manual
+# auditraks User Manual
 ## Tungsten Supply Chain Compliance Platform
 
 **Version 2.0 — March 2026**
@@ -22,43 +22,43 @@
 
 ## 1. Introduction
 
-### What Is AccuTrac?
+### What Is auditraks?
 
-AccuTrac is a supply chain compliance platform that tracks the custody of mineral materials from extraction through to final processing. It provides a verifiable, tamper-evident record of every step a batch of material takes through the supply chain, enabling buyers, suppliers, and auditors to confirm that sourcing and handling practices meet internationally recognized due diligence standards.
+auditraks is a supply chain compliance platform that tracks the custody of mineral materials from extraction through to final processing. It provides a verifiable, tamper-evident record of every step a batch of material takes through the supply chain, enabling buyers, suppliers, and auditors to confirm that sourcing and handling practices meet internationally recognized due diligence standards.
 
-AccuTrac validates compliance against two leading frameworks:
+auditraks validates compliance against two leading frameworks:
 
 - **RMAP (Responsible Minerals Assurance Process)** — verifies that smelters and refiners have been audited and certified under the Responsible Minerals Initiative.
 - **OECD Due Diligence Guidance (DDG)** — assesses origin-country risk, sanctions exposure, and document completeness in line with the OECD's five-step framework for responsible mineral supply chains.
 
-### Who Uses AccuTrac?
+### Who Uses auditraks?
 
-AccuTrac has three user roles:
+auditraks has three user roles:
 
 | Role               | Description                                                                                                                                      |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Supplier**       | Miners, traders, processors, and exporters who create batches and record custody events as material moves through the chain.                     |
 | **Buyer**          | Companies that receive material and need to verify compliance, generate reports, and share documentation with customers or auditors.             |
-| **Platform Admin** | AccuTrac platform administrators who manage users, maintain reference data (such as the RMAP smelter list), and review flagged compliance cases. |
+| **Platform Admin** | auditraks platform administrators who manage users, maintain reference data (such as the RMAP smelter list), and review flagged compliance cases. |
 
 ---
 
 ## 2. Getting Started
 
-### Accessing AccuTrac
+### Accessing auditraks
 
-AccuTrac is a web-based application. Open your preferred browser and navigate to the AccuTrac URL provided by your organization or platform administrator. No software installation is required.
+auditraks is a web-based application. Open your preferred browser and navigate to the auditraks URL provided by your organization or platform administrator. No software installation is required.
 
 **Supported browsers:** Google Chrome (recommended), Mozilla Firefox, Microsoft Edge, Safari.
 
-[Screenshot: AccuTrac login page]
+[Screenshot: auditraks login page]
 
 ### Signing In
 
-AccuTrac uses secure single sign-on via **Auth0**. You can sign in with:
+auditraks uses secure single sign-on via **Auth0**. You can sign in with:
 
 - **Google account** — click "Continue with Google" and sign in with your Google credentials.
-- **Email and password** — enter the email address associated with your AccuTrac account and your password.
+- **Email and password** — enter the email address associated with your auditraks account and your password.
 
 **First-time users:** Your account must be created by a Platform Admin before you can sign in. You will receive an invitation email with a link to activate your account. The link expires after 7 days; contact your administrator if it has expired.
 
@@ -66,7 +66,7 @@ AccuTrac uses secure single sign-on via **Auth0**. You can sign in with:
 
 ### After Signing In
 
-Upon successful sign-in, AccuTrac detects your role and redirects you to the appropriate portal:
+Upon successful sign-in, auditraks detects your role and redirects you to the appropriate portal:
 
 - Suppliers are taken to the **Supplier Dashboard**.
 - Buyers are taken to the **Buyer Dashboard**.
@@ -129,7 +129,7 @@ When a batch of material is physically divided — for example, when part of a s
 3. Enter the weight for **Child A** and **Child B**. The two weights must sum exactly to the parent batch's total weight.
 4. Click **"Confirm Split"**.
 
-AccuTrac will:
+auditraks will:
 - Create two new child batches with suffixes `-A` and `-B` appended to the original batch number.
 - Mark the parent batch as **COMPLETED** (it has been consumed by the split).
 - Preserve the full custody chain — both child batches inherit the parent's origin, mineral type, and mine site.
@@ -356,7 +356,7 @@ The Material Passport includes:
 
 1. Open the Batch Detail view for the relevant batch.
 2. Click **"Generate Material Passport"**.
-3. AccuTrac will prepare the PDF. This may take a few seconds.
+3. auditraks will prepare the PDF. This may take a few seconds.
 4. Click **"Download"** when the report is ready.
 
 [Screenshot: Material Passport generation dialog]
@@ -379,7 +379,7 @@ The Audit Dossier is typically larger than a Material Passport and may take long
 
 ### 4.5 Sharing a Material Passport
 
-You can share a Material Passport with external parties — such as customers, auditors, or regulatory bodies — using a time-limited secure link. The recipient does not need an AccuTrac account to view the passport.
+You can share a Material Passport with external parties — such as customers, auditors, or regulatory bodies — using a time-limited secure link. The recipient does not need an auditraks account to view the passport.
 
 **Shared links are valid for 30 days from the date of creation.**
 
@@ -387,7 +387,7 @@ You can share a Material Passport with external parties — such as customers, a
 
 1. Generate the Material Passport (see Section 4.3).
 2. Click **"Share"** next to the Material Passport.
-3. AccuTrac generates a unique URL and displays it in a green confirmation box.
+3. auditraks generates a unique URL and displays it in a green confirmation box.
 4. Click **"Copy"** to copy the link to your clipboard, then send it to the recipient via email, messaging, or any other channel.
 
 The recipient can open the link in any browser to view the Material Passport. The link will expire automatically after 30 days. If the recipient needs access after expiry, generate a new shared link.
@@ -453,16 +453,16 @@ To reactivate a deactivated user, locate their profile (use the "Show deactivate
 
 ### 5.3 RMAP Smelter List Management
 
-AccuTrac maintains a list of RMAP-certified smelters. Smelter IDs entered in Primary Processing events are checked against this list. The list must be kept up to date to ensure accurate compliance checking.
+auditraks maintains a list of RMAP-certified smelters. Smelter IDs entered in Primary Processing events are checked against this list. The list must be kept up to date to ensure accurate compliance checking.
 
-The RMAP smelter list is uploaded as a **CSV file**. The Responsible Minerals Initiative publishes an updated list periodically; download the latest version from the RMI website and upload it to AccuTrac.
+The RMAP smelter list is uploaded as a **CSV file**. The Responsible Minerals Initiative publishes an updated list periodically; download the latest version from the RMI website and upload it to auditraks.
 
 **To update the RMAP smelter list:**
 
 1. Navigate to **Compliance Settings** > **RMAP Smelter List** in the admin navigation.
 2. Click **"Upload New List"**.
 3. Select the CSV file from your device.
-4. AccuTrac will validate the file format and display a preview of the records to be imported.
+4. auditraks will validate the file format and display a preview of the records to be imported.
 5. If the preview looks correct, click **"Confirm Upload"**.
 
 [Screenshot: RMAP Smelter List upload screen]
@@ -473,7 +473,7 @@ The new list takes effect immediately. Any batches with smelter IDs that were pr
 
 ### 5.4 System Health and Job Monitor
 
-The System Health page provides platform administrators with visibility into the operational status of the AccuTrac platform.
+The System Health page provides platform administrators with visibility into the operational status of the auditraks platform.
 
 **To access:** Navigate to **System Health** from the Admin Dashboard or click **Jobs** in the admin navigation.
 
@@ -486,7 +486,7 @@ The page displays:
 
 The job queue auto-refreshes every 10 seconds. Click **"Refresh"** for an immediate update.
 
-> **Note:** Failed jobs are automatically retried by the background worker. If a job remains in FAILED status after multiple retries, investigate the error detail and contact the AccuTrac support team if needed.
+> **Note:** Failed jobs are automatically retried by the background worker. If a job remains in FAILED status after multiple retries, investigate the error detail and contact the auditraks support team if needed.
 
 ### 5.5 Compliance Review
 
@@ -512,13 +512,13 @@ All compliance review actions are logged with the reviewer's name, timestamp, an
 
 ## 6. Compliance Engine
 
-AccuTrac's compliance engine automatically evaluates batches against RMAP and OECD DDG frameworks as events are submitted. This section explains how each check works and how individual check results combine into an overall batch compliance status.
+auditraks's compliance engine automatically evaluates batches against RMAP and OECD DDG frameworks as events are submitted. This section explains how each check works and how individual check results combine into an overall batch compliance status.
 
 ### 6.1 RMAP Checks
 
 **When triggered:** An RMAP check is triggered automatically whenever a **Primary Processing (Smelting)** event is submitted.
 
-**What is checked:** AccuTrac looks up the Smelter ID entered in the event against the current RMAP-approved smelter list (maintained by Platform Admins — see Section 5.3).
+**What is checked:** auditraks looks up the Smelter ID entered in the event against the current RMAP-approved smelter list (maintained by Platform Admins — see Section 5.3).
 
 **Outcomes:**
 - If the smelter ID is found on the list, the RMAP check **passes**.
@@ -536,7 +536,7 @@ OECD DDG checks evaluate a broader range of risk factors in accordance with the 
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Origin Country Risk**   | The origin country recorded for the batch is assessed against a risk classification. Countries identified as conflict-affected or high-risk under OECD guidance trigger a flag.                        |
 | **Sanctions Screening**   | The origin country, trading parties, and smelter are checked against applicable sanctions lists. Any match results in a flag.                                                                          |
-| **Document Completeness** | AccuTrac verifies that the expected documentation is present for the events recorded. Missing key documents (such as an export permit for an export event) will result in an INSUFFICIENT_DATA status. |
+| **Document Completeness** | auditraks verifies that the expected documentation is present for the events recorded. Missing key documents (such as an export permit for an export event) will result in an INSUFFICIENT_DATA status. |
 
 **When triggered:** OECD DDG checks run automatically when relevant events are submitted (for example, an origin country risk check runs when a batch is created; a document completeness check runs continuously as events are added).
 
@@ -544,7 +544,7 @@ OECD DDG checks evaluate a broader range of risk factors in accordance with the 
 
 **When triggered:** A mass balance check runs automatically when a **Concentration** or **Primary Processing** event is submitted with both input and output weights.
 
-**What is checked:** AccuTrac compares the output weight to the input weight. If the output exceeds the input by more than 5%, the batch is flagged. This guards against reporting errors or fraudulent weight inflation.
+**What is checked:** auditraks compares the output weight to the input weight. If the output exceeds the input by more than 5%, the batch is flagged. This guards against reporting errors or fraudulent weight inflation.
 
 **What to do if a mass balance check fails:** Review the input and output weights on the event. If there is a genuine error, submit a correction event (see Section 8.3). If the process legitimately produces more output than input (e.g., due to added materials), document this with a note and contact your Platform Admin.
 
@@ -552,7 +552,7 @@ OECD DDG checks evaluate a broader range of risk factors in accordance with the 
 
 **When triggered:** A sequence check runs automatically every time a new custody event is submitted.
 
-**What is checked:** AccuTrac verifies that the new event's date is not earlier than the most recent existing event for the batch. Out-of-order events are flagged, as they may indicate a data entry error or a process irregularity.
+**What is checked:** auditraks verifies that the new event's date is not earlier than the most recent existing event for the batch. Out-of-order events are flagged, as they may indicate a data entry error or a process irregularity.
 
 **What to do if a sequence check fails:** Verify the event date. If the date was entered incorrectly, submit a correction. If events genuinely occurred out of chronological order (e.g., backdated lab results), document the reason.
 
@@ -560,7 +560,7 @@ OECD DDG checks evaluate a broader range of risk factors in accordance with the 
 
 **When triggered:** GPS coordinates are validated at event submission time.
 
-**What is checked:** AccuTrac verifies that GPS coordinates are in valid `latitude,longitude` format with latitude between -90 and 90, and longitude between -180 and 180.
+**What is checked:** auditraks verifies that GPS coordinates are in valid `latitude,longitude` format with latitude between -90 and 90, and longitude between -180 and 180.
 
 ### 6.6 Batch Compliance Rollup
 
@@ -575,7 +575,7 @@ The overall status is recalculated every time a new event is submitted.
 
 ### 6.4 Compliance Notifications
 
-AccuTrac sends email notifications when compliance-relevant events occur:
+auditraks sends email notifications when compliance-relevant events occur:
 
 | Event                                          | Recipients                                                                                              |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -591,7 +591,7 @@ Ensure your registered email address is current so you receive these notificatio
 
 ### 7.1 Batch Verification via QR Code or URL
 
-Each batch in AccuTrac has a publicly accessible verification page that allows anyone — including customers, auditors, and end consumers — to confirm a batch's compliance status without needing an AccuTrac account.
+Each batch in auditraks has a publicly accessible verification page that allows anyone — including customers, auditors, and end consumers — to confirm a batch's compliance status without needing an auditraks account.
 
 **To verify a batch:**
 
@@ -615,7 +615,7 @@ The public verification page does **not** display detailed event data, document 
 
 ### 7.2 Shared Material Passport Links
 
-When a buyer shares a Material Passport using the "Share" function (see Section 4.5), the recipient can view the passport via a secure, time-limited link without needing an AccuTrac account.
+When a buyer shares a Material Passport using the "Share" function (see Section 4.5), the recipient can view the passport via a secure, time-limited link without needing an auditraks account.
 
 Shared passport links are valid for **30 days** from the date of creation. After expiry, the link will display an "This link has expired" message. Contact the buyer who shared the link to request a new one.
 
@@ -623,15 +623,15 @@ Shared passport links are valid for **30 days** from the date of creation. After
 
 ## 8. Tamper Evidence and Data Integrity
 
-AccuTrac is designed so that the custody record for any batch cannot be secretly altered. This is achieved through cryptographic hash chaining and an immutable event log.
+auditraks is designed so that the custody record for any batch cannot be secretly altered. This is achieved through cryptographic hash chaining and an immutable event log.
 
 ### 8.1 How SHA-256 Hash Chains Work
 
-Every time an event is submitted to AccuTrac, the system generates a **cryptographic fingerprint** (called a SHA-256 hash) of the event's data — including the event type, all field values, the timestamp, the submitting user, and the fingerprint of the previous event in the chain.
+Every time an event is submitted to auditraks, the system generates a **cryptographic fingerprint** (called a SHA-256 hash) of the event's data — including the event type, all field values, the timestamp, the submitting user, and the fingerprint of the previous event in the chain.
 
 Because each event's fingerprint depends on the previous event's fingerprint, the entire chain is mathematically linked. If any event were altered — even a single character changed — its fingerprint would change, and all subsequent events would no longer match. This makes undetected tampering computationally infeasible.
 
-You do not need to understand the technical details to benefit from this protection. What matters is that AccuTrac gives auditors and buyers a reliable guarantee that the event log they are reviewing has not been modified since it was recorded.
+You do not need to understand the technical details to benefit from this protection. What matters is that auditraks gives auditors and buyers a reliable guarantee that the event log they are reviewing has not been modified since it was recorded.
 
 ### 8.2 Integrity Verification
 
@@ -665,13 +665,13 @@ The correction will be reviewed and linked to the original event in the timeline
 
 ### 9.1 In-App Notifications
 
-AccuTrac displays notifications in the **notification bell** in the top navigation bar. A red dot appears on the bell when you have unread notifications.
+auditraks displays notifications in the **notification bell** in the top navigation bar. A red dot appears on the bell when you have unread notifications.
 
 Click the bell to open the notification dropdown, which shows your most recent notifications. Click on any notification to view details or navigate to the relevant batch.
 
 ### 9.2 Email Notifications
 
-AccuTrac sends email notifications for the following events:
+auditraks sends email notifications for the following events:
 
 | Event                        | Recipients                                                                                       |
 | ---------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -681,7 +681,7 @@ AccuTrac sends email notifications for the following events:
 | **Document Generated**       | The user who requested the Material Passport or Audit Dossier.                                   |
 | **48-Hour Escalation**       | All Platform Admins are notified if a compliance flag remains unresolved for more than 48 hours. |
 
-Email notifications are sent automatically. If emails are not being delivered, check your spam/junk folder and ensure your organization's email system allows messages from the AccuTrac platform address.
+Email notifications are sent automatically. If emails are not being delivered, check your spam/junk folder and ensure your organization's email system allows messages from the auditraks platform address.
 
 > **Note:** The platform retries failed email deliveries up to 3 times. If you are not receiving emails after multiple days, contact your Platform Admin.
 
@@ -696,13 +696,13 @@ Compliance flags that remain unresolved for more than **48 hours** trigger an au
 ### Sign-In Issues
 
 **I did not receive my invitation email.**
-Check your spam or junk folder. If it is not there, ask your Platform Admin to resend the invitation. Invitation emails are sent from the AccuTrac platform address — ask your IT team to add this to your allow-list if emails are being blocked.
+Check your spam or junk folder. If it is not there, ask your Platform Admin to resend the invitation. Invitation emails are sent from the auditraks platform address — ask your IT team to add this to your allow-list if emails are being blocked.
 
 **My invitation link has expired.**
 Invitation links are valid for 7 days. Contact your Platform Admin to send a new invitation.
 
 **I cannot sign in with Google.**
-Ensure you are using the Google account associated with your AccuTrac invitation. If you signed up with a different Google account, contact your Platform Admin to update your registered email address.
+Ensure you are using the Google account associated with your auditraks invitation. If you signed up with a different Google account, contact your Platform Admin to update your registered email address.
 
 **I am redirected to the wrong portal after signing in.**
 Your role may have been assigned incorrectly. Contact your Platform Admin to verify and correct your role.
@@ -738,7 +738,7 @@ Documents cannot be deleted. Upload the correct document and add a note in the d
 ### Compliance and Reports
 
 **Why has my batch been flagged for an origin country I believe is low risk?**
-AccuTrac uses origin country risk classifications based on published OECD guidance. If you believe the classification is incorrect, contact your Platform Admin — they can review the case and, if appropriate, override the flag with documented justification.
+auditraks uses origin country risk classifications based on published OECD guidance. If you believe the classification is incorrect, contact your Platform Admin — they can review the case and, if appropriate, override the flag with documented justification.
 
 **I need to generate a Material Passport but the button is greyed out.**
 Material Passports can only be generated for batches with a COMPLIANT status. Resolve any compliance flags or missing data issues first.
@@ -754,19 +754,19 @@ Shared Material Passport links display only the information included in the Mate
 ### General Questions
 
 **Is my data secure?**
-Yes. All data transmitted to and from AccuTrac is encrypted in transit using TLS. Stored data is encrypted at rest. Access to batch data is restricted to authorized users in the relevant supplier and buyer organizations, plus Platform Admins.
+Yes. All data transmitted to and from auditraks is encrypted in transit using TLS. Stored data is encrypted at rest. Access to batch data is restricted to authorized users in the relevant supplier and buyer organizations, plus Platform Admins.
 
-**Can multiple people in my organization use AccuTrac?**
+**Can multiple people in my organization use auditraks?**
 Yes. Each person should have their own individual account. Contact your Platform Admin to invite additional users. Sharing login credentials is not permitted.
 
 **What do I do if I suspect a data integrity issue?**
-Contact your Platform Admin immediately. Do not attempt to correct the issue yourself. Platform Admins can run integrity checks and escalate to AccuTrac support if needed.
+Contact your Platform Admin immediately. Do not attempt to correct the issue yourself. Platform Admins can run integrity checks and escalate to auditraks support if needed.
 
 **How do I contact support?**
-Contact your Platform Admin in the first instance. For platform-level issues that your admin cannot resolve, they will escalate to the AccuTrac support team.
+Contact your Platform Admin in the first instance. For platform-level issues that your admin cannot resolve, they will escalate to the auditraks support team.
 
 ---
 
-*AccuTrac User Manual — Version 2.0 — March 2026*
+*auditraks User Manual — Version 2.0 — March 2026*
 
 *This document is provided for guidance purposes. Features and interfaces may change as the platform is updated. For the most current information, refer to the latest version of this manual.*

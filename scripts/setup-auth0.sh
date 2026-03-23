@@ -43,9 +43,9 @@ echo "Creating SPA application..."
 SPA_OUTPUT=$(auth0 apps create \
     --name "Tungsten Web" \
     --type spa \
-    --callbacks "http://localhost:4200,https://accutrac.org" \
-    --logout-urls "http://localhost:4200,https://accutrac.org" \
-    --origins "http://localhost:4200,https://accutrac.org" \
+    --callbacks "http://localhost:4200,https://auditraks.com" \
+    --logout-urls "http://localhost:4200,https://auditraks.com" \
+    --origins "http://localhost:4200,https://auditraks.com" \
     --json 2>/dev/null)
 
 CLIENT_ID=$(echo "$SPA_OUTPUT" | jq -r '.client_id')
@@ -56,10 +56,10 @@ echo ""
 echo "Creating API..."
 auth0 apis create \
     --name "Tungsten API" \
-    --identifier "https://api.accutrac.org" \
+    --identifier "https://api.auditraks.com" \
     --json 2>/dev/null > /dev/null
 
-API_AUDIENCE="https://api.accutrac.org"
+API_AUDIENCE="https://api.auditraks.com"
 echo "API Audience: $API_AUDIENCE"
 
 # Output configuration

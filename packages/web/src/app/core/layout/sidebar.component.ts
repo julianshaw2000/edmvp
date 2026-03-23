@@ -28,7 +28,7 @@ interface NavGroup {
             </svg>
           </div>
           <div>
-            <h1 class="text-base font-bold tracking-tight text-white">AccuTrac</h1>
+            <h1 class="text-base font-bold tracking-tight text-white">auditraks</h1>
             <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Supply Chain Compliance</p>
           </div>
         </div>
@@ -72,7 +72,7 @@ interface NavGroup {
 
       <!-- Version -->
       <div class="px-5 py-2 border-t border-slate-700/50">
-        <div class="text-[10px] text-slate-600">AccuTrac v2.0 — Pilot MVP</div>
+        <div class="text-[10px] text-slate-600">auditraks v2.0 — Pilot MVP</div>
       </div>
     </aside>
   `,

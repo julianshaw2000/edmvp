@@ -11,9 +11,9 @@ Go to https://auth0.com and create a free account (or use an existing one).
 3. Type: **Single Page Application**
 4. Click Create
 5. Go to **Settings** tab and configure:
-   - **Allowed Callback URLs:** `http://localhost:4200, https://accutrac.org`
-   - **Allowed Logout URLs:** `http://localhost:4200, https://accutrac.org`
-   - **Allowed Web Origins:** `http://localhost:4200, https://accutrac.org`
+   - **Allowed Callback URLs:** `http://localhost:4200, https://auditraks.com`
+   - **Allowed Logout URLs:** `http://localhost:4200, https://auditraks.com`
+   - **Allowed Web Origins:** `http://localhost:4200, https://auditraks.com`
    - **ID Token Expiration:** 28800 (8 hours = FR-P064)
 6. Save Changes
 7. Note the **Domain** and **Client ID**
@@ -21,8 +21,8 @@ Go to https://auth0.com and create a free account (or use an existing one).
 ## 3. Create API
 
 1. Go to **Applications > APIs > Create API**
-2. Name: `AccuTrac API`
-3. Identifier: `https://api.accutrac.org`
+2. Name: `auditraks API`
+3. Identifier: `https://api.auditraks.com`
 4. Signing Algorithm: RS256
 5. Click Create
 
@@ -37,7 +37,7 @@ export const environment = {
   auth0: {
     domain: 'YOUR_TENANT.auth0.com',     // ← from step 2
     clientId: 'YOUR_CLIENT_ID',           // ← from step 2
-    audience: 'https://api.accutrac.org',     // ← from step 3
+    audience: 'https://api.auditraks.com',     // ← from step 3
   },
 };
 ```
@@ -49,7 +49,7 @@ Add the Auth0 section:
 {
   "Auth0": {
     "Domain": "YOUR_TENANT.auth0.com",
-    "Audience": "https://api.accutrac.org"
+    "Audience": "https://api.auditraks.com"
   }
 }
 ```

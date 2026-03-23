@@ -11,8 +11,8 @@ public sealed class SendGridEmailService(
     {
         var apiKey = configuration["SendGrid:ApiKey"]
             ?? throw new InvalidOperationException("SendGrid:ApiKey not configured");
-        var fromEmail = configuration["SendGrid:FromEmail"] ?? "noreply@accutrac.org";
-        var fromName = configuration["SendGrid:FromName"] ?? "AccuTrac";
+        var fromEmail = configuration["SendGrid:FromEmail"] ?? "noreply@auditraks.com";
+        var fromName = configuration["SendGrid:FromName"] ?? "auditraks";
 
         var client = new SendGridClient(apiKey);
         var msg = MailHelper.CreateSingleEmail(

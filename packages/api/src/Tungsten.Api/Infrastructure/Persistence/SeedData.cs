@@ -66,14 +66,14 @@ public static class SeedData
             return;
 
         // Find or create a demo supplier user for batch ownership
-        var demoUser = await db.Users.FirstOrDefaultAsync(u => u.Email == "supplier@accutrac.org");
+        var demoUser = await db.Users.FirstOrDefaultAsync(u => u.Email == "supplier@auditraks.com");
         if (demoUser is null)
         {
             demoUser = new UserEntity
             {
                 Id = Guid.NewGuid(),
                 Auth0Sub = $"seed|demo-supplier-{Guid.NewGuid():N}",
-                Email = "supplier@accutrac.org",
+                Email = "supplier@auditraks.com",
                 DisplayName = "Demo Supplier (Nyungwe Mining Co.)",
                 Role = "SUPPLIER",
                 TenantId = tenantId,

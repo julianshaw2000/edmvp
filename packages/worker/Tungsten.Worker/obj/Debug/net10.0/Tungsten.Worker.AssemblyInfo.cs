@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Tungsten.Worker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2593a5d234a56332251b9641feb50bb051cec30")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f02662aa596a5ebcd4cde24df2745644c3c3b40")]
 [assembly: System.Reflection.AssemblyProductAttribute("Tungsten.Worker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Tungsten.Worker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

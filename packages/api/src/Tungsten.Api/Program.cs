@@ -103,7 +103,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:4200", "https://accutrac-web.onrender.com", "https://accutrac.org"];
+            ?? ["http://localhost:4200", "https://accutrac-web.onrender.com", "https://auditraks.com"];
         policy.WithOrigins(origins)
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -172,10 +172,10 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
     // Extract email and name from token claims
     var email = httpContext.User.FindFirst("email")?.Value
         ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-        ?? httpContext.User.FindFirst("https://accutrac.org/email")?.Value;
+        ?? httpContext.User.FindFirst("https://auditraks.com/email")?.Value;
     var name = httpContext.User.FindFirst("name")?.Value
         ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
-        ?? httpContext.User.FindFirst("https://accutrac.org/name")?.Value
+        ?? httpContext.User.FindFirst("https://auditraks.com/name")?.Value
         ?? "User";
 
     // Check if a user with this Auth0Sub exists but has the wrong email (mis-linked)
@@ -184,7 +184,7 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
         var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Auth0Sub == auth0Sub);
         if (existingUser is not null && existingUser.Email != email)
         {
-            // This Auth0Sub was linked to the wrong user (e.g. fallback "user@accutrac.org").
+            // This Auth0Sub was linked to the wrong user (e.g. fallback "user@auditraks.com").
             // Unlink it so the correct user can be found/created below.
             existingUser.Auth0Sub = $"unlinked|{existingUser.Auth0Sub}";
             existingUser.UpdatedAt = DateTime.UtcNow;
