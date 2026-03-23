@@ -23,8 +23,8 @@ public static class UpdateTenantStatus
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.Status).Must(s => s is "ACTIVE" or "SUSPENDED")
-                .WithMessage("Status must be ACTIVE or SUSPENDED");
+            RuleFor(x => x.Status).Must(s => s is "ACTIVE" or "SUSPENDED" or "CANCELLED")
+                .WithMessage("Status must be ACTIVE, SUSPENDED, or CANCELLED");
         }
     }
 

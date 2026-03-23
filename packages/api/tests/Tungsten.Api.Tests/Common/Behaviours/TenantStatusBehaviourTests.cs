@@ -69,6 +69,31 @@ public class TenantStatusBehaviourTests
     }
 
     [Fact]
+    public async Task Handle_TrialTenant_ProceedsToHandler()
+    {
+        var currentUser = Substitute.For<ICurrentUserService>();
+        currentUser.GetTenantStatusAsync(Arg.Any<CancellationToken>()).Returns("TRIAL");
+        currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns("SUPPLIER");
+        var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+        var behaviour = new TenantStatusBehaviour<TestCommand, Result<string>>(currentUser, accessor);
+        var result = await behaviour.Handle(new TestCommand("test"), _ => Task.FromResult(Result<string>.Success("ok")), CancellationToken.None);
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task Handle_CancelledTenant_ReturnsFailureWithDistinctMessage()
+    {
+        var currentUser = Substitute.For<ICurrentUserService>();
+        currentUser.GetTenantStatusAsync(Arg.Any<CancellationToken>()).Returns("CANCELLED");
+        currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns("SUPPLIER");
+        var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+        var behaviour = new TenantStatusBehaviour<TestCommand, Result<string>>(currentUser, accessor);
+        var result = await behaviour.Handle(new TestCommand("test"), _ => Task.FromResult(Result<string>.Success("nope")), CancellationToken.None);
+        Assert.False(result.IsSuccess);
+        Assert.Contains("cancelled", result.Error!, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task Handle_NoHttpContext_SkipsCheck()
     {
         var currentUser = Substitute.For<ICurrentUserService>();

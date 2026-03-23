@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
 import { AuthService } from '../../core/auth/auth.service';
 import { API_URL } from '../../core/http/api-url.token';
@@ -8,6 +8,7 @@ import { filter, take, switchMap } from 'rxjs';
 @Component({
   selector: 'app-login',
   standalone: true,
+  imports: [RouterLink],
   template: `
     <div class="min-h-screen flex">
       <!-- Left: Branding -->
@@ -101,10 +102,13 @@ import { filter, take, switchMap } from 'rxjs';
                 Sign in with Google
               </button>
 
-              <div class="mt-6 text-center">
+              <div class="mt-6 text-center space-y-2">
                 <p class="text-xs text-slate-400">
                   Secured by Auth0. By signing in, you agree to our terms of service.
                 </p>
+                <a routerLink="/signup" class="text-sm text-indigo-600 hover:underline">
+                  Don't have an account? Start a free trial
+                </a>
               </div>
             }
           </div>

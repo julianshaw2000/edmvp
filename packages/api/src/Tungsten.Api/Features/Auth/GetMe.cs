@@ -16,7 +16,9 @@ public static class GetMe
         string DisplayName,
         string Role,
         Guid TenantId,
-        string TenantName);
+        string TenantName,
+        string TenantStatus,
+        DateTime? TrialEndsAt);
 
     public class Handler(AppDbContext db, ICurrentUserService currentUser)
         : IRequestHandler<Query, Result<Response>>
@@ -33,7 +35,8 @@ public static class GetMe
 
             return Result<Response>.Success(new Response(
                 user.Id, user.Email, user.DisplayName, user.Role,
-                user.TenantId, user.Tenant.Name));
+                user.TenantId, user.Tenant.Name,
+                user.Tenant.Status, user.Tenant.TrialEndsAt));
         }
     }
 }

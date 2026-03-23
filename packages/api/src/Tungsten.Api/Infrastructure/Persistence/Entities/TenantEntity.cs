@@ -7,6 +7,10 @@ public class TenantEntity
     public required string SchemaPrefix { get; set; }
     public required string Status { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? StripeCustomerId { get; set; }
+    public string? StripeSubscriptionId { get; set; }
+    public string? PlanName { get; set; }
+    public DateTime? TrialEndsAt { get; set; }
     public ICollection<UserEntity> Users { get; set; } = [];
     public ICollection<BatchEntity> Batches { get; set; } = [];
 }

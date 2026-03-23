@@ -29,5 +29,12 @@ public class TenantConfiguration : IEntityTypeConfiguration<TenantEntity>
 
         builder.Property(t => t.CreatedAt)
             .HasDefaultValueSql("now()");
+
+        builder.Property(e => e.StripeCustomerId).HasMaxLength(100);
+        builder.Property(e => e.StripeSubscriptionId).HasMaxLength(100);
+        builder.Property(e => e.PlanName).HasMaxLength(50);
+
+        builder.HasIndex(e => e.StripeCustomerId).IsUnique().HasFilter("\"StripeCustomerId\" IS NOT NULL").HasDatabaseName("ix_tenants_stripe_customer");
+        builder.HasIndex(e => e.StripeSubscriptionId).IsUnique().HasFilter("\"StripeSubscriptionId\" IS NOT NULL").HasDatabaseName("ix_tenants_stripe_subscription");
     }
 }
