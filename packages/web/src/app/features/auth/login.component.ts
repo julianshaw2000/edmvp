@@ -80,6 +80,14 @@ import { filter, take, switchMap } from 'rxjs';
                 <p class="text-sm text-slate-500">{{ loadingMessage }}</p>
               </div>
             } @else {
+              @if (auth.profileError()) {
+                <div class="mb-5 bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start gap-3">
+                  <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p class="text-sm text-rose-700">{{ auth.profileError() }}</p>
+                </div>
+              }
               <button
                 (click)="auth.login()"
                 class="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-indigo-700 shadow-sm shadow-indigo-600/20 transition-all duration-150"
@@ -126,6 +134,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         const profile = await this.auth.loadProfile();
         if (profile) {
           this.navigateByRole(profile.role);
+        } else if (this.auth.profileError()?.startsWith('No account found')) {
+          // 403 — user exists in Auth0 but has no platform account; do not retry
+          this.checking = false;
+          this.loadingMessage = '';
         } else {
           // Backend may be cold-starting — poll health until ready, then retry
           this.loadingMessage = 'Server is starting up, please wait...';
@@ -154,7 +166,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loadingMessage = 'Redirecting...';
     if (role === 'SUPPLIER') this.router.navigate(['/supplier']);
     else if (role === 'BUYER') this.router.navigate(['/buyer']);
-    else if (role === 'PLATFORM_ADMIN') this.router.navigate(['/admin']);
+    else if (role === 'PLATFORM_ADMIN' || role === 'TENANT_ADMIN') this.router.navigate(['/admin']);
     else this.router.navigate(['/supplier']);
   }
 

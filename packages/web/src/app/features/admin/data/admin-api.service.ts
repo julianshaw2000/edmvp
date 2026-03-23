@@ -5,6 +5,7 @@ import { API_URL } from '../../../core/http/api-url.token';
 import { UserResponse, CreateUserRequest, RmapSmelterResponse, ComplianceFlagResponse, JobResponse } from './admin.models';
 import { BatchResponse, PagedResponse, ComplianceSummary } from '../../supplier/data/supplier.models';
 import { AuditLogFilters, PagedAuditLogs } from './audit-log.models';
+import { TenantDto, CreateTenantRequest, PagedTenants } from './tenant.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
@@ -54,6 +55,19 @@ export class AdminApiService {
   // Jobs
   listJobs(): Observable<{ jobs: JobResponse[]; totalCount: number }> {
     return this.http.get<{ jobs: JobResponse[]; totalCount: number }>(`${this.apiUrl}/api/admin/jobs`);
+  }
+
+  // Tenant management (PLATFORM_ADMIN only)
+  listTenants(page = 1, pageSize = 20): Observable<PagedTenants> {
+    return this.http.get<PagedTenants>(`${this.apiUrl}/api/platform/tenants?page=${page}&pageSize=${pageSize}`);
+  }
+
+  createTenant(request: CreateTenantRequest): Observable<TenantDto> {
+    return this.http.post<TenantDto>(`${this.apiUrl}/api/platform/tenants`, request);
+  }
+
+  updateTenantStatus(id: string, status: 'ACTIVE' | 'SUSPENDED'): Observable<TenantDto> {
+    return this.http.patch<TenantDto>(`${this.apiUrl}/api/platform/tenants/${id}/status`, { status });
   }
 
   // Audit logs

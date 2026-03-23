@@ -9,7 +9,7 @@ export interface UserProfile {
   id: string;
   email: string;
   displayName: string;
-  role: 'SUPPLIER' | 'BUYER' | 'PLATFORM_ADMIN';
+  role: 'SUPPLIER' | 'BUYER' | 'PLATFORM_ADMIN' | 'TENANT_ADMIN';
   tenantId: string;
   tenantName: string;
 }
@@ -44,8 +44,12 @@ export class AuthService {
     this._profileError.set(null);
     return new Promise(resolve => {
       this.http.get<UserProfile>(`${this.apiUrl}/api/me`).pipe(
-        catchError(() => {
-          this._profileError.set('Failed to load profile. The server may be starting up — please wait a moment.');
+        catchError((err) => {
+          if (err?.status === 403) {
+            this._profileError.set('No account found. Contact your administrator to get access.');
+          } else {
+            this._profileError.set('Failed to load profile. The server may be starting up — please wait a moment.');
+          }
           return of(null);
         })
       ).subscribe(profile => {

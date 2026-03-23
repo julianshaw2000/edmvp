@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminFacade } from './admin.facade';
+import { AuthService } from '../../core/auth/auth.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { UserTableComponent } from './ui/user-table.component';
@@ -69,9 +70,9 @@ import { UserResponse, CreateUserRequest } from './data/admin.models';
             [(ngModel)]="editRole"
             class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-5 transition-shadow"
           >
-            <option value="SUPPLIER">Supplier</option>
-            <option value="BUYER">Buyer</option>
-            <option value="PLATFORM_ADMIN">Platform Admin</option>
+            @for (role of availableRoles(); track role) {
+              <option [value]="role">{{ roleLabel(role) }}</option>
+            }
           </select>
           <div class="flex gap-3 justify-end">
             <button
@@ -109,9 +110,26 @@ import { UserResponse, CreateUserRequest } from './data/admin.models';
 })
 export class UserManagementComponent implements OnInit {
   protected facade = inject(AdminFacade);
+  protected auth = inject(AuthService);
   protected showInviteForm = signal(false);
   protected editingUser = signal<UserResponse | null>(null);
   protected editRole = '';
+
+  protected availableRoles = computed(() => {
+    if (this.auth.role() === 'PLATFORM_ADMIN') {
+      return ['SUPPLIER', 'BUYER', 'TENANT_ADMIN'];
+    }
+    return ['SUPPLIER', 'BUYER'];
+  });
+
+  protected roleLabel(role: string): string {
+    switch (role) {
+      case 'SUPPLIER': return 'Supplier';
+      case 'BUYER': return 'Buyer';
+      case 'TENANT_ADMIN': return 'Tenant Admin';
+      default: return role;
+    }
+  }
 
   ngOnInit() {
     this.facade.loadUsers();
