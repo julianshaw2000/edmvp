@@ -43,6 +43,21 @@ public static class SeedData
         };
         db.Tenants.Add(tenant);
 
+        // Platform admin — always ensure this account exists
+        var platformAdmin = new UserEntity
+        {
+            Id = Guid.NewGuid(),
+            Auth0Sub = "pending|platform-admin",
+            Email = "julianshaw2000@gmail.com",
+            DisplayName = "Julian Shaw",
+            Role = "PLATFORM_ADMIN",
+            TenantId = tenant.Id,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+        db.Users.Add(platformAdmin);
+
         await db.SaveChangesAsync();
 
         // --- Demo data for investor walkthrough ---

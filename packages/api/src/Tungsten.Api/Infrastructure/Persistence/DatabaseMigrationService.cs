@@ -37,6 +37,17 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
 
             await SeedData.SeedAsync(db);
 
+            // Ensure platform admin exists and has correct role
+            var platformAdmin = await db.Users.FirstOrDefaultAsync(
+                u => u.Email == "julianshaw2000@gmail.com", stoppingToken);
+            if (platformAdmin is not null && platformAdmin.Role != "PLATFORM_ADMIN")
+            {
+                platformAdmin.Role = "PLATFORM_ADMIN";
+                platformAdmin.UpdatedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync(stoppingToken);
+                logger.LogInformation("Promoted julianshaw2000@gmail.com to PLATFORM_ADMIN");
+            }
+
             try
             {
                 await SeedData.SeedDemoBatchesIfNeededAsync(db);
