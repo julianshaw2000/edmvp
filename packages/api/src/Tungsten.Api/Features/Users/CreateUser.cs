@@ -26,8 +26,8 @@ public static class CreateUser
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.DisplayName).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Role).NotEmpty().Must(r => r is "SUPPLIER" or "BUYER" or "PLATFORM_ADMIN")
-                .WithMessage("Role must be SUPPLIER, BUYER, or PLATFORM_ADMIN");
+            RuleFor(x => x.Role).Must(r => r is "SUPPLIER" or "BUYER" or "PLATFORM_ADMIN" or "TENANT_ADMIN")
+                .WithMessage("Invalid role");
         }
     }
 
@@ -40,6 +40,10 @@ public static class CreateUser
                 .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub && u.IsActive, ct);
             if (admin is null)
                 return Result<Response>.Failure("User not found");
+
+            var callerRole = await currentUser.GetRoleAsync(ct);
+            if (callerRole == Roles.TenantAdmin && cmd.Role is not ("SUPPLIER" or "BUYER"))
+                return Result<Response>.Failure("You can only assign Supplier or Buyer roles");
 
             var exists = await db.Users.AnyAsync(
                 u => u.Email == cmd.Email && u.TenantId == admin.TenantId, ct);
