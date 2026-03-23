@@ -17,21 +17,25 @@ public class TenantStatusBehaviour<TRequest, TResponse>(
 
         var tenantStatus = await currentUser.GetTenantStatusAsync(ct);
 
-        if (tenantStatus == "SUSPENDED")
+        if (tenantStatus is "SUSPENDED" or "CANCELLED")
         {
             var role = await currentUser.GetRoleAsync(ct);
             if (role != Roles.Admin)
             {
+                var message = tenantStatus == "SUSPENDED"
+                    ? "Your organization's account has been suspended. Contact support."
+                    : "Your subscription has been cancelled.";
+
                 if (typeof(TResponse).IsGenericType &&
                     typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
                 {
                     var failureMethod = typeof(TResponse).GetMethod("Failure", [typeof(string)])!;
-                    return (TResponse)failureMethod.Invoke(null, ["Your organization's account has been suspended. Contact support."])!;
+                    return (TResponse)failureMethod.Invoke(null, [message])!;
                 }
 
                 if (typeof(TResponse) == typeof(Result))
                 {
-                    return (TResponse)(object)Result.Failure("Your organization's account has been suspended. Contact support.");
+                    return (TResponse)(object)Result.Failure(message);
                 }
             }
         }
