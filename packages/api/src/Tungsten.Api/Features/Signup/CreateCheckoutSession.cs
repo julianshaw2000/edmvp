@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 using Tungsten.Api.Common;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 
 namespace Tungsten.Api.Features.Signup;
 
 public static class CreateCheckoutSession
 {
-    public record Command(string CompanyName, string Name, string Email) : IRequest<Result<Response>>;
+    public record Command(string CompanyName, string Name, string Email, string Plan = "PRO") : IRequest<Result<Response>>;
     public record Response(string CheckoutUrl);
 
     public class Validator : AbstractValidator<Command>
@@ -32,7 +33,7 @@ public static class CreateCheckoutSession
             if (emailExists)
                 return Result<Response>.Failure($"Email '{cmd.Email}' is already in use");
 
-            var priceId = config["Stripe:PriceId"];
+            var priceId = PlanConfiguration.GetPriceId(cmd.Plan, config);
             var baseUrl = config["BaseUrl"] ?? "https://accutrac-web.onrender.com";
 
             var options = new SessionCreateOptions
@@ -55,6 +56,7 @@ public static class CreateCheckoutSession
                         ["companyName"] = cmd.CompanyName,
                         ["adminName"] = cmd.Name,
                         ["adminEmail"] = cmd.Email,
+                        ["plan"] = cmd.Plan,
                     }
                 },
                 SuccessUrl = $"{baseUrl}/signup/success",
@@ -64,6 +66,7 @@ public static class CreateCheckoutSession
                     ["companyName"] = cmd.CompanyName,
                     ["adminName"] = cmd.Name,
                     ["adminEmail"] = cmd.Email,
+                    ["plan"] = cmd.Plan,
                 }
             };
 

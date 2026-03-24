@@ -10,7 +10,7 @@ public class StripeWebhookHandler(AppDbContext db, ILogger<StripeWebhookHandler>
 {
     public async Task HandleCheckoutCompleted(
         string customerId, string subscriptionId,
-        string companyName, string adminName, string adminEmail)
+        string companyName, string adminName, string adminEmail, string plan = "PRO")
     {
         if (await db.Users.AnyAsync(u => u.Email == adminEmail))
         {
@@ -27,6 +27,7 @@ public class StripeWebhookHandler(AppDbContext db, ILogger<StripeWebhookHandler>
             suffix++;
         }
 
+        var (maxBatches, maxUsers) = PlanConfiguration.GetLimits(plan);
         var tenant = new TenantEntity
         {
             Id = Guid.NewGuid(),
@@ -35,7 +36,9 @@ public class StripeWebhookHandler(AppDbContext db, ILogger<StripeWebhookHandler>
             Status = "TRIAL",
             StripeCustomerId = customerId,
             StripeSubscriptionId = subscriptionId,
-            PlanName = "PRO",
+            PlanName = plan,
+            MaxBatches = maxBatches,
+            MaxUsers = maxUsers,
             TrialEndsAt = DateTime.UtcNow.AddDays(60),
             CreatedAt = DateTime.UtcNow,
         };

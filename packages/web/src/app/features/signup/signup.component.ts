@@ -1,7 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { API_URL } from '../../core/http/api-url.token';
 
 @Component({
@@ -72,7 +74,8 @@ import { API_URL } from '../../core/http/api-url.token';
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
             <div class="text-center mb-6">
               <h1 class="text-xl font-bold text-slate-900">Start your free trial</h1>
-              <p class="text-sm text-slate-500 mt-1">$249/month after trial. Cancel anytime.</p>
+              <p class="text-sm text-indigo-600 font-medium mt-1">Signing up for: {{ planLabel() }}</p>
+              <p class="text-sm text-slate-500 mt-0.5">{{ planPrice() }} after trial. Cancel anytime.</p>
             </div>
 
             @if (errorMessage()) {
@@ -168,6 +171,16 @@ import { API_URL } from '../../core/http/api-url.token';
 export class SignupComponent {
   private http = inject(HttpClient);
   private apiUrl = inject(API_URL);
+  private route = inject(ActivatedRoute);
+
+  private readonly planParam = toSignal(
+    this.route.queryParamMap.pipe(map(p => (p.get('plan') ?? 'pro').toUpperCase())),
+    { initialValue: 'PRO' }
+  );
+
+  readonly plan = computed(() => this.planParam() === 'STARTER' ? 'STARTER' : 'PRO');
+  readonly planLabel = computed(() => this.plan() === 'STARTER' ? 'Starter' : 'Pro');
+  readonly planPrice = computed(() => this.plan() === 'STARTER' ? '$99/month' : '$249/month');
 
   companyName = '';
   yourName = '';
@@ -195,8 +208,9 @@ export class SignupComponent {
 
     this.http.post<{ checkoutUrl: string }>(`${this.apiUrl}/api/signup/checkout`, {
       companyName: this.companyName.trim(),
-      yourName: this.yourName.trim(),
+      name: this.yourName.trim(),
       email: this.email.trim(),
+      plan: this.plan(),
     }).subscribe({
       next: (res) => {
         window.location.href = res.checkoutUrl;

@@ -27,7 +27,7 @@ public class StripeWebhookTests
         var db = new AppDbContext(options);
 
         var handler = CreateHandler(db);
-        await handler.HandleCheckoutCompleted("cus_test123", "sub_test123", "Acme Mining", "John Smith", "john@acme.com");
+        await handler.HandleCheckoutCompleted("cus_test123", "sub_test123", "Acme Mining", "John Smith", "john@acme.com", "PRO");
 
         var tenant = await db.Tenants.FirstOrDefaultAsync();
         Assert.NotNull(tenant);
@@ -36,6 +36,8 @@ public class StripeWebhookTests
         Assert.Equal("cus_test123", tenant.StripeCustomerId);
         Assert.Equal("sub_test123", tenant.StripeSubscriptionId);
         Assert.Equal("PRO", tenant.PlanName);
+        Assert.Null(tenant.MaxBatches);
+        Assert.Null(tenant.MaxUsers);
         Assert.NotNull(tenant.TrialEndsAt);
 
         var user = await db.Users.FirstOrDefaultAsync();
@@ -58,7 +60,7 @@ public class StripeWebhookTests
         await db.SaveChangesAsync();
 
         var handler = CreateHandler(db);
-        await handler.HandleCheckoutCompleted("cus_456", "sub_456", "Acme Mining", "John Smith", "john@acme.com");
+        await handler.HandleCheckoutCompleted("cus_456", "sub_456", "Acme Mining", "John Smith", "john@acme.com", "PRO");
 
         Assert.Equal(1, await db.Tenants.CountAsync());
     }
@@ -112,5 +114,22 @@ public class StripeWebhookTests
 
         var tenant = await db.Tenants.FirstAsync();
         Assert.Equal("CANCELLED", tenant.Status);
+    }
+
+    [Fact]
+    public async Task HandleCheckoutCompleted_StarterPlan_SetsLimits()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var db = new AppDbContext(options);
+
+        var handler = CreateHandler(db);
+        await handler.HandleCheckoutCompleted("cus_s", "sub_s", "Small Co", "Jane", "jane@small.com", "STARTER");
+
+        var tenant = await db.Tenants.FirstOrDefaultAsync();
+        Assert.NotNull(tenant);
+        Assert.Equal("STARTER", tenant!.PlanName);
+        Assert.Equal(50, tenant.MaxBatches);
+        Assert.Equal(5, tenant.MaxUsers);
     }
 }

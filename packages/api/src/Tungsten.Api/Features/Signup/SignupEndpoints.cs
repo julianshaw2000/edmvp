@@ -45,7 +45,8 @@ public static class SignupEndpoints
                             session.SubscriptionId ?? session.Subscription?.Id ?? "",
                             session.Metadata.GetValueOrDefault("companyName", ""),
                             session.Metadata.GetValueOrDefault("adminName", ""),
-                            session.Metadata.GetValueOrDefault("adminEmail", ""));
+                            session.Metadata.GetValueOrDefault("adminEmail", ""),
+                            session.Metadata.GetValueOrDefault("plan", "PRO"));
                     }
                     break;
 

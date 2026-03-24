@@ -92,58 +92,101 @@ import { RouterLink } from '@angular/router';
 
     <!-- Pricing -->
     <section class="py-20 px-6">
-      <div class="max-w-lg mx-auto text-center">
+      <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-2xl font-bold text-slate-900 mb-12">Simple, transparent pricing</h2>
-        <div class="bg-white rounded-2xl p-10 shadow-lg border border-slate-200">
-          <p class="text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-2">Pro Plan</p>
-          <div class="flex items-baseline justify-center gap-1 mb-2">
-            <span class="text-5xl font-bold text-slate-900">$249</span>
-            <span class="text-slate-500 text-lg">/month</span>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+
+          <!-- Starter Plan -->
+          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Starter</p>
+            <div class="flex items-baseline justify-center gap-1 mb-2">
+              <span class="text-5xl font-bold text-slate-900">$99</span>
+              <span class="text-slate-500 text-lg">/month</span>
+            </div>
+            <p class="text-slate-500 text-sm mb-8">60-day free trial included</p>
+
+            <ul class="text-left space-y-3 mb-10">
+              <li class="flex items-center gap-3 text-sm text-slate-700">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Up to 50 batches
+              </li>
+              <li class="flex items-center gap-3 text-sm text-slate-700">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Up to 5 users
+              </li>
+              <li class="flex items-center gap-3 text-sm text-slate-700">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Automated compliance checks
+              </li>
+              <li class="flex items-center gap-3 text-sm text-slate-700">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Material Passport generation
+              </li>
+              <li class="flex items-center gap-3 text-sm text-slate-700">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                SHA-256 hash chains
+              </li>
+            </ul>
+
+            <a routerLink="/signup" [queryParams]="{ plan: 'starter' }" class="block w-full bg-slate-800 text-white py-3.5 rounded-xl text-base font-semibold hover:bg-slate-900 transition-colors shadow-sm text-center">
+              Start Free Trial
+            </a>
           </div>
-          <p class="text-slate-500 text-sm mb-8">60-day free trial included</p>
 
-          <ul class="text-left space-y-3 mb-10">
-            <li class="flex items-center gap-3 text-sm text-slate-700">
-              <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              Unlimited batches
-            </li>
-            <li class="flex items-center gap-3 text-sm text-slate-700">
-              <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              Unlimited users
-            </li>
-            <li class="flex items-center gap-3 text-sm text-slate-700">
-              <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              Automated RMAP + OECD compliance checks
-            </li>
-            <li class="flex items-center gap-3 text-sm text-slate-700">
-              <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              Material Passport generation with QR codes
-            </li>
-            <li class="flex items-center gap-3 text-sm text-slate-700">
-              <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              SHA-256 hash chain integrity
-            </li>
-            <li class="flex items-center gap-3 text-sm text-slate-700">
-              <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              Admin dashboard + audit log
-            </li>
-          </ul>
+          <!-- Pro Plan -->
+          <div class="bg-indigo-600 rounded-2xl p-8 shadow-lg border border-indigo-600 relative">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Recommended</span>
+            </div>
+            <p class="text-sm font-semibold text-indigo-200 uppercase tracking-wider mb-2">Pro</p>
+            <div class="flex items-baseline justify-center gap-1 mb-2">
+              <span class="text-5xl font-bold text-white">$249</span>
+              <span class="text-indigo-200 text-lg">/month</span>
+            </div>
+            <p class="text-indigo-200 text-sm mb-8">60-day free trial included</p>
 
-          <a routerLink="/signup" class="block w-full bg-indigo-600 text-white py-3.5 rounded-xl text-base font-semibold hover:bg-indigo-700 transition-colors shadow-sm text-center">
-            Start Free Trial
-          </a>
+            <ul class="text-left space-y-3 mb-10">
+              <li class="flex items-center gap-3 text-sm text-indigo-100">
+                <svg class="w-5 h-5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Unlimited batches
+              </li>
+              <li class="flex items-center gap-3 text-sm text-indigo-100">
+                <svg class="w-5 h-5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Unlimited users
+              </li>
+              <li class="flex items-center gap-3 text-sm text-indigo-100">
+                <svg class="w-5 h-5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Everything in Starter
+              </li>
+              <li class="flex items-center gap-3 text-sm text-indigo-100">
+                <svg class="w-5 h-5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                Priority support
+              </li>
+            </ul>
+
+            <a routerLink="/signup" [queryParams]="{ plan: 'pro' }" class="block w-full bg-white text-indigo-600 py-3.5 rounded-xl text-base font-semibold hover:bg-indigo-50 transition-colors shadow-sm text-center">
+              Start Free Trial
+            </a>
+          </div>
+
         </div>
       </div>
     </section>
