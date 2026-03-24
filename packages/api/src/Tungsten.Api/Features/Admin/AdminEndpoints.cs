@@ -34,6 +34,16 @@ public static class AdminEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin);
 
+        app.MapGet("/api/admin/audit-logs/export", async (
+            Guid? userId, string? action, string? entityType, DateTime? from, DateTime? to,
+            IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ExportAuditLogs.Query(userId, action, entityType, from, to), ct);
+            return result.IsSuccess
+                ? Results.File(result.Value, "text/csv", "audit-log.csv")
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+
         app.MapGet("/api/admin/audit-logs", async (
             int? page, int? pageSize, Guid? userId, string? action,
             string? entityType, DateTime? from, DateTime? to, Guid? tenantId,
