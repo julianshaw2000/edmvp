@@ -36,7 +36,9 @@ public class CreateUserRoleEnforcementTests
         var (db, currentUser) = SetupWithRole("TENANT_ADMIN");
         var emailService = Substitute.For<IEmailService>();
         var config = Substitute.For<IConfiguration>();
-        var handler = new CreateUser.Handler(db, currentUser, emailService, config);
+        var planEnforcement = Substitute.For<IPlanEnforcementService>();
+        planEnforcement.CheckUserLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
+        var handler = new CreateUser.Handler(db, currentUser, emailService, config, planEnforcement);
 
         var result = await handler.Handle(
             new CreateUser.Command("new@test.com", "New User", "SUPPLIER"), CancellationToken.None);
@@ -50,7 +52,9 @@ public class CreateUserRoleEnforcementTests
         var (db, currentUser) = SetupWithRole("TENANT_ADMIN");
         var emailService = Substitute.For<IEmailService>();
         var config = Substitute.For<IConfiguration>();
-        var handler = new CreateUser.Handler(db, currentUser, emailService, config);
+        var planEnforcement = Substitute.For<IPlanEnforcementService>();
+        planEnforcement.CheckUserLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
+        var handler = new CreateUser.Handler(db, currentUser, emailService, config, planEnforcement);
 
         var result = await handler.Handle(
             new CreateUser.Command("new@test.com", "New User", "TENANT_ADMIN"), CancellationToken.None);
@@ -65,7 +69,9 @@ public class CreateUserRoleEnforcementTests
         var (db, currentUser) = SetupWithRole("PLATFORM_ADMIN");
         var emailService = Substitute.For<IEmailService>();
         var config = Substitute.For<IConfiguration>();
-        var handler = new CreateUser.Handler(db, currentUser, emailService, config);
+        var planEnforcement = Substitute.For<IPlanEnforcementService>();
+        planEnforcement.CheckUserLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
+        var handler = new CreateUser.Handler(db, currentUser, emailService, config, planEnforcement);
 
         var result = await handler.Handle(
             new CreateUser.Command("new@test.com", "New User", "TENANT_ADMIN"), CancellationToken.None);

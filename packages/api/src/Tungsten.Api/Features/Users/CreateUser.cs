@@ -31,7 +31,7 @@ public static class CreateUser
         }
     }
 
-    public class Handler(AppDbContext db, ICurrentUserService currentUser, IEmailService emailService, IConfiguration configuration)
+    public class Handler(AppDbContext db, ICurrentUserService currentUser, IEmailService emailService, IConfiguration configuration, IPlanEnforcementService planEnforcement)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> Handle(Command cmd, CancellationToken ct)
@@ -44,6 +44,10 @@ public static class CreateUser
             var callerRole = await currentUser.GetRoleAsync(ct);
             if (callerRole == Roles.TenantAdmin && cmd.Role is not ("SUPPLIER" or "BUYER"))
                 return Result<Response>.Failure("You can only assign Supplier or Buyer roles");
+
+            var limitError = await planEnforcement.CheckUserLimitAsync(admin.TenantId, ct);
+            if (limitError is not null)
+                return Result<Response>.Failure(limitError);
 
             var exists = await db.Users.AnyAsync(
                 u => u.Email == cmd.Email && u.TenantId == admin.TenantId, ct);

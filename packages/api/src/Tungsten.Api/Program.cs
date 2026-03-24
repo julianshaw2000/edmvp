@@ -104,6 +104,7 @@ else
     builder.Services.AddSingleton<IEmailService, LogEmailService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IPlanEnforcementService, PlanEnforcementService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetMe.Handler>());
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantStatusBehaviour<,>));
