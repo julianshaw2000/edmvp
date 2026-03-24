@@ -162,6 +162,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 
+builder.Services.AddHybridCache();
+
 builder.Services.AddProblemDetails();
 
 builder.Services.AddHealthChecks()

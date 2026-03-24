@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Tungsten.Api.Features.Compliance.Events;
 using Tungsten.Api.Features.Compliance.Services;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -8,7 +9,7 @@ using Tungsten.Api.Infrastructure.Persistence.Entities;
 
 namespace Tungsten.Api.Features.Compliance.Checkers;
 
-public class OecdDdgChecker(AppDbContext db) : INotificationHandler<CustodyEventCreated>
+public class OecdDdgChecker(AppDbContext db, HybridCache cache) : INotificationHandler<CustodyEventCreated>
 {
     // Required documents per event type (from spec Section 4.3)
     private static readonly Dictionary<string, string[]> RequiredDocTypes = new()
@@ -21,6 +22,12 @@ public class OecdDdgChecker(AppDbContext db) : INotificationHandler<CustodyEvent
         ["EXPORT_SHIPMENT"] = ["EXPORT_PERMIT", "TRANSPORT_DOCUMENT"],
     };
 
+    private static readonly HybridCacheEntryOptions CacheOptions = new()
+    {
+        Expiration = TimeSpan.FromHours(1),
+        LocalCacheExpiration = TimeSpan.FromHours(1),
+    };
+
     public async Task Handle(CustodyEventCreated notification, CancellationToken ct)
     {
         var subChecks = new List<(string name, string status, string detail)>();
@@ -30,18 +37,31 @@ public class OecdDdgChecker(AppDbContext db) : INotificationHandler<CustodyEvent
             .FirstOrDefaultAsync(b => b.Id == notification.BatchId, ct);
         if (batch is not null)
         {
-            var riskCountry = await db.RiskCountries.AsNoTracking()
-                .FirstOrDefaultAsync(r => r.CountryCode == batch.OriginCountry, ct);
+            var highRiskCountries = await cache.GetOrCreateAsync(
+                "risk-countries",
+                async cancel => await db.RiskCountries.AsNoTracking()
+                    .Where(r => r.RiskLevel == "HIGH")
+                    .Select(r => r.CountryCode)
+                    .ToListAsync(cancel),
+                CacheOptions,
+                cancellationToken: ct);
 
-            if (riskCountry?.RiskLevel == "HIGH")
+            if (highRiskCountries.Contains(batch.OriginCountry))
                 subChecks.Add(("origin_risk", "FLAG", $"Origin country {batch.OriginCountry} is HIGH risk"));
             else
                 subChecks.Add(("origin_risk", "PASS", "Origin country not high risk"));
         }
 
         // 2. Sanctions check
-        var isSanctioned = await db.SanctionedEntities.AsNoTracking()
-            .AnyAsync(s => s.EntityName == notification.ActorName, ct);
+        var sanctionedNames = await cache.GetOrCreateAsync(
+            "sanctioned-entities",
+            async cancel => await db.SanctionedEntities.AsNoTracking()
+                .Select(s => s.EntityName)
+                .ToListAsync(cancel),
+            CacheOptions,
+            cancellationToken: ct);
+
+        var isSanctioned = sanctionedNames.Contains(notification.ActorName);
         if (isSanctioned)
             subChecks.Add(("sanctions", "FAIL", $"Actor '{notification.ActorName}' is on sanctions list"));
         else

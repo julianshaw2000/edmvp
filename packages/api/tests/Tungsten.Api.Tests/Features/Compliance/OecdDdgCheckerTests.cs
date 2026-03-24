@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.DependencyInjection;
 using Tungsten.Api.Features.Compliance.Checkers;
 using Tungsten.Api.Features.Compliance.Events;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -16,6 +18,13 @@ public class OecdDdgCheckerTests
         return new AppDbContext(options);
     }
 
+    private static HybridCache CreateCache()
+    {
+        var services = new ServiceCollection();
+        services.AddHybridCache();
+        return services.BuildServiceProvider().GetRequiredService<HybridCache>();
+    }
+
     // ─── scenario 1: HIGH risk origin country → FLAG ─────────────────────────
 
     [Fact]
@@ -30,7 +39,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -53,7 +62,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -76,7 +85,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -96,7 +105,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -120,7 +129,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -143,7 +152,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "bad corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -167,7 +176,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -185,7 +194,7 @@ public class OecdDdgCheckerTests
         // No risk country, no sanctions — but no documents attached
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Good Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -200,7 +209,7 @@ public class OecdDdgCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Good Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "CONCENTRATION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -215,7 +224,7 @@ public class OecdDdgCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Good Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -238,7 +247,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -274,7 +283,7 @@ public class OecdDdgCheckerTests
         });
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -307,7 +316,7 @@ public class OecdDdgCheckerTests
         });
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -333,7 +342,7 @@ public class OecdDdgCheckerTests
         });
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -361,7 +370,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Sanctioned Miner", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -385,7 +394,7 @@ public class OecdDdgCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Bad Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -407,7 +416,7 @@ public class OecdDdgCheckerTests
         // No documents attached
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "CD", "Mining Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Mining Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -431,7 +440,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Clean Miner GmbH", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -453,7 +462,7 @@ public class OecdDdgCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Bad Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -474,7 +483,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -501,7 +510,7 @@ public class OecdDdgCheckerTests
         db.Users.Add(buyer);
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Bad Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -522,7 +531,7 @@ public class OecdDdgCheckerTests
         AddRequiredDocs(db, tenantId, batchId, eventId, "MINE_EXTRACTION");
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -539,7 +548,7 @@ public class OecdDdgCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Good Corp");
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -570,7 +579,7 @@ public class OecdDdgCheckerTests
         });
         await db.SaveChangesAsync();
 
-        var handler = new OecdDdgChecker(db);
+        var handler = new OecdDdgChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "LABORATORY_ASSAY", "Good Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
