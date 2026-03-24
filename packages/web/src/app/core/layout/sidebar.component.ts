@@ -1,6 +1,7 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { AdminApiService } from '../../features/admin/data/admin-api.service';
 
 interface NavItem {
   label: string;
@@ -12,6 +13,8 @@ interface NavGroup {
   title: string;
   items: NavItem[];
 }
+
+const BILLING_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>';
 
 @Component({
   selector: 'app-sidebar',
@@ -53,6 +56,23 @@ interface NavGroup {
             </div>
           </div>
         }
+
+        <!-- Billing link — TENANT_ADMIN only -->
+        @if (isTenantAdmin()) {
+          <div>
+            <p class="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Account</p>
+            <div class="space-y-0.5">
+              <button
+                (click)="openBillingPortal()"
+                [disabled]="billingLoading()"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200 border-l-2 border-transparent transition-all duration-150 disabled:opacity-50 disabled:cursor-wait"
+              >
+                <span class="w-5 h-5 shrink-0" [innerHTML]="billingIcon"></span>
+                <span>{{ billingLoading() ? 'Opening…' : 'Manage Billing' }}</span>
+              </button>
+            </div>
+          </div>
+        }
       </nav>
 
       <!-- User section -->
@@ -79,6 +99,11 @@ interface NavGroup {
 })
 export class SidebarComponent {
   protected auth = inject(AuthService);
+  private adminApi = inject(AdminApiService);
+
+  protected readonly billingIcon = BILLING_ICON;
+  protected readonly billingLoading = signal(false);
+  protected readonly isTenantAdmin = computed(() => this.auth.role() === 'TENANT_ADMIN');
 
   readonly navGroups = computed<NavGroup[]>(() => {
     const role = this.auth.role();
@@ -119,4 +144,18 @@ export class SidebarComponent {
         return [];
     }
   });
+
+  openBillingPortal(): void {
+    if (this.billingLoading()) return;
+    this.billingLoading.set(true);
+    this.adminApi.createBillingPortalSession().subscribe({
+      next: ({ portalUrl }) => {
+        this.billingLoading.set(false);
+        window.location.href = portalUrl;
+      },
+      error: () => {
+        this.billingLoading.set(false);
+      },
+    });
+  }
 }
