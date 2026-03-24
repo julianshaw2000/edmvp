@@ -5,16 +5,21 @@ import { AuthService } from '../../core/auth/auth.service';
 import { AdminApiService } from './data/admin-api.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
+import { OnboardingWizardComponent } from './onboarding-wizard.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [PageHeaderComponent, LoadingSpinnerComponent, RouterLink],
+  imports: [PageHeaderComponent, LoadingSpinnerComponent, RouterLink, OnboardingWizardComponent],
   template: `
     <app-page-header
       title="Admin Dashboard"
       subtitle="System overview and management"
     />
+
+    @if (showOnboarding()) {
+      <app-onboarding-wizard (dismissed)="onOnboardingDismissed()" />
+    }
 
     <!-- Tenant Status Banner (TENANT_ADMIN only) -->
     @if (isTenantAdmin()) {
@@ -212,6 +217,11 @@ export class AdminDashboardComponent implements OnInit {
   private adminApi = inject(AdminApiService);
   protected isPlatformAdmin = computed(() => this.auth.role() === 'PLATFORM_ADMIN');
   protected isTenantAdmin = computed(() => this.auth.role() === 'TENANT_ADMIN');
+  protected showOnboarding = computed(() => {
+    const role = this.auth.role();
+    const dismissed = localStorage.getItem('onboarding_dismissed') === 'true';
+    return role === 'TENANT_ADMIN' && !dismissed;
+  });
   protected tenantStatus = computed(() => this.auth.profile()?.tenantStatus?.toLowerCase() ?? null);
   protected trialDaysRemaining = computed(() => {
     const endsAt = this.auth.profile()?.trialEndsAt;
@@ -224,6 +234,10 @@ export class AdminDashboardComponent implements OnInit {
   ngOnInit() {
     this.facade.loadUsers();
     this.facade.loadBatches();
+  }
+
+  protected onOnboardingDismissed() {
+    localStorage.setItem('onboarding_dismissed', 'true');
   }
 
   protected openBillingPortal() {
