@@ -22,11 +22,11 @@ import { RouterLink } from '@angular/router';
     <section class="pt-32 pb-20 px-6">
       <div class="max-w-3xl mx-auto text-center">
         <h1 class="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight tracking-tight">
-          Tungsten supply chain compliance, automated.
+          3TG supply chain compliance, automated.
         </h1>
         <p class="mt-6 text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Track custody from mine to refinery. SHA-256 hash chains, RMAP + OECD compliance checks,
-          Material Passport generation — all in one platform.
+          Track custody from mine to refinery for tungsten, tin, tantalum, and gold. SHA-256 hash chains,
+          RMAP + OECD compliance checks, Material Passport generation — all in one platform.
         </p>
         <div class="mt-10">
           <a routerLink="/signup" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-3.5 rounded-xl text-base font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30">

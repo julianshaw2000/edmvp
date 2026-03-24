@@ -73,7 +73,7 @@
 - **Problem:** Manual spreadsheets, email chains, weeks of auditing for mineral compliance
 - **Solution:** Automated, tamper-evident digital platform — mine to refinery in real time
 - **Differentiators:** SHA-256 hash chains, automated RMAP + OECD checks, public QR verification
-- **Market:** Tungsten pilot, expandable to full 3TG suite (tin, tantalum, gold)
+- **Market:** Full 3TG suite — tungsten, tin, tantalum, and gold — under Dodd-Frank and EU conflict minerals regulation
 - **Revenue:** Per-batch tracking fees, enterprise subscriptions, API access
 
 ---

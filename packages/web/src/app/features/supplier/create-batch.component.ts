@@ -5,10 +5,13 @@ import { SupplierFacade } from './supplier.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 const MINERAL_TYPES = [
-  { value: 'TUNGSTEN', label: 'Tungsten' },
-  { value: 'TIN', label: 'Tin' },
-  { value: 'TANTALUM', label: 'Tantalum' },
-  { value: 'GOLD', label: 'Gold' },
+  { value: 'Tungsten (Wolframite)', label: 'Tungsten (Wolframite)' },
+  { value: 'Tungsten (Cassiterite)', label: 'Tungsten (Cassiterite)' },
+  { value: 'Tin (Cassiterite)', label: 'Tin (Cassiterite)' },
+  { value: 'Tantalum (Coltan)', label: 'Tantalum (Coltan)' },
+  { value: 'Tantalum (Tantalite)', label: 'Tantalum (Tantalite)' },
+  { value: 'Gold (Alluvial)', label: 'Gold (Alluvial)' },
+  { value: 'Gold (Hard Rock)', label: 'Gold (Hard Rock)' },
 ];
 
 @Component({

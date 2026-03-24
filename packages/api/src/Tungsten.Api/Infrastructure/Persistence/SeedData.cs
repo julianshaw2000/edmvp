@@ -23,10 +23,20 @@ public static class SeedData
         );
 
         db.RmapSmelters.AddRange(
+            // Tungsten smelters
             new RmapSmelterEntity { SmelterId = "CID001100", SmelterName = "Wolfram Bergbau und Hutten AG", Country = "AT", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 6, 15), LoadedAt = DateTime.UtcNow },
             new RmapSmelterEntity { SmelterId = "CID002158", SmelterName = "Global Tungsten & Powders Corp.", Country = "US", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 3, 10), LoadedAt = DateTime.UtcNow },
             new RmapSmelterEntity { SmelterId = "CID002082", SmelterName = "Xiamen Tungsten Co., Ltd.", Country = "CN", ConformanceStatus = "ACTIVE_PARTICIPATING", LastAuditDate = new DateOnly(2025, 8, 22), LoadedAt = DateTime.UtcNow },
-            new RmapSmelterEntity { SmelterId = "CID000999", SmelterName = "Unaudited Smelter Example", Country = "XX", ConformanceStatus = "NON_CONFORMANT", LastAuditDate = null, LoadedAt = DateTime.UtcNow }
+            new RmapSmelterEntity { SmelterId = "CID000999", SmelterName = "Unaudited Smelter Example", Country = "XX", ConformanceStatus = "NON_CONFORMANT", LastAuditDate = null, LoadedAt = DateTime.UtcNow },
+            // Tin smelters
+            new RmapSmelterEntity { SmelterId = "CID001070", SmelterName = "Malaysia Smelting Corporation", Country = "MY", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 5, 20), LoadedAt = DateTime.UtcNow },
+            new RmapSmelterEntity { SmelterId = "CID000468", SmelterName = "PT Timah Tbk", Country = "ID", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 7, 15), LoadedAt = DateTime.UtcNow },
+            // Tantalum smelters
+            new RmapSmelterEntity { SmelterId = "CID000211", SmelterName = "Global Advanced Metals", Country = "AU", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 4, 10), LoadedAt = DateTime.UtcNow },
+            new RmapSmelterEntity { SmelterId = "CID002544", SmelterName = "KEMET Blue Powder", Country = "US", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 9, 5), LoadedAt = DateTime.UtcNow },
+            // Gold refiners
+            new RmapSmelterEntity { SmelterId = "CID000058", SmelterName = "Argor-Heraeus SA", Country = "CH", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 2, 28), LoadedAt = DateTime.UtcNow },
+            new RmapSmelterEntity { SmelterId = "CID000694", SmelterName = "PAMP SA", Country = "CH", ConformanceStatus = "CONFORMANT", LastAuditDate = new DateOnly(2025, 8, 18), LoadedAt = DateTime.UtcNow }
         );
 
         db.SanctionedEntities.AddRange(
