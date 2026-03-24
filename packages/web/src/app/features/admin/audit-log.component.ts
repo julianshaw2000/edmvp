@@ -2,10 +2,12 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } 
 import { RouterLink } from '@angular/router';
 import { DatePipe, JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AdminFacade } from './admin.facade';
 import { AuditLogFilters, AUDIT_ACTION_LABELS } from './data/audit-log.models';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
+import { API_URL } from '../../core/http/api-url.token';
 
 @Component({
   selector: 'app-audit-log',
@@ -20,10 +22,21 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
       Back to Dashboard
     </a>
 
-    <app-page-header
-      title="Audit Log"
-      subtitle="Full record of system actions and events"
-    />
+    <div class="flex items-start justify-between mb-2">
+      <app-page-header
+        title="Audit Log"
+        subtitle="Full record of system actions and events"
+      />
+      <button
+        (click)="exportCsv()"
+        class="mt-1 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Export CSV
+      </button>
+    </div>
 
     <!-- Filters -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-6">
@@ -182,6 +195,8 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
 })
 export class AuditLogComponent implements OnInit {
   protected facade = inject(AdminFacade);
+  private http = inject(HttpClient);
+  private apiUrl = inject(API_URL);
 
   protected readonly actionLabels = AUDIT_ACTION_LABELS;
   protected readonly actionLabelEntries = Object.entries(AUDIT_ACTION_LABELS).map(([key, label]) => ({ key, label }));
@@ -243,5 +258,21 @@ export class AuditLogComponent implements OnInit {
   nextPage() {
     const current = this.facade.auditLogsPage();
     if (current < this.facade.auditLogsTotalPages()) this.load(current + 1);
+  }
+
+  exportCsv() {
+    const params = new URLSearchParams();
+    if (this.filterAction) params.set('action', this.filterAction);
+    if (this.filterEntityType) params.set('entityType', this.filterEntityType);
+    const qs = params.toString();
+    const url = `${this.apiUrl}/api/admin/audit-logs/export${qs ? '?' + qs : ''}`;
+    this.http.get(url, { responseType: 'blob' }).subscribe(blob => {
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = 'audit-log.csv';
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    });
   }
 }
