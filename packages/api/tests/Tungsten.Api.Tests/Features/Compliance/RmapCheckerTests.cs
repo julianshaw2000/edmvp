@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.DependencyInjection;
 using Tungsten.Api.Features.Compliance.Checkers;
 using Tungsten.Api.Features.Compliance.Events;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -16,6 +18,13 @@ public class RmapCheckerTests
         return new AppDbContext(options);
     }
 
+    private static HybridCache CreateCache()
+    {
+        var services = new ServiceCollection();
+        services.AddHybridCache();
+        return services.BuildServiceProvider().GetRequiredService<HybridCache>();
+    }
+
     // ─── scenario 1: CONFORMANT smelter → PASS ───────────────────────────────
 
     [Fact]
@@ -29,7 +38,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID001100");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -50,7 +59,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID001100");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -74,7 +83,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID002082");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID002082", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -96,7 +105,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID000999");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -116,7 +125,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID000999");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -134,7 +143,7 @@ public class RmapCheckerTests
         // No smelter in DB
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "UNKNOWN");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "UNKNOWN", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -149,7 +158,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "GHOST_ID");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "GHOST_ID", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -166,7 +175,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "MINE_EXTRACTION", null);
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "MINE_EXTRACTION", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -181,7 +190,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "CONCENTRATION", null);
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "CONCENTRATION", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -196,7 +205,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "TRADING_TRANSFER", null);
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "TRADING_TRANSFER", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -211,7 +220,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "EXPORT_SHIPMENT", null);
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "EXPORT_SHIPMENT", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -228,7 +237,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", null);
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", null, null, DateTime.UtcNow),
             CancellationToken.None);
@@ -245,7 +254,7 @@ public class RmapCheckerTests
         var db = CreateDb();
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -267,7 +276,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID001100");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -297,7 +306,7 @@ public class RmapCheckerTests
         db.Users.Add(buyer);
         await db.SaveChangesAsync();
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID000999", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -317,7 +326,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID001100");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);
@@ -339,7 +348,7 @@ public class RmapCheckerTests
         });
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID001100");
 
-        var handler = new RmapChecker(db);
+        var handler = new RmapChecker(db, CreateCache());
         await handler.Handle(new CustodyEventCreated(
             eventId, batchId, tenantId, "PRIMARY_PROCESSING", "Corp", "CID001100", null, DateTime.UtcNow),
             CancellationToken.None);

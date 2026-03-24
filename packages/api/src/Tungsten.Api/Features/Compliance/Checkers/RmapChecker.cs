@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Tungsten.Api.Features.Compliance.Events;
 using Tungsten.Api.Features.Compliance.Services;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -8,8 +9,14 @@ using Tungsten.Api.Infrastructure.Persistence.Entities;
 
 namespace Tungsten.Api.Features.Compliance.Checkers;
 
-public class RmapChecker(AppDbContext db) : INotificationHandler<CustodyEventCreated>
+public class RmapChecker(AppDbContext db, HybridCache cache) : INotificationHandler<CustodyEventCreated>
 {
+    private static readonly HybridCacheEntryOptions CacheOptions = new()
+    {
+        Expiration = TimeSpan.FromHours(1),
+        LocalCacheExpiration = TimeSpan.FromHours(1),
+    };
+
     public async Task Handle(CustodyEventCreated notification, CancellationToken ct)
     {
         // Only check PRIMARY_PROCESSING events with a smelter ID
@@ -17,8 +24,15 @@ public class RmapChecker(AppDbContext db) : INotificationHandler<CustodyEventCre
             string.IsNullOrEmpty(notification.SmelterId))
             return;
 
-        var smelter = await db.RmapSmelters.AsNoTracking()
-            .FirstOrDefaultAsync(s => s.SmelterId == notification.SmelterId, ct);
+        var smelters = await cache.GetOrCreateAsync(
+            "rmap-smelters",
+            async cancel => await db.RmapSmelters.AsNoTracking()
+                .Select(s => new CachedSmelter(s.SmelterId, s.SmelterName, s.ConformanceStatus))
+                .ToListAsync(cancel),
+            CacheOptions,
+            cancellationToken: ct);
+
+        var smelter = smelters.FirstOrDefault(s => s.SmelterId == notification.SmelterId);
 
         string status;
         string detail;
@@ -67,4 +81,6 @@ public class RmapChecker(AppDbContext db) : INotificationHandler<CustodyEventCre
                 status, detail, ct);
         }
     }
+
+    private record CachedSmelter(string SmelterId, string SmelterName, string ConformanceStatus);
 }

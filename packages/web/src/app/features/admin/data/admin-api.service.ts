@@ -70,6 +70,11 @@ export class AdminApiService {
     return this.http.patch<TenantDto>(`${this.apiUrl}/api/platform/tenants/${id}/status`, { status });
   }
 
+  // Billing
+  createBillingPortalSession() {
+    return this.http.post<{ portalUrl: string }>(`${this.apiUrl}/api/billing/portal`, {});
+  }
+
   // Audit logs
   getAuditLogs(filters: AuditLogFilters): Observable<PagedAuditLogs> {
     let params = new HttpParams()

@@ -1,6 +1,8 @@
 using System.Text;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.DependencyInjection;
 using Tungsten.Api.Features.Admin;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
@@ -9,6 +11,13 @@ namespace Tungsten.Api.Tests.Features.Admin;
 
 public class UploadRmapListTests
 {
+    private static HybridCache CreateCache()
+    {
+        var services = new ServiceCollection();
+        services.AddHybridCache();
+        return services.BuildServiceProvider().GetRequiredService<HybridCache>();
+    }
+
     [Fact]
     public async Task Handle_ValidCsv_ImportsSmelters()
     {
@@ -19,7 +28,7 @@ public class UploadRmapListTests
         var csv = "SmelterId,SmelterName,Country,ConformanceStatus,LastAuditDate\nCID001,Test Smelter,US,CONFORMANT,2025-01-01\nCID002,Another Smelter,DE,NON_CONFORMANT,";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
 
-        var handler = new UploadRmapList.Handler(db);
+        var handler = new UploadRmapList.Handler(db, CreateCache());
         var result = await handler.Handle(new UploadRmapList.Command(stream), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
@@ -48,7 +57,7 @@ public class UploadRmapListTests
         var csv = "SmelterId,SmelterName,Country,ConformanceStatus,LastAuditDate\nCID001,New Name,US,CONFORMANT,2025-06-01";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
 
-        var handler = new UploadRmapList.Handler(db);
+        var handler = new UploadRmapList.Handler(db, CreateCache());
         var result = await handler.Handle(new UploadRmapList.Command(stream), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();

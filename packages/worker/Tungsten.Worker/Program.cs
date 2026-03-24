@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Resend;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Worker.Services;
@@ -12,8 +13,17 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblyContaining<AppDbContext>());
 
 // Email service (same conditional logic as API)
-if (!string.IsNullOrEmpty(builder.Configuration["SendGrid:ApiKey"]))
-    builder.Services.AddSingleton<IEmailService, SendGridEmailService>();
+if (!string.IsNullOrEmpty(builder.Configuration["Resend:ApiKey"]))
+{
+    builder.Services.AddOptions();
+    builder.Services.AddHttpClient<ResendClient>();
+    builder.Services.Configure<ResendClientOptions>(o =>
+    {
+        o.ApiToken = builder.Configuration["Resend:ApiKey"]!;
+    });
+    builder.Services.AddTransient<IResend, ResendClient>();
+    builder.Services.AddSingleton<IEmailService, ResendEmailService>();
+}
 else
     builder.Services.AddSingleton<IEmailService, LogEmailService>();
 

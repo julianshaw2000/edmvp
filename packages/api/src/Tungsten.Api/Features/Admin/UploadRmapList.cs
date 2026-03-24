@@ -1,6 +1,7 @@
 using System.Globalization;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Tungsten.Api.Common;
 using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -18,7 +19,7 @@ public static class UploadRmapList
 
     public record Response(int Imported, int Updated, int Total);
 
-    public class Handler(AppDbContext db) : IRequestHandler<Command, Result<Response>>
+    public class Handler(AppDbContext db, HybridCache cache) : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> Handle(Command cmd, CancellationToken ct)
         {
@@ -72,6 +73,9 @@ public static class UploadRmapList
             }
 
             await db.SaveChangesAsync(ct);
+
+            // Invalidate the RMAP smelters cache so compliance checkers pick up the new data immediately
+            await cache.RemoveAsync("rmap-smelters", ct);
 
             var total = await db.RmapSmelters.CountAsync(ct);
             return Result<Response>.Success(new Response(imported, updated, total));
