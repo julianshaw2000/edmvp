@@ -29,4 +29,8 @@ export const ADMIN_ROUTES: Routes = [
     path: 'tenants',
     loadComponent: () => import('./tenant-management.component').then(m => m.TenantManagementComponent),
   },
+  {
+    path: 'analytics',
+    loadComponent: () => import('./analytics.component').then(m => m.AnalyticsComponent),
+  },
 ];
