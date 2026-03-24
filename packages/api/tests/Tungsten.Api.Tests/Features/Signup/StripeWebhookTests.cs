@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.Signup;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
@@ -9,15 +11,22 @@ namespace Tungsten.Api.Tests.Features.Signup;
 
 public class StripeWebhookTests
 {
+    private static StripeWebhookHandler CreateHandler(AppDbContext db)
+    {
+        var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
+        var emailService = Substitute.For<IEmailService>();
+        var config = new ConfigurationBuilder().Build();
+        return new StripeWebhookHandler(db, logger, emailService, config);
+    }
+
     [Fact]
     public async Task HandleCheckoutCompleted_CreatesTenantAndUser()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         var db = new AppDbContext(options);
-        var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
 
-        var handler = new StripeWebhookHandler(db, logger);
+        var handler = CreateHandler(db);
         await handler.HandleCheckoutCompleted("cus_test123", "sub_test123", "Acme Mining", "John Smith", "john@acme.com");
 
         var tenant = await db.Tenants.FirstOrDefaultAsync();
@@ -48,8 +57,7 @@ public class StripeWebhookTests
         db.Users.Add(new UserEntity { Id = Guid.NewGuid(), Auth0Sub = "auth0|x", Email = "john@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
-        var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
-        var handler = new StripeWebhookHandler(db, logger);
+        var handler = CreateHandler(db);
         await handler.HandleCheckoutCompleted("cus_456", "sub_456", "Acme Mining", "John Smith", "john@acme.com");
 
         Assert.Equal(1, await db.Tenants.CountAsync());
@@ -65,8 +73,7 @@ public class StripeWebhookTests
         db.Tenants.Add(new TenantEntity { Id = Guid.NewGuid(), Name = "Acme", SchemaPrefix = "acme", Status = "TRIAL", StripeSubscriptionId = "sub_test", CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
-        var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
-        var handler = new StripeWebhookHandler(db, logger);
+        var handler = CreateHandler(db);
         await handler.HandleInvoicePaid("sub_test");
 
         var tenant = await db.Tenants.FirstAsync();
@@ -83,8 +90,7 @@ public class StripeWebhookTests
         db.Tenants.Add(new TenantEntity { Id = Guid.NewGuid(), Name = "Acme", SchemaPrefix = "acme", Status = "ACTIVE", StripeSubscriptionId = "sub_test", CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
-        var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
-        var handler = new StripeWebhookHandler(db, logger);
+        var handler = CreateHandler(db);
         await handler.HandlePaymentFailed("sub_test");
 
         var tenant = await db.Tenants.FirstAsync();
@@ -101,8 +107,7 @@ public class StripeWebhookTests
         db.Tenants.Add(new TenantEntity { Id = Guid.NewGuid(), Name = "Acme", SchemaPrefix = "acme", Status = "ACTIVE", StripeSubscriptionId = "sub_test", CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
-        var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
-        var handler = new StripeWebhookHandler(db, logger);
+        var handler = CreateHandler(db);
         await handler.HandleSubscriptionDeleted("sub_test");
 
         var tenant = await db.Tenants.FirstAsync();

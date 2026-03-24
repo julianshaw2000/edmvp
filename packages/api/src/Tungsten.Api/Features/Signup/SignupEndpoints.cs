@@ -1,4 +1,5 @@
 using MediatR;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 
 namespace Tungsten.Api.Features.Signup;
@@ -15,7 +16,7 @@ public static class SignupEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireRateLimiting("public");
 
-        app.MapPost("/api/stripe/webhook", async (HttpContext httpContext, AppDbContext db, IConfiguration config, ILogger<StripeWebhookHandler> logger) =>
+        app.MapPost("/api/stripe/webhook", async (HttpContext httpContext, AppDbContext db, IConfiguration config, ILogger<StripeWebhookHandler> logger, IEmailService emailService) =>
         {
             var json = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
             var webhookSecret = config["Stripe:WebhookSecret"];
@@ -31,7 +32,7 @@ public static class SignupEndpoints
                 return Results.BadRequest("Invalid signature");
             }
 
-            var handler = new StripeWebhookHandler(db, logger);
+            var handler = new StripeWebhookHandler(db, logger, emailService, config);
 
             switch (stripeEvent.Type)
             {
