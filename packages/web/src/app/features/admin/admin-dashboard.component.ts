@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AdminFacade } from './admin.facade';
 import { AuthService } from '../../core/auth/auth.service';
+import { AdminApiService } from './data/admin-api.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 
@@ -22,16 +23,30 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
           <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p class="text-sm font-medium text-amber-800">
+          <p class="text-sm font-medium text-amber-800 flex-1">
             Trial &mdash; {{ trialDaysRemaining() }} day{{ trialDaysRemaining() === 1 ? '' : 's' }} remaining
           </p>
+          <button
+            (click)="openBillingPortal()"
+            [disabled]="billingLoading()"
+            class="ml-auto text-xs font-semibold text-amber-700 border border-amber-300 rounded-lg px-3 py-1.5 hover:bg-amber-100 disabled:opacity-50 transition-colors"
+          >
+            {{ billingLoading() ? 'Redirecting...' : 'Manage Billing' }}
+          </button>
         </div>
       } @else if (tenantStatus() === 'active') {
         <div class="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3">
           <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p class="text-sm font-medium text-emerald-800">Pro Plan &mdash; Active</p>
+          <p class="text-sm font-medium text-emerald-800 flex-1">Pro Plan &mdash; Active</p>
+          <button
+            (click)="openBillingPortal()"
+            [disabled]="billingLoading()"
+            class="ml-auto text-xs font-semibold text-emerald-700 border border-emerald-300 rounded-lg px-3 py-1.5 hover:bg-emerald-100 disabled:opacity-50 transition-colors"
+          >
+            {{ billingLoading() ? 'Redirecting...' : 'Manage Billing' }}
+          </button>
         </div>
       }
     }
@@ -194,6 +209,7 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
 export class AdminDashboardComponent implements OnInit {
   protected facade = inject(AdminFacade);
   protected auth = inject(AuthService);
+  private adminApi = inject(AdminApiService);
   protected isPlatformAdmin = computed(() => this.auth.role() === 'PLATFORM_ADMIN');
   protected isTenantAdmin = computed(() => this.auth.role() === 'TENANT_ADMIN');
   protected tenantStatus = computed(() => this.auth.profile()?.tenantStatus?.toLowerCase() ?? null);
@@ -203,9 +219,22 @@ export class AdminDashboardComponent implements OnInit {
     const ms = new Date(endsAt).getTime() - Date.now();
     return Math.max(0, Math.ceil(ms / 86_400_000));
   });
+  protected billingLoading = signal(false);
 
   ngOnInit() {
     this.facade.loadUsers();
     this.facade.loadBatches();
+  }
+
+  protected openBillingPortal() {
+    this.billingLoading.set(true);
+    this.adminApi.createBillingPortalSession().subscribe({
+      next: (res) => {
+        window.location.href = res.portalUrl;
+      },
+      error: () => {
+        this.billingLoading.set(false);
+      },
+    });
   }
 }

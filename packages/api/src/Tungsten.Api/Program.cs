@@ -27,6 +27,7 @@ using Tungsten.Api.Features.Users;
 using Tungsten.Api.Features.Admin;
 using Tungsten.Api.Features.Platform;
 using Tungsten.Api.Features.Signup;
+using Tungsten.Api.Features.Billing;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -292,6 +293,7 @@ app.MapUserEndpoints();
 app.MapAdminEndpoints();
 app.MapPlatformEndpoints();
 app.MapSignupEndpoints();
+app.MapBillingEndpoints();
 
 app.Run();
 
