@@ -217,12 +217,11 @@ export class SignupComponent {
       },
       error: (err) => {
         this.submitting.set(false);
-        if (err?.status === 409) {
+        const message = err?.error?.error || err?.error?.detail || err?.message || 'Something went wrong. Please try again.';
+        if (err?.status === 409 || message.includes('already in use')) {
           this.errorMessage.set('An account with this email already exists. Please sign in instead.');
-        } else if (err?.error?.detail) {
-          this.errorMessage.set(err.error.detail);
         } else {
-          this.errorMessage.set('Something went wrong. Please try again.');
+          this.errorMessage.set(message);
         }
       },
     });
