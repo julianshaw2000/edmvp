@@ -30,6 +30,7 @@ using Tungsten.Api.Features.Signup;
 using Tungsten.Api.Features.Billing;
 using Tungsten.Api.Features.Webhooks;
 using Tungsten.Api.Features.Analytics;
+using Tungsten.Api.Features.ApiKeys;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -184,6 +185,7 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.UseCors();
 app.UseAuthentication();
+app.UseMiddleware<ApiKeyMiddleware>();
 app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
@@ -301,6 +303,7 @@ app.MapSignupEndpoints();
 app.MapBillingEndpoints();
 app.MapWebhookEndpoints();
 app.MapAnalyticsEndpoints();
+app.MapApiKeyEndpoints();
 
 app.Run();
 

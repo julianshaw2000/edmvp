@@ -38,3 +38,19 @@ export interface JobResponse {
   createdAt: string;
   completedAt: string | null;
 }
+
+export interface ApiKeyResponse {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  isActive: boolean;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+
+export interface CreateApiKeyResponse {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  key: string; // Full key — shown once only
+}

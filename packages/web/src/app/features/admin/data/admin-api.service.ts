@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '../../../core/http/api-url.token';
-import { UserResponse, CreateUserRequest, RmapSmelterResponse, ComplianceFlagResponse, JobResponse } from './admin.models';
+import { UserResponse, CreateUserRequest, RmapSmelterResponse, ComplianceFlagResponse, JobResponse, ApiKeyResponse, CreateApiKeyResponse } from './admin.models';
 import { BatchResponse, PagedResponse, ComplianceSummary } from '../../supplier/data/supplier.models';
 import { AuditLogFilters, PagedAuditLogs } from './audit-log.models';
 import { TenantDto, CreateTenantRequest, PagedTenants } from './tenant.models';
@@ -73,6 +73,19 @@ export class AdminApiService {
   // Billing
   createBillingPortalSession() {
     return this.http.post<{ portalUrl: string }>(`${this.apiUrl}/api/billing/portal`, {});
+  }
+
+  // API Keys
+  listApiKeys(): Observable<ApiKeyResponse[]> {
+    return this.http.get<ApiKeyResponse[]>(`${this.apiUrl}/api/api-keys`);
+  }
+
+  createApiKey(name: string): Observable<CreateApiKeyResponse> {
+    return this.http.post<CreateApiKeyResponse>(`${this.apiUrl}/api/api-keys`, { name });
+  }
+
+  revokeApiKey(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/api/api-keys/${id}`);
   }
 
   // Audit logs

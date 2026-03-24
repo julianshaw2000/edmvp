@@ -223,6 +223,21 @@ import { OnboardingWizardComponent } from './onboarding-wizard.component';
           <p class="text-xs text-slate-500 mt-0.5">Compliance trends &amp; overview</p>
         </div>
       </a>
+
+      <a
+        routerLink="/admin/api-keys"
+        class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-teal-300 hover:shadow-md transition-all duration-200 group"
+      >
+        <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center shrink-0 group-hover:bg-teal-100 transition-colors">
+          <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+        </div>
+        <div>
+          <p class="font-semibold text-slate-900 text-sm">API Keys</p>
+          <p class="text-xs text-slate-500 mt-0.5">Manage programmatic access</p>
+        </div>
+      </a>
     </div>
   `,
 })

@@ -33,4 +33,8 @@ export const ADMIN_ROUTES: Routes = [
     path: 'analytics',
     loadComponent: () => import('./analytics.component').then(m => m.AnalyticsComponent),
   },
+  {
+    path: 'api-keys',
+    loadComponent: () => import('./api-keys.component').then(m => m.ApiKeysComponent),
+  },
 ];
