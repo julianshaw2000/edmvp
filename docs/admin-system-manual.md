@@ -131,12 +131,12 @@ Traces sample rate is fixed at 20% (`TracesSampleRate = 0.2`). If the DSN is abs
 
 | Variable | Description | Default |
 |---|---|---|
-| `BaseUrl` | Public base URL of the frontend (used in email links) | `https://accutrac-web.onrender.com` |
+| `BaseUrl` | Public base URL of the frontend (used in email links) | `https://auditraks.com` |
 | `App__BaseUrl` | Alias for `BaseUrl` used in some handlers | same |
 | `Cors__AllowedOrigins__0` | First allowed CORS origin | `http://localhost:4200` |
 | `Cors__AllowedOrigins__1` | Second allowed CORS origin | `https://auditraks.com` |
 
-The API reads `Cors:AllowedOrigins` as a string array from configuration. If the section is absent, it falls back to `["http://localhost:4200", "https://accutrac-web.onrender.com", "https://auditraks.com"]`.
+The API reads `Cors:AllowedOrigins` as a string array from configuration. If the section is absent, it falls back to `["http://localhost:4200", "https://auditraks.com", "https://auditraks.com"]`.
 
 #### CI/CD Secrets (GitHub Actions)
 

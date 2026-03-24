@@ -41,8 +41,8 @@ Render hosts all three runtime tiers of the platform:
 ### Custom Domain (DNS via Cloudflare)
 
 ```
-auditraks.com      → accutrac-web.onrender.com   (CNAME @)
-www.auditraks.com  → accutrac-web.onrender.com   (CNAME www)
+auditraks.com      → auditraks.com   (CNAME @)
+www.auditraks.com  → auditraks.com   (CNAME www)
 api.auditraks.com  → accutrac-api.onrender.com   (CNAME api)
 ```
 
@@ -283,8 +283,8 @@ Cloudflare serves two functions:
 Defined in `docs/cloudflare-dns-import.txt`:
 
 ```
-@    CNAME  accutrac-web.onrender.com   (auditraks.com root)
-www  CNAME  accutrac-web.onrender.com
+@    CNAME  auditraks.com   (auditraks.com root)
+www  CNAME  auditraks.com
 api  CNAME  accutrac-api.onrender.com
 ```
 

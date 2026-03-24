@@ -10,7 +10,7 @@
 - **Window 2:** Incognito — Buyer account (`julianshawuk2000@gmail.com`)
 - **Window 3:** Incognito — Admin account (sign in with a different Google account)
 
-**URL:** `https://accutrac-web.onrender.com`
+**URL:** `https://auditraks.com`
 
 ---
 
@@ -62,7 +62,7 @@
 
 ## Act 5: Public Verification (1 min)
 
-1. Open a new tab — go to `https://accutrac-web.onrender.com/verify/W-2026-041`
+1. Open a new tab — go to `https://auditraks.com/verify/W-2026-041`
 2. Show the branded public verification page
 3. Say: *"Anyone with the QR code or URL can verify compliance — no account needed. This is the trust layer."*
 

@@ -11,7 +11,7 @@
 ## Prerequisites
 
 - Browser: Chrome recommended (also test in Firefox or Safari if available)
-- App URL: `https://accutrac-web.onrender.com`
+- App URL: `https://auditraks.com`
 - A Google account for testing — **do not use** `julianshaw2000@gmail.com` (that is the platform admin account)
 - A second email address you can receive mail at (for invite testing)
 - Stripe test card: `4242 4242 4242 4242` — expiry `12/28`, CVC `123`, postcode `12345`
@@ -27,7 +27,7 @@
 
 **Steps:**
 
-1. Open `https://accutrac-web.onrender.com` in a fresh browser window.
+1. Open `https://auditraks.com` in a fresh browser window.
 2. Wait for the page to fully load.
 3. Check that the following are visible:
    - A hero section with a headline and call-to-action
@@ -52,7 +52,7 @@
 
 **Steps:**
 
-1. Navigate to `https://accutrac-web.onrender.com/signup?plan=starter`
+1. Navigate to `https://auditraks.com/signup?plan=starter`
 2. Verify: the form shows **Starter** as the selected plan.
 3. Fill in the form:
    - **Company Name:** `QA Test Company`
@@ -322,7 +322,7 @@
 **Steps:**
 
 1. Open a new incognito/private browser window.
-2. Navigate to: `https://accutrac-web.onrender.com/verify/W-2026-041`
+2. Navigate to: `https://auditraks.com/verify/W-2026-041`
 3. Verify: the page loads without requiring a login.
 4. Verify: the page displays:
    - Batch number (`W-2026-041`)
@@ -414,7 +414,7 @@
 
 9. Open a terminal and run:
    ```
-   curl -H "X-API-Key: at_YOUR_FULL_KEY_HERE" https://accutrac-api.onrender.com/api/batches
+   curl -H "X-API-Key: at_YOUR_FULL_KEY_HERE" https://api.auditraks.com/api/batches
    ```
    (Replace `at_YOUR_FULL_KEY_HERE` with the actual key you copied.)
 10. Verify: the response is JSON containing batch data (not a 401 or 403 error).
@@ -559,7 +559,7 @@
 
 **Mobile browser test:**
 
-1. Open `https://accutrac-web.onrender.com` on a mobile phone (iOS Safari or Android Chrome).
+1. Open `https://auditraks.com` on a mobile phone (iOS Safari or Android Chrome).
 2. Verify the layout is responsive:
    - Navigation adapts to mobile (hamburger menu or bottom navigation)
    - Text is readable without horizontal scrolling
@@ -653,7 +653,7 @@ Fill in the Pass/Fail column and add notes for any failures or observations.
 
 **Date tested:**
 
-**Environment:** `https://accutrac-web.onrender.com`
+**Environment:** `https://auditraks.com`
 
 ---
 
