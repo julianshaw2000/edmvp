@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Threading.RateLimiting;
+using Resend;
 using FluentValidation;
 using Microsoft.AspNetCore.RateLimiting;
 using MediatR;
@@ -87,8 +88,17 @@ if (!string.IsNullOrEmpty(builder.Configuration["R2:AccountId"]))
     builder.Services.AddSingleton<IFileStorageService, R2FileStorageService>();
 else
     builder.Services.AddSingleton<IFileStorageService, LocalFileStorageService>();
-if (!string.IsNullOrEmpty(builder.Configuration["SendGrid:ApiKey"]))
-    builder.Services.AddSingleton<IEmailService, SendGridEmailService>();
+if (!string.IsNullOrEmpty(builder.Configuration["Resend:ApiKey"]))
+{
+    builder.Services.AddOptions();
+    builder.Services.AddHttpClient<ResendClient>();
+    builder.Services.Configure<ResendClientOptions>(o =>
+    {
+        o.ApiToken = builder.Configuration["Resend:ApiKey"]!;
+    });
+    builder.Services.AddTransient<IResend, ResendClient>();
+    builder.Services.AddSingleton<IEmailService, ResendEmailService>();
+}
 else
     builder.Services.AddSingleton<IEmailService, LogEmailService>();
 builder.Services.AddHttpContextAccessor();
