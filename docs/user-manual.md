@@ -1,772 +1,808 @@
 # auditraks User Manual
-## Tungsten Supply Chain Compliance Platform
 
-**Version 2.0 — March 2026**
+## Mineral Supply Chain Compliance Platform
+
+**Version 3.0 — March 2026**
 
 ---
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)
-2. [Getting Started](#2-getting-started)
+1. [Getting Started](#1-getting-started)
+2. [Roles](#2-roles)
 3. [Supplier Portal](#3-supplier-portal)
 4. [Buyer Portal](#4-buyer-portal)
-5. [Admin Portal](#5-admin-portal)
-6. [Compliance Engine](#6-compliance-engine)
-7. [Public Features](#7-public-features)
-8. [Tamper Evidence and Data Integrity](#8-tamper-evidence-and-data-integrity)
-9. [Notifications and Email Alerts](#9-notifications-and-email-alerts)
-10. [Troubleshooting and FAQ](#10-troubleshooting-and-faq)
+5. [Admin Dashboard](#5-admin-dashboard)
+6. [Public Features](#6-public-features)
+7. [API Access](#7-api-access)
+8. [Compliance Framework](#8-compliance-framework)
+9. [FAQ](#9-faq)
 
 ---
 
-## 1. Introduction
+## 1. Getting Started
 
-### What Is auditraks?
+### What is auditraks?
 
-auditraks is a supply chain compliance platform that tracks the custody of mineral materials from extraction through to final processing. It provides a verifiable, tamper-evident record of every step a batch of material takes through the supply chain, enabling buyers, suppliers, and auditors to confirm that sourcing and handling practices meet internationally recognized due diligence standards.
+auditraks is a supply chain compliance platform that tracks mineral batches from mine to refinery. Every custody event is recorded with a cryptographic fingerprint, creating a tamper-evident chain that allows buyers, suppliers, and auditors to verify responsible sourcing against international standards.
 
-auditraks validates compliance against two leading frameworks:
+The platform supports the full 3TG mineral suite — tungsten, tin, tantalum, and gold — and validates against two leading compliance frameworks: RMAP (Responsible Minerals Assurance Process) and the OECD Due Diligence Guidance (DDG).
 
-- **RMAP (Responsible Minerals Assurance Process)** — verifies that smelters and refiners have been audited and certified under the Responsible Minerals Initiative.
-- **OECD Due Diligence Guidance (DDG)** — assesses origin-country risk, sanctions exposure, and document completeness in line with the OECD's five-step framework for responsible mineral supply chains.
+### How to Sign Up
 
-### Who Uses auditraks?
+auditraks is a SaaS platform. To create a new organization account:
 
-auditraks has three user roles:
+1. Go to [accutrac.org](https://accutrac.org) and click **Start Free Trial** on the landing page, or navigate directly to `/signup`.
+2. Choose a plan:
+   - **Starter** — $99/month after trial
+   - **Pro** — $249/month after trial
+3. Fill in the sign-up form:
+   - **Company name** — your organization's name
+   - **Your name** — the name of the account owner
+   - **Email address** — used for your admin account and billing
+   - **Confirm email** — must match exactly
+4. Click **Start 60-day free trial**.
+5. You are redirected to a **Stripe checkout page** to enter payment details. Your card will not be charged until the trial ends.
+6. After completing checkout, you are redirected to the **signup success page**. Your account is created and you can sign in immediately.
 
-| Role               | Description                                                                                                                                      |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Supplier**       | Miners, traders, processors, and exporters who create batches and record custody events as material moves through the chain.                     |
-| **Buyer**          | Companies that receive material and need to verify compliance, generate reports, and share documentation with customers or auditors.             |
-| **Platform Admin** | auditraks platform administrators who manage users, maintain reference data (such as the RMAP smelter list), and review flagged compliance cases. |
+> Your 60-day free trial begins on the day you sign up. You can cancel at any time from the billing portal before the trial ends and you will not be charged.
 
----
+### How to Sign In
 
-## 2. Getting Started
+auditraks uses secure authentication via Auth0. Navigate to `/login` and sign in with either:
 
-### Accessing auditraks
+- **Google** — click **Continue with Google** and authenticate with your Google account.
+- **Email and password** — enter the email and password associated with your auditraks account.
 
-auditraks is a web-based application. Open your preferred browser and navigate to the auditraks URL provided by your organization or platform administrator. No software installation is required.
+**Forgot your password?** Click **Forgot password?** on the login screen. A reset link will be sent to your email.
 
-**Supported browsers:** Google Chrome (recommended), Mozilla Firefox, Microsoft Edge, Safari.
-
-[Screenshot: auditraks login page]
-
-### Signing In
-
-auditraks uses secure single sign-on via **Auth0**. You can sign in with:
-
-- **Google account** — click "Continue with Google" and sign in with your Google credentials.
-- **Email and password** — enter the email address associated with your auditraks account and your password.
-
-**First-time users:** Your account must be created by a Platform Admin before you can sign in. You will receive an invitation email with a link to activate your account. The link expires after 7 days; contact your administrator if it has expired.
-
-**Forgot your password?** Click "Forgot password?" on the login screen. A reset link will be sent to your registered email address.
+**First-time users invited by an admin:** You will receive an email invitation with an activation link. The link expires after 7 days. If it has expired, ask your admin to resend it.
 
 ### After Signing In
 
-Upon successful sign-in, auditraks detects your role and redirects you to the appropriate portal:
+auditraks detects your role and sends you to the correct portal:
 
-- Suppliers are taken to the **Supplier Dashboard**.
-- Buyers are taken to the **Buyer Dashboard**.
-- Platform Admins are taken to the **Admin Dashboard**.
+- **Suppliers** go to the Supplier Dashboard at `/supplier`
+- **Buyers** go to the Buyer Dashboard at `/buyer`
+- **Tenant Admins** go to the Admin Dashboard at `/admin`
 
-If you believe you have been assigned the wrong role, contact your Platform Admin.
+If you are redirected to the wrong portal, contact your Tenant Admin to check your role assignment.
+
+### First-Time Setup (Tenant Admins)
+
+When you sign in for the first time as a Tenant Admin, a **Getting Started wizard** appears on the Admin Dashboard. It walks you through four steps:
+
+1. **Welcome** — overview of the platform
+2. **Invite your team** — add suppliers and buyers so they can access their portals
+3. **Create your first batch** — register the first mineral batch to track
+4. **Run compliance checks** — compliance runs automatically once custody events are logged; no action needed
+
+You can navigate between steps using the numbered dots or the Previous/Next buttons. Click **Dismiss** or **Done** at any time — the wizard will not reappear once dismissed.
+
+---
+
+## 2. Roles
+
+auditraks has three user roles. Access is enforced at both the interface and API level — each role only sees what is relevant to them.
+
+### Tenant Admin
+
+The Tenant Admin manages your organization's auditraks account. This is typically the compliance manager or operations lead.
+
+**A Tenant Admin can:**
+- Invite users and assign them as Supplier or Buyer
+- Change user roles and deactivate accounts
+- View the audit log of all platform actions
+- Access analytics (compliance trends, mineral distribution, monthly activity)
+- Manage API keys for programmatic integrations
+- Manage billing via the Stripe portal
+- Monitor trial status and days remaining
+- View and review compliance flags (if also granted Platform Admin access)
+
+**A Tenant Admin cannot:** create batches or log custody events (those are Supplier functions).
+
+### Supplier
+
+A Supplier is typically a miner, trader, processor, or exporter. Suppliers interact with the platform to create batch records and document every step the material takes through the supply chain.
+
+**A Supplier can:**
+- Create new mineral batches
+- Log custody events (extraction, assay, concentration, trading, smelting, export)
+- Upload supporting documents to batches and events
+- View the full event timeline and compliance status for their batches
+- View the activity feed for each batch
+- Split batches into child batches
+- Update batch status (active, completed)
+
+### Buyer
+
+A Buyer is typically a manufacturer, refiner, or downstream customer that needs to verify compliance and generate documentation.
+
+**A Buyer can:**
+- View all batches and their compliance status
+- Browse the full event timeline for any batch
+- Generate Material Passports (PDF with QR code)
+- Generate Audit Dossiers (comprehensive compliance PDFs)
+- Share documents via time-limited secure links
+- Download documents and files
+- View the activity feed for each batch
 
 ---
 
 ## 3. Supplier Portal
 
-The Supplier Portal is where organizations responsible for handling material — miners, processors, traders, and exporters — create batch records and log custody events as material moves through the supply chain.
+The Supplier Portal is accessible at `/supplier`. It is where batches are created and custody events are recorded.
 
-### 3.1 Dashboard Overview
+### Dashboard Overview
 
-[Screenshot: Supplier Dashboard]
+The Supplier Dashboard shows all batches associated with your organization. Each batch is displayed as a card showing:
 
-The Supplier Dashboard displays all batches associated with your organization. Each batch is shown as a card that includes:
+- **Batch number** — the unique batch identifier
+- **Mineral type** — the material being tracked
+- **Origin** — the country and mine site
+- **Current weight** — the most recently recorded weight
+- **Compliance status** — a color-coded badge (green = COMPLIANT, red = FLAGGED, amber = INSUFFICIENT_DATA, grey = PENDING)
+- **Last updated** — date and time of the most recent event
 
-- **Batch number** — the unique identifier for the batch.
-- **Mineral type** — the material being tracked.
-- **Origin** — the country and mine where the material was extracted.
-- **Current weight** — the most recently recorded weight for the batch.
-- **Compliance status** — a color-coded indicator (see Section 3.5).
-- **Last updated** — the date and time of the most recent event.
+Use the search bar to find a batch by number, and use the filter controls to narrow by compliance status.
 
-Use the search bar at the top of the dashboard to find a specific batch by number. You can also filter batches by compliance status using the filter controls.
+### Creating a Batch
 
-### 3.2 Creating a New Batch
-
-A batch represents a discrete quantity of material that will be tracked through the supply chain.
+A batch represents a discrete, trackable quantity of mineral material.
 
 **To create a new batch:**
 
-1. Click the **"New Batch"** button on the Supplier Dashboard.
-2. Complete the batch creation form:
+1. Click **New Batch** on the Supplier Dashboard.
+2. Complete the form:
 
-| Field                   | Description                                                                                                                 |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **Batch Number**        | A unique identifier for this batch. Use your organization's internal numbering system or the format provided by your buyer. |
-| **Mineral Type**        | The type of mineral material in this batch.                                                                                 |
-| **Origin Country**      | The country where the material was extracted.                                                                               |
-| **Mine Name / Site**    | The name of the mine or extraction site.                                                                                    |
-| **Initial Weight (kg)** | The weight of the batch at creation.                                                                                        |
+| Field | Description |
+|---|---|
+| **Batch Number** | A unique identifier. Example: `W-2026-050`. Must be unique on the platform. |
+| **Mineral Type** | Select from the supported minerals (see list below). |
+| **Origin Country** | Two- or three-letter ISO country code. Example: `RW` for Rwanda. |
+| **Mine Site** | Name of the extraction site or mine. |
+| **Initial Weight (kg)** | Weight of material at creation. |
 
-3. Click **"Create Batch"** to save.
+3. Click **Create Batch**.
 
-The batch will appear on your dashboard with a status of **PENDING** until custody events are recorded and compliance checks are completed.
+The batch appears on your dashboard with a **PENDING** status until events trigger compliance checks.
 
-> **Note:** Batch numbers must be unique within the platform. If you receive an error stating the batch number already exists, check whether the batch has already been created by a colleague or use a different identifier.
+**Supported mineral types:**
 
-### 3.3 Splitting a Batch
+- Tungsten (Wolframite)
+- Tungsten (Cassiterite)
+- Tin (Cassiterite)
+- Tantalum (Coltan)
+- Tantalum (Tantalite)
+- Gold (Alluvial)
+- Gold (Hard Rock)
 
-When a batch of material is physically divided — for example, when part of a shipment is sold to one buyer and the remainder to another — you can split the batch into two child batches.
+> Batch numbers must be unique. If you receive a "batch already exists" error, check whether a colleague has already created it, or use a different identifier.
 
-**To split a batch:**
+### Logging Custody Events
 
-1. Open the Batch Detail view for the batch you want to split.
-2. Click **"Split Batch"**.
-3. Enter the weight for **Child A** and **Child B**. The two weights must sum exactly to the parent batch's total weight.
-4. Click **"Confirm Split"**.
+Custody events record what happened to a batch at each stage of the supply chain. Together they form a chronological chain documenting the material's full journey.
 
-auditraks will:
-- Create two new child batches with suffixes `-A` and `-B` appended to the original batch number.
-- Mark the parent batch as **COMPLETED** (it has been consumed by the split).
-- Preserve the full custody chain — both child batches inherit the parent's origin, mineral type, and mine site.
+**To add an event:**
 
-Each child batch then continues through the supply chain independently and is subject to its own compliance checks.
+1. Open the batch from your dashboard.
+2. Click **Add Event**.
+3. Select the event type.
+4. Fill in the required fields (described below).
+5. Optionally attach supporting documents.
+6. Click **Submit Event**.
 
-> **Note:** A completed batch cannot be split. You must split the batch before marking it as completed.
+Once submitted, an event is permanent and cannot be edited or deleted. If you made an error, submit a Correction event (see below).
 
-### 3.4 Submitting Custody Events
-
-A custody event records a specific activity that occurred with the batch — such as extraction, processing, transfer, or export. Events form a chronological chain that documents the full journey of the material.
-
-**To add a custody event:**
-
-1. Open the batch by clicking on its card from the dashboard.
-2. Click **"Add Event"**.
-3. Select the event type from the dropdown menu.
-4. Fill in the required fields for that event type (described below).
-5. Optionally attach supporting documents (see Section 3.4).
-6. Click **"Submit Event"**.
-
-[Screenshot: Add Event form]
-
-Once submitted, an event cannot be deleted. If a correction is needed, a correction event must be submitted that links back to the original (see Section 8 — Tamper Evidence).
+Compliance checks run automatically after each event submission.
 
 ---
 
-#### Event Type 1: Mine Extraction
+#### Mine Extraction
 
 Records the extraction of material from the mine.
 
-| Field                                   | Description                                                                  |
-| --------------------------------------- | ---------------------------------------------------------------------------- |
-| **GPS Coordinates**                     | Latitude and longitude of the extraction site (e.g., 47.3769° N, 8.5417° E). |
-| **Mine Operator**                       | Name of the company or individual operating the mine.                        |
-| **Mineralogical Certificate Reference** | Reference number of the mineralogical certificate issued at extraction.      |
+| Field | Description |
+|---|---|
+| **GPS Coordinates** | Latitude and longitude of the extraction site. Example: `-1.9441, 30.0619` |
+| **Mine Operator** | Name of the company or person operating the mine. |
+| **Mineralogical Certificate Reference** | Reference number of the certificate issued at extraction. |
 
 ---
 
-#### Event Type 2: Concentration
-
-Records a concentration or beneficiation process applied to the material.
-
-| Field                   | Description                                                                                 |
-| ----------------------- | ------------------------------------------------------------------------------------------- |
-| **Facility Name**       | Name of the processing facility.                                                            |
-| **Process Description** | A brief description of the concentration method used (e.g., gravity separation, flotation). |
-| **Input Weight (kg)**   | Weight of material entering the process.                                                    |
-| **Output Weight (kg)**  | Weight of material leaving the process.                                                     |
-| **Concentration Ratio** | The ratio of output to input weight (calculated automatically if left blank).               |
-
----
-
-#### Event Type 3: Trading / Transfer
-
-Records the transfer of ownership or custody of the material between parties.
-
-| Field                  | Description                                                          |
-| ---------------------- | -------------------------------------------------------------------- |
-| **Seller**             | Name of the party transferring the material.                         |
-| **Buyer**              | Name of the party receiving the material.                            |
-| **Transfer Date**      | The date on which the transfer took place.                           |
-| **Contract Reference** | The reference number of the purchase contract or transfer agreement. |
-
----
-
-#### Event Type 4: Laboratory Assay
+#### Laboratory Assay
 
 Records an analytical test performed on the material.
 
-| Field                     | Description                                                      |
-| ------------------------- | ---------------------------------------------------------------- |
-| **Laboratory Name**       | Name of the laboratory that conducted the assay.                 |
-| **Method**                | The analytical method used (e.g., XRF, ICP-MS).                  |
-| **Tungsten Content (%)**  | The tungsten content of the material as determined by the assay. |
-| **Certificate Reference** | Reference number of the assay certificate.                       |
+| Field | Description |
+|---|---|
+| **Laboratory Name** | Name of the testing laboratory. |
+| **Method** | Analytical method used (e.g., XRF, ICP-MS). |
+| **Tungsten Content (%)** | Mineral content as determined by the assay. |
+| **Certificate Reference** | Reference number of the assay certificate. |
 
 ---
 
-#### Event Type 5: Primary Processing (Smelting)
+#### Concentration
 
-Records a smelting or primary processing step.
+Records a beneficiation or concentration process.
 
-| Field                  | Description                                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Smelter ID (RMAP)**  | The RMAP-assigned identifier for the smelter facility. This field triggers an RMAP compliance check. |
-| **Process Type**       | The type of smelting or refining process (e.g., electric arc furnace, hydrometallurgical).           |
-| **Input Weight (kg)**  | Weight of material entering the smelter.                                                             |
-| **Output Weight (kg)** | Weight of material leaving the smelter.                                                              |
-
-> **Important:** The Smelter ID must match an entry in the current RMAP-approved smelter list. If the smelter is not listed, the batch will be flagged for compliance review. Contact your Platform Admin if you believe the smelter should be on the list.
+| Field | Description |
+|---|---|
+| **Facility Name** | Name of the processing facility. |
+| **Process Description** | Brief description of the method (e.g., gravity separation, flotation). |
+| **Input Weight (kg)** | Weight entering the process. |
+| **Output Weight (kg)** | Weight leaving the process. |
+| **Concentration Ratio** | Calculated automatically if left blank. |
 
 ---
 
-#### Event Type 6: Export / Shipment
+#### Trading / Transfer
+
+Records a transfer of ownership or custody between parties.
+
+| Field | Description |
+|---|---|
+| **Seller** | Name of the party transferring the material. |
+| **Buyer** | Name of the party receiving the material. |
+| **Transfer Date** | Date the transfer took place. |
+| **Contract Reference** | Purchase contract or transfer agreement reference number. |
+
+---
+
+#### Primary Processing (Smelting)
+
+Records a smelting or primary refining step.
+
+| Field | Description |
+|---|---|
+| **Smelter ID (RMAP)** | The RMAP-assigned identifier for the smelter. This triggers an RMAP compliance check. |
+| **Process Type** | Type of smelting process (e.g., electric arc furnace, hydrometallurgical). |
+| **Input Weight (kg)** | Weight entering the smelter. |
+| **Output Weight (kg)** | Weight leaving the smelter. |
+
+> The Smelter ID must match an entry on the current RMAP-approved smelter list. An unrecognized ID will flag the batch. If you believe the smelter is RMAP-certified, contact your Tenant Admin to check whether the list needs updating.
+
+---
+
+#### Export / Shipment
 
 Records the export or international shipment of the material.
 
-| Field                       | Description                                                     |
-| --------------------------- | --------------------------------------------------------------- |
-| **Origin Country**          | The country from which the shipment departs.                    |
-| **Destination Country**     | The country to which the shipment is sent.                      |
-| **Transport Mode**          | The method of transport (e.g., air freight, sea freight, road). |
-| **Export Permit Reference** | Reference number of the export permit or customs declaration.   |
+| Field | Description |
+|---|---|
+| **Origin Country** | Country the shipment departs from. |
+| **Destination Country** | Country the shipment is sent to. |
+| **Transport Mode** | Method of transport (e.g., air freight, sea freight, road). |
+| **Export Permit Reference** | Reference number of the export permit or customs declaration. |
 
 ---
 
-### 3.5 Uploading Documents
+### Viewing the Event Timeline
 
-Supporting documents can be attached to a batch or to specific custody events. Accepted file formats are:
+Open any batch and click the **Events** tab to see the chronological timeline of all custody events. Each entry shows:
 
-- PDF
-- JPEG / JPG
-- PNG
-- TIFF
-- GIF
+- Event type and date
+- Submitting user and organization
+- Key field values
+- The SHA-256 hash of the event
 
-**Maximum file size: 25 MB per file.**
+The hash of each event includes the hash of the previous event, forming a cryptographic chain. If any event were altered after submission, the chain would break and be immediately detectable.
+
+### Viewing the Activity Feed
+
+The **Activity Feed** on each batch detail page shows a running log of all actions taken on that batch — events submitted, documents uploaded, compliance checks run, and status changes. This gives a quick summary of recent activity without needing to open the full event timeline.
+
+### Document Uploads
+
+Supporting documents can be attached to a batch or to specific events.
+
+**Accepted formats:** PDF, JPEG, PNG, TIFF, GIF
+
+**Maximum file size:** 25 MB per file
 
 **To upload a document:**
 
-1. Open the batch or event to which you want to attach the document.
-2. Click **"Upload Document"** or drag and drop the file into the upload area.
-3. Enter a description of the document (e.g., "Mineralogical Certificate — Batch W-2026-041").
-4. Click **"Save"**.
+1. Open the batch or event.
+2. Click **Upload Document** or drag and drop the file.
+3. Enter a description (e.g., "Mineralogical Certificate — Batch W-2026-041").
+4. Click **Save**.
 
-[Screenshot: Document upload panel]
+Documents cannot be deleted after upload. If you uploaded the wrong file, upload the correct version and note in the description which document supersedes the other.
 
-Uploaded documents are stored securely and are accessible to authorized buyers and administrators. Documents cannot be deleted once uploaded; if an incorrect document was uploaded, upload the correct version and add a note in the description to indicate which version supersedes the other.
+### Splitting a Batch
 
-### 3.6 Viewing Batch Details
+When a batch is physically divided between two parties, you can split it into two child batches.
 
-Click on any batch card on the dashboard to open the Batch Detail view. This view is organized into four tabs:
+1. Open the batch detail view.
+2. Click **Split Batch**.
+3. Enter the weight for Child A and Child B. The two values must sum exactly to the parent batch weight.
+4. Click **Confirm Split**.
 
-- **Overview** — batch identification, origin, weight, current status, and compliance summary at a glance.
-- **Events** — a chronological timeline of all custody events recorded for this batch. Each event shows the event type, date, the user who submitted it, and a summary of key fields.
-- **Documents** — a list of all documents attached to the batch and its events, with download links.
-- **Compliance** — detailed compliance check results for RMAP, OECD DDG, mass balance, and sequence checks.
+auditraks creates two new child batches with `-A` and `-B` suffixes, marks the parent as COMPLETED, and carries the origin, mineral type, and mine site to both children. Each child batch continues through the supply chain independently.
 
-### 3.7 Updating Batch Status
+### Updating Batch Status
 
-As a batch progresses through the supply chain, you can update its status:
+As a batch progresses, update its status:
 
-- **CREATED** → **ACTIVE** — when the first custody events are being recorded and the batch is in transit.
-- **ACTIVE** → **COMPLETED** — when the batch has reached its final destination and all events have been recorded.
+- **CREATED → ACTIVE** — when the batch is in transit and events are being recorded
+- **ACTIVE → COMPLETED** — when the batch has reached its destination and all events are logged
 
-**To update the status:** Open the Batch Detail view and click the status button (e.g., "Mark Active" or "Mark Completed").
+Open the batch detail and click **Mark Active** or **Mark Completed**. Status transitions are one-way and cannot be reversed.
 
-> **Note:** Status transitions are one-way. A completed batch cannot be reverted to active.
+### Understanding Compliance Statuses
 
-### 3.8 Understanding Compliance Statuses
+| Status | Color | Meaning |
+|---|---|---|
+| **COMPLIANT** | Green | All checks passed. The batch meets RMAP and OECD DDG requirements. |
+| **FLAGGED** | Red | One or more checks failed. Review is required. |
+| **INSUFFICIENT_DATA** | Amber | Not enough information to complete all checks. Add events or documents. |
+| **PENDING** | Grey | Batch created but no checks have been triggered yet. |
 
-Each batch displays one of the following compliance statuses:
-
-| Status                | Color | Meaning                                                                                                                                                                   |
-| --------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **COMPLIANT**         | Green | All compliance checks have passed. The batch meets RMAP and OECD DDG requirements based on the information recorded.                                                      |
-| **FLAGGED**           | Red   | One or more compliance checks have failed. The batch requires review. Common causes include an unrecognized smelter ID, a high-risk origin country, or a sanctions match. |
-| **INSUFFICIENT_DATA** | Amber | The compliance engine does not have enough information to make a determination. Additional events or documents are needed.                                                |
-| **PENDING**           | Grey  | The batch has been created but no compliance checks have been triggered yet.                                                                                              |
-
-Compliance statuses are recalculated automatically each time a new event is submitted. You will receive a notification if a batch you are responsible for is flagged.
+Compliance status is recalculated automatically after each event submission.
 
 ---
 
 ## 4. Buyer Portal
 
-The Buyer Portal allows purchasing organizations to monitor the compliance status of incoming material, review custody chains, generate compliance reports, and share verified documentation with customers and auditors.
+The Buyer Portal is accessible at `/buyer`. It is where purchasing organizations monitor compliance, generate reports, and share documentation.
 
-### 4.1 Dashboard
+### Dashboard Overview
 
-[Screenshot: Buyer Dashboard]
+The Buyer Dashboard shows a summary at the top:
 
-The Buyer Dashboard provides an at-a-glance overview of all batches associated with your organization. At the top of the page, summary cards show:
+- Total active batches
+- Number of compliant batches
+- Number of flagged batches
+- Number with insufficient data
 
-- Total number of active batches.
-- Number of compliant batches.
-- Number of flagged batches.
-- Number of batches with insufficient data.
+Below the summary, a sortable batch table lists all batches. You can:
 
-Below the summary cards, a **batch table** lists all batches. You can:
+- **Search** by batch number, origin country, or mineral type
+- **Filter by compliance status** using the dropdown (ALL, COMPLIANT, FLAGGED, PENDING, INSUFFICIENT_DATA)
+- **Filter by date range** using the From and To date pickers
+- **Clear filters** using the Clear button
+- **Sort** by clicking any column header
 
-- **Search** by batch number, origin country, or mineral type using the text search bar.
-- **Filter by compliance status** using the dropdown (ALL, COMPLIANT, FLAGGED, PENDING, INSUFFICIENT_DATA).
-- **Filter by date range** using the From and To date pickers to narrow results to a specific time period.
-- **Clear filters** by clicking the "Clear" button that appears when any filter is active.
-- **Sort** by clicking any column header.
+Click any row to open the Batch Detail view.
 
-Click on any row in the table to open the Batch Detail view.
+### Viewing Batches and Compliance Status
 
-### 4.2 Batch Detail View
+The Batch Detail view has three tabs:
 
-The Batch Detail view for buyers mirrors the supplier view but includes additional compliance information. It contains three tabs:
+**Events tab** — chronological log of all custody events, showing event type, date, submitting organization, key field values, and the SHA-256 hash of each event.
 
-**Events tab**
-A chronological log of all custody events for the batch. For each event, you can see the event type, date submitted, submitting organization, and the key data fields recorded.
+**Compliance Checks tab** — a detailed breakdown of every compliance check run against the batch:
+- Check type (RMAP, OECD DDG, Mass Balance, Sequence)
+- Result (Pass / Fail / Inconclusive)
+- The specific rule evaluated
+- Notes explaining any failures
 
-**Compliance Checks tab**
-A detailed breakdown of each compliance check run against the batch, including:
-- The check type (RMAP or OECD DDG).
-- The result (Pass / Fail / Inconclusive).
-- The specific rule or criterion that was evaluated.
-- Notes explaining any failures.
+**Documents tab** — all documents attached to the batch and its events. Click any document to preview or download it.
 
-**Documents tab**
-All documents attached to the batch and its events. Click on any document to preview or download it.
+### Generating Material Passports
 
-[Screenshot: Buyer Batch Detail — Compliance Checks tab]
-
-### 4.3 Generating a Material Passport
-
-A Material Passport is a PDF report that summarizes the verified custody chain and compliance status of a batch. It is designed to be shared with customers, regulators, or auditors as evidence of responsible sourcing.
+A Material Passport is a PDF report summarizing the verified custody chain and compliance status of a batch. It is designed to be shared with customers, regulators, or auditors.
 
 The Material Passport includes:
-- Batch identification information (batch number, mineral type, origin).
-- A summary of the custody chain (key events and parties).
-- Compliance summary (RMAP and OECD DDG results).
-- Hash chain integrity verification status.
-- A QR code that links to the publicly verifiable batch record.
-- Platform version and compliance rule set version (for audit traceability).
-- The name of the user who generated the report and the generation timestamp.
+- Batch identification (batch number, mineral type, origin)
+- Summary of the custody chain
+- Compliance summary (RMAP, OECD DDG results)
+- Hash chain integrity status
+- A QR code linking to the public batch verification page
+- Platform version and compliance rule set version
+- Name of the generating user and generation timestamp
 
 **To generate a Material Passport:**
 
-1. Open the Batch Detail view for the relevant batch.
-2. Click **"Generate Material Passport"**.
-3. auditraks will prepare the PDF. This may take a few seconds.
-4. Click **"Download"** when the report is ready.
+1. Open the batch detail view.
+2. Click the **Generate & Share** tab.
+3. Click **Generate Material Passport**.
+4. Wait a few seconds for preparation.
+5. Click **Download** when ready.
 
-[Screenshot: Material Passport generation dialog]
+> Material Passports can only be generated for batches with a **COMPLIANT** status. If the button is greyed out, resolve compliance flags or missing data issues first.
 
-> **Note:** A Material Passport can only be generated for batches with a compliance status of COMPLIANT. If the batch is flagged or has insufficient data, resolve the compliance issues before generating the passport.
+### Generating Audit Dossiers
 
-### 4.4 Generating an Audit Dossier
-
-An Audit Dossier is a comprehensive PDF report intended for formal audits and due diligence reviews. It contains the complete event log, all compliance check results with supporting detail, references to all attached documents with their SHA-256 file hashes, and hash chain integrity verification. Platform version and rule set version are included in the footer for audit traceability.
+An Audit Dossier is a comprehensive PDF for formal audits and due diligence reviews. It contains the complete event log, all compliance check results with full detail, references to every attached document with their SHA-256 file hashes, and hash chain integrity verification.
 
 **To generate an Audit Dossier:**
 
-1. Open the Batch Detail view.
-2. Click **"Generate Audit Dossier"**.
-3. Select the date range you wish to include (or leave blank to include all events).
-4. Click **"Generate"**.
-5. Download the completed PDF.
+1. Open the batch detail view.
+2. Click **Generate Audit Dossier**.
+3. Optionally select a date range to limit the included events.
+4. Click **Generate** and then **Download**.
 
-The Audit Dossier is typically larger than a Material Passport and may take longer to prepare for batches with many events and documents.
+Audit Dossiers are typically larger than Material Passports and may take slightly longer to prepare for batches with many events.
 
-### 4.5 Sharing a Material Passport
+### Sharing Documents via Secure Links
 
-You can share a Material Passport with external parties — such as customers, auditors, or regulatory bodies — using a time-limited secure link. The recipient does not need an auditraks account to view the passport.
+You can share a Material Passport with external parties — auditors, regulators, customers — using a time-limited secure link. The recipient does not need an auditraks account.
 
-**Shared links are valid for 30 days from the date of creation.**
+**Shared links are valid for 30 days from creation.**
 
 **To create a shared link:**
 
-1. Generate the Material Passport (see Section 4.3).
-2. Click **"Share"** next to the Material Passport.
-3. auditraks generates a unique URL and displays it in a green confirmation box.
-4. Click **"Copy"** to copy the link to your clipboard, then send it to the recipient via email, messaging, or any other channel.
+1. Generate the Material Passport.
+2. Click **Share** next to the passport.
+3. auditraks generates a unique URL, shown in a confirmation box.
+4. Click **Copy** and send the link via email or any other channel.
 
-The recipient can open the link in any browser to view the Material Passport. The link will expire automatically after 30 days. If the recipient needs access after expiry, generate a new shared link.
+The link resolves to `/shared/{token}` and can be opened in any browser. After 30 days the link expires and displays an expiry message. Generate a new link if access is needed after expiry.
 
-> **Security note:** Treat shared links as confidential. Anyone who has the link can view the Material Passport during the active period. Do not post shared links publicly.
+> Treat shared links as confidential. Anyone with the link can view the passport during its active period.
 
-### 4.6 Downloading Documents
+### Viewing the Activity Feed
 
-From the Documents tab of any Batch Detail view, click the download icon next to any document to save it to your device. You can also download all documents for a batch as a ZIP archive by clicking **"Download All"**.
+Just as in the Supplier Portal, each batch detail page in the Buyer Portal includes an activity feed showing a chronological log of all actions taken on the batch.
 
 ---
 
-## 5. Admin Portal
+## 5. Admin Dashboard
 
-The Admin Portal is used by Platform Admins to manage users, maintain reference data, and oversee compliance reviews across the platform.
+The Admin Dashboard is accessible at `/admin`. It is available to Tenant Admins and Platform Admins.
 
-### 5.1 Dashboard
+### Dashboard Overview
 
-[Screenshot: Admin Dashboard]
+The Admin Dashboard shows three metric cards at the top:
 
-The Admin Dashboard displays a system-wide overview, including:
+- **Users** — total number of registered users in your organization
+- **Batches** — total number of batches tracked
+- **Flags** — total number of compliance flags raised
 
-- Total number of registered users (broken down by role).
-- Total number of active batches on the platform.
-- Number of batches by compliance status.
-- Number of flagged batches awaiting review.
-- Recent platform activity.
+Below the metrics, a **Quick Actions** grid provides one-click navigation to all admin sections.
 
-### 5.2 User Management
+**Tenant Admins** also see a status banner showing their plan status:
+- **Trial** — amber banner showing days remaining, with a **Manage Billing** button
+- **Active** — green banner confirming the Pro plan is active, with a **Manage Billing** button
 
-#### Inviting a New User
+### User Management
 
-1. Navigate to **Users** in the left-hand navigation menu.
-2. Click **"Invite User"**.
-3. Enter the new user's email address.
-4. Select their role: **Supplier**, **Buyer**, or **Platform Admin**.
-5. Click **"Send Invitation"**.
+Navigate to **Admin > Manage Users** or click the **Manage Users** card.
 
-The user will receive an email invitation with a link to activate their account. The invitation link expires after 7 days. You can resend the invitation from the Users list if needed.
+#### Inviting a User
 
-[Screenshot: Invite User dialog]
+1. Click **Invite User**.
+2. Enter the user's email address.
+3. Select their role: **Supplier** or **Buyer**.
+4. Click **Send Invitation**.
+
+The user receives an email with an activation link (valid for 7 days). You can resend the invitation from the Users list if needed.
 
 #### Assigning or Changing a Role
 
-1. Find the user in the Users list.
-2. Click the user's name to open their profile.
-3. Select the new role from the **Role** dropdown.
-4. Click **"Save Changes"**.
+1. Find the user in the list.
+2. Click their name to open their profile.
+3. Select the new role from the Role dropdown.
+4. Click **Save Changes**.
 
-Role changes take effect immediately. The user will be redirected to the appropriate portal on their next page load.
+Role changes take effect immediately. On their next page load, the user is redirected to the appropriate portal.
 
 #### Deactivating a User
 
-Deactivating a user prevents them from signing in without permanently deleting their account or any records they have created.
+1. Open the user's profile.
+2. Click **Deactivate Account** and confirm.
 
-1. Open the user's profile from the Users list.
-2. Click **"Deactivate Account"**.
-3. Confirm the action when prompted.
+Deactivated users cannot sign in, but all records they created remain intact. To reactivate, find them using the "Show deactivated users" filter, open their profile, and click **Reactivate Account**.
 
-To reactivate a deactivated user, locate their profile (use the "Show deactivated users" filter), open it, and click **"Reactivate Account"**.
+### Audit Log
 
-> **Note:** Deactivating a user does not affect any batches or events they have created. All historical records remain intact.
+Navigate to **Admin > Audit Log**.
 
-### 5.3 RMAP Smelter List Management
+The Audit Log records every action taken on the platform — batch creation, event submissions, document uploads, user changes, and more.
 
-auditraks maintains a list of RMAP-certified smelters. Smelter IDs entered in Primary Processing events are checked against this list. The list must be kept up to date to ensure accurate compliance checking.
+**Columns:** Timestamp, User, Action, Entity Type, Result (Success / Failure)
 
-The RMAP smelter list is uploaded as a **CSV file**. The Responsible Minerals Initiative publishes an updated list periodically; download the latest version from the RMI website and upload it to auditraks.
+**Filtering:** Use the dropdowns to filter by:
+- **Action** — specific action types (e.g., Batch Created, Event Submitted)
+- **Entity Type** — Batch, Custody Event, Document, User, RMAP Smelter
+- **Result** — Success or Failure
 
-**To update the RMAP smelter list:**
+**Expanding a row:** Click any row to see additional detail including failure reason (if applicable), entity ID, IP address, and the full event payload.
 
-1. Navigate to **Compliance Settings** > **RMAP Smelter List** in the admin navigation.
-2. Click **"Upload New List"**.
-3. Select the CSV file from your device.
-4. auditraks will validate the file format and display a preview of the records to be imported.
-5. If the preview looks correct, click **"Confirm Upload"**.
+**Pagination:** 20 entries per page. Use the Previous and Next buttons to navigate.
 
-[Screenshot: RMAP Smelter List upload screen]
+**Exporting:** Click **Export CSV** to download the current filtered view as a CSV file (`audit-log.csv`).
 
-The new list takes effect immediately. Any batches with smelter IDs that were previously unrecognized will be re-evaluated automatically.
+### Analytics Dashboard
 
-**CSV format requirements:** The file must include at minimum a column for the RMAP Smelter ID and the smelter name. Consult your Platform Admin technical contact for the exact column specification if you encounter import errors.
+Navigate to **Admin > Analytics**.
 
-### 5.4 System Health and Job Monitor
+The Analytics page provides a visual overview of supply chain activity. It shows:
 
-The System Health page provides platform administrators with visibility into the operational status of the auditraks platform.
+**Metric cards:**
+- Total Batches
+- Completed Batches
+- Flagged Batches
+- Active Users
+- Total Custody Events
+- Pending Compliance
 
-**To access:** Navigate to **System Health** from the Admin Dashboard or click **Jobs** in the admin navigation.
+**Charts:**
+- **Compliance Breakdown** — horizontal progress bars showing the percentage of batches that are Compliant, Flagged, or Pending, with summary pills
+- **Monthly Batch Activity** — bar chart of batch creation volume over the last 6 months
+- **Mineral Distribution** — breakdown of batches by mineral type
+- **Top Origin Countries** — ranked list of the most common origin countries
 
-The page displays:
-- **API Health Status** — a green or red indicator showing whether the API is responding normally.
-- **Job Queue** — a table of recent background jobs (compliance checks, document generation, email dispatch) showing:
-  - Job type and status (PENDING, PROCESSING, COMPLETED, FAILED)
-  - Creation and completion timestamps
-  - Error details for failed jobs
+### Webhook Management
 
-The job queue auto-refreshes every 10 seconds. Click **"Refresh"** for an immediate update.
+Webhooks allow external systems to receive real-time notifications when events occur on the platform. auditraks sends an HTTP POST request to your endpoint whenever a configured event fires.
 
-> **Note:** Failed jobs are automatically retried by the background worker. If a job remains in FAILED status after multiple retries, investigate the error detail and contact the auditraks support team if needed.
+**To create a webhook endpoint:**
 
-### 5.5 Compliance Review
+1. Navigate to **Admin > Webhooks** (or access via the API keys section if visible).
+2. Click **Create Endpoint**.
+3. Enter the URL of your receiving endpoint.
+4. Select the events to subscribe to (e.g., batch created, event submitted, compliance flag raised).
+5. Save the endpoint.
 
-The Compliance Review section lists all batches with a **FLAGGED** status that require administrator attention.
+auditraks signs each webhook payload with an **HMAC-SHA256 signature** using your endpoint's secret. Verify this signature on your receiving server to confirm the payload is authentic.
 
-[Screenshot: Compliance Review queue]
+**To verify a webhook signature:**
+1. Retrieve the `X-Signature` header from the incoming request.
+2. Compute HMAC-SHA256 of the raw request body using your endpoint secret as the key.
+3. Compare your computed signature to the header value. If they match, the payload is genuine.
 
-**To review a flagged batch:**
+### API Key Management
 
-1. Navigate to **Compliance Review** in the admin navigation.
-2. Click on a flagged batch to open the review view.
-3. Review the compliance check results to understand why the batch was flagged.
-4. You may:
-   - **Add a review note** documenting your findings.
-   - **Request additional information** from the supplier (this sends a notification to the supplier).
-   - **Override the flag** if you determine that the flag was raised in error, providing a written justification.
-   - **Escalate** the case for formal investigation.
-5. Click **"Save Review"** to record your action.
+API keys allow external systems and integrations to access the auditraks API programmatically without user authentication.
 
-All compliance review actions are logged with the reviewer's name, timestamp, and notes.
+Navigate to **Admin > API Keys**.
 
----
+#### Creating an API Key
 
-## 6. Compliance Engine
+1. Click **Create API Key**.
+2. Enter a descriptive name (e.g., "CI Pipeline", "ERP Integration").
+3. Click **Create**.
+4. The full key is displayed once in an amber box. **Copy it immediately and store it securely.** It will not be shown again.
 
-auditraks's compliance engine automatically evaluates batches against RMAP and OECD DDG frameworks as events are submitted. This section explains how each check works and how individual check results combine into an overall batch compliance status.
+API keys follow the format `at_<hex string>`.
 
-### 6.1 RMAP Checks
+#### Revoking an API Key
 
-**When triggered:** An RMAP check is triggered automatically whenever a **Primary Processing (Smelting)** event is submitted.
+Find the key in the table and click **Revoke**. The key is immediately deactivated and all requests using it will be rejected. Revoked keys remain visible in the table with a "Revoked" badge for audit purposes.
 
-**What is checked:** auditraks looks up the Smelter ID entered in the event against the current RMAP-approved smelter list (maintained by Platform Admins — see Section 5.3).
+#### Key Table Columns
 
-**Outcomes:**
-- If the smelter ID is found on the list, the RMAP check **passes**.
-- If the smelter ID is not found on the list, the RMAP check **fails** and the batch is flagged.
+| Column | Description |
+|---|---|
+| Name | The descriptive name you gave the key |
+| Prefix | First characters of the key (e.g., `at_3f8a...`) for identification |
+| Status | Active (green) or Revoked (grey) |
+| Last Used | Date the key was last used to make a request |
+| Created | Date the key was created |
 
-**What to do if an RMAP check fails:** Verify that the smelter ID was entered correctly. If the smelter is genuinely not listed, it has either not yet been audited under RMAP or its certification has lapsed. Contact the smelter to obtain their current RMAP certification status, and contact your Platform Admin to check whether the smelter list needs updating.
+### Managing Billing
 
-### 6.2 OECD DDG Checks
+Tenant Admins can access the **Stripe billing portal** to manage their subscription.
 
-OECD DDG checks evaluate a broader range of risk factors in accordance with the OECD Due Diligence Guidance for Responsible Supply Chains of Minerals from Conflict-Affected and High-Risk Areas.
+**To open the billing portal:**
 
-**What is checked:**
+1. From the Admin Dashboard, locate the trial/plan status banner at the top of the page.
+2. Click **Manage Billing**.
+3. auditraks redirects you to the Stripe portal where you can:
+   - View your current plan and billing period
+   - Update payment method
+   - View invoices and payment history
+   - Upgrade, downgrade, or cancel your subscription
 
-| Check                     | Description                                                                                                                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Origin Country Risk**   | The origin country recorded for the batch is assessed against a risk classification. Countries identified as conflict-affected or high-risk under OECD guidance trigger a flag.                        |
-| **Sanctions Screening**   | The origin country, trading parties, and smelter are checked against applicable sanctions lists. Any match results in a flag.                                                                          |
-| **Document Completeness** | auditraks verifies that the expected documentation is present for the events recorded. Missing key documents (such as an export permit for an export event) will result in an INSUFFICIENT_DATA status. |
+> Changes made in the Stripe portal take effect according to Stripe's billing rules. Cancellations take effect at the end of the current billing period.
 
-**When triggered:** OECD DDG checks run automatically when relevant events are submitted (for example, an origin country risk check runs when a batch is created; a document completeness check runs continuously as events are added).
+### Plan Status
 
-### 6.3 Mass Balance Checks
+The Admin Dashboard banner shows your current subscription status:
 
-**When triggered:** A mass balance check runs automatically when a **Concentration** or **Primary Processing** event is submitted with both input and output weights.
-
-**What is checked:** auditraks compares the output weight to the input weight. If the output exceeds the input by more than 5%, the batch is flagged. This guards against reporting errors or fraudulent weight inflation.
-
-**What to do if a mass balance check fails:** Review the input and output weights on the event. If there is a genuine error, submit a correction event (see Section 8.3). If the process legitimately produces more output than input (e.g., due to added materials), document this with a note and contact your Platform Admin.
-
-### 6.4 Sequence Checks
-
-**When triggered:** A sequence check runs automatically every time a new custody event is submitted.
-
-**What is checked:** auditraks verifies that the new event's date is not earlier than the most recent existing event for the batch. Out-of-order events are flagged, as they may indicate a data entry error or a process irregularity.
-
-**What to do if a sequence check fails:** Verify the event date. If the date was entered incorrectly, submit a correction. If events genuinely occurred out of chronological order (e.g., backdated lab results), document the reason.
-
-### 6.5 GPS Coordinate Validation
-
-**When triggered:** GPS coordinates are validated at event submission time.
-
-**What is checked:** auditraks verifies that GPS coordinates are in valid `latitude,longitude` format with latitude between -90 and 90, and longitude between -180 and 180.
-
-### 6.6 Batch Compliance Rollup
-
-A batch's overall compliance status is determined by combining the results of all individual checks:
-
-- If **all checks pass** → status is **COMPLIANT**.
-- If **any check fails** → status is **FLAGGED**.
-- If **checks cannot be completed** due to missing information → status is **INSUFFICIENT_DATA**.
-- If **no checks have been triggered yet** (e.g., a newly created batch with no events) → status is **PENDING**.
-
-The overall status is recalculated every time a new event is submitted.
-
-### 6.4 Compliance Notifications
-
-auditraks sends email notifications when compliance-relevant events occur:
-
-| Event                                          | Recipients                                                                                              |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Batch flagged (any compliance failure)         | The supplier who submitted the triggering event, all buyers associated with the batch, Platform Admins. |
-| Batch status changes from FLAGGED to COMPLIANT | The supplier, all buyers associated with the batch.                                                     |
-| Compliance review action taken by admin        | The supplier and buyers associated with the batch.                                                      |
-
-Ensure your registered email address is current so you receive these notifications promptly.
+- **Trial** — amber banner. Shows exact days remaining (e.g., "Trial — 47 days remaining"). Click **Manage Billing** to add a payment method or convert to a paid plan early.
+- **Active** — green banner showing "Pro Plan — Active". Click **Manage Billing** to manage your subscription.
 
 ---
 
-## 7. Public Features
+## 6. Public Features
 
-### 7.1 Batch Verification via QR Code or URL
+### Batch Verification Page
 
-Each batch in auditraks has a publicly accessible verification page that allows anyone — including customers, auditors, and end consumers — to confirm a batch's compliance status without needing an auditraks account.
+Each batch has a publicly accessible verification page that anyone can view — no auditraks account required. This is the trust layer: customers, end consumers, and auditors can independently confirm compliance status.
 
-**To verify a batch:**
+**Access via QR code:** Scan the QR code printed on a Material Passport. Any smartphone camera or QR reader app will open the verification page directly.
 
-- **Via QR code:** Scan the QR code on a Material Passport using any smartphone camera or QR code reader app. You will be taken directly to the batch verification page.
-- **Via URL:** Navigate to the following address in any browser, replacing `{batchId}` with the actual batch identifier:
+**Access via URL:** Navigate to:
 
-  ```
-  /api/verify/{batchId}
-  ```
+```
+https://accutrac.org/verify/{batchId}
+```
 
-  For example: `/api/verify/W-2026-041`
+Example: `https://accutrac.org/verify/W-2026-041`
 
 The public verification page displays:
-- The batch number and mineral type.
-- The origin country.
-- The overall compliance status (COMPLIANT, FLAGGED, INSUFFICIENT_DATA, or PENDING).
-- The date the compliance status was last updated.
-- A summary of which compliance frameworks were evaluated.
+- Batch number and mineral type
+- Origin country
+- Overall compliance status (COMPLIANT, FLAGGED, INSUFFICIENT_DATA, or PENDING)
+- Date the compliance status was last updated
+- Summary of which compliance frameworks were evaluated
 
-The public verification page does **not** display detailed event data, document contents, or commercially sensitive information.
+The page does **not** display detailed event data, document contents, or commercially sensitive information.
 
-### 7.2 Shared Material Passport Links
+### Shared Document Links
 
-When a buyer shares a Material Passport using the "Share" function (see Section 4.5), the recipient can view the passport via a secure, time-limited link without needing an auditraks account.
+When a buyer shares a Material Passport using the Share function, recipients access it at:
 
-Shared passport links are valid for **30 days** from the date of creation. After expiry, the link will display an "This link has expired" message. Contact the buyer who shared the link to request a new one.
+```
+https://accutrac.org/shared/{token}
+```
 
----
-
-## 8. Tamper Evidence and Data Integrity
-
-auditraks is designed so that the custody record for any batch cannot be secretly altered. This is achieved through cryptographic hash chaining and an immutable event log.
-
-### 8.1 How SHA-256 Hash Chains Work
-
-Every time an event is submitted to auditraks, the system generates a **cryptographic fingerprint** (called a SHA-256 hash) of the event's data — including the event type, all field values, the timestamp, the submitting user, and the fingerprint of the previous event in the chain.
-
-Because each event's fingerprint depends on the previous event's fingerprint, the entire chain is mathematically linked. If any event were altered — even a single character changed — its fingerprint would change, and all subsequent events would no longer match. This makes undetected tampering computationally infeasible.
-
-You do not need to understand the technical details to benefit from this protection. What matters is that auditraks gives auditors and buyers a reliable guarantee that the event log they are reviewing has not been modified since it was recorded.
-
-### 8.2 Integrity Verification
-
-Platform Admins can run an **integrity check** on any batch to verify that the hash chain is intact. If the check passes, it confirms that no event data has been altered since submission. If the check fails, it indicates a data integrity issue that requires investigation.
-
-Buyers can see the integrity status of a batch on the Compliance Checks tab of the Batch Detail view.
-
-### 8.3 Corrections
-
-Because events cannot be deleted or edited, corrections to mistaken entries are handled by submitting a **Correction event**. A correction event:
-
-- References the original event it is correcting (by event ID).
-- Records the corrected values.
-- Includes a mandatory explanation of what was changed and why.
-- Is itself part of the immutable hash chain.
-
-Both the original event and the correction remain visible in the event timeline, maintaining a complete and transparent record of all changes.
-
-**To submit a correction:**
-
-1. Open the Batch Detail view and locate the event that needs correcting in the Timeline tab.
-2. Click the **"Submit Correction"** button on that event.
-3. Enter the corrected values and a written explanation.
-4. Click **"Submit"**.
-
-The correction will be reviewed and linked to the original event in the timeline. Compliance checks are re-run after a correction is submitted.
+Shared links are valid for **30 days**. After expiry, the page shows an expiry message. Contact the buyer who shared the link to request a new one.
 
 ---
 
-## 9. Notifications and Email Alerts
+## 7. API Access
 
-### 9.1 In-App Notifications
+### Authentication
 
-auditraks displays notifications in the **notification bell** in the top navigation bar. A red dot appears on the bell when you have unread notifications.
+Authenticate API requests using your API key in the `X-API-Key` request header:
 
-Click the bell to open the notification dropdown, which shows your most recent notifications. Click on any notification to view details or navigate to the relevant batch.
+```
+X-API-Key: at_your_key_here
+```
 
-### 9.2 Email Notifications
+API keys are created and managed by Tenant Admins in the Admin Dashboard under **API Keys**. Keys follow the format `at_<hex string>`.
 
-auditraks sends email notifications for the following events:
+Never include API keys in client-side code, public repositories, or any location accessible to unauthorized parties. If a key is compromised, revoke it immediately from the Admin Dashboard and create a new one.
 
-| Event                        | Recipients                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------ |
-| **User Invitation**          | The invited user receives a welcome email with a sign-in link.                                   |
-| **Compliance Flag**          | The supplier who submitted the triggering event, and all Platform Admins.                        |
-| **Compliance Status Change** | The supplier and buyers associated with the batch.                                               |
-| **Document Generated**       | The user who requested the Material Passport or Audit Dossier.                                   |
-| **48-Hour Escalation**       | All Platform Admins are notified if a compliance flag remains unresolved for more than 48 hours. |
+### Available Endpoints
 
-Email notifications are sent automatically. If emails are not being delivered, check your spam/junk folder and ensure your organization's email system allows messages from the auditraks platform address.
+The auditraks API is a REST API. Common operations include:
 
-> **Note:** The platform retries failed email deliveries up to 3 times. If you are not receiving emails after multiple days, contact your Platform Admin.
+| Operation | Description |
+|---|---|
+| `GET /api/batches` | List all batches for the tenant |
+| `GET /api/batches/{id}` | Get a specific batch with its events and compliance status |
+| `POST /api/batches` | Create a new batch |
+| `POST /api/batches/{id}/events` | Submit a custody event for a batch |
+| `GET /api/batches/{id}/documents` | List documents for a batch |
+| `GET /api/analytics` | Get analytics summary |
+| `GET /api/admin/audit-logs` | List audit log entries (admin only) |
+| `GET /api/verify/{batchId}` | Public batch verification (no auth required) |
 
-### 9.3 Escalation Policy
-
-Compliance flags that remain unresolved for more than **48 hours** trigger an automatic escalation. All Platform Admins in the affected tenant receive an escalation notification (both in-app and via email) prompting them to review and resolve the flagged batch.
-
----
-
-## 10. Troubleshooting and FAQ
-
-### Sign-In Issues
-
-**I did not receive my invitation email.**
-Check your spam or junk folder. If it is not there, ask your Platform Admin to resend the invitation. Invitation emails are sent from the auditraks platform address — ask your IT team to add this to your allow-list if emails are being blocked.
-
-**My invitation link has expired.**
-Invitation links are valid for 7 days. Contact your Platform Admin to send a new invitation.
-
-**I cannot sign in with Google.**
-Ensure you are using the Google account associated with your auditraks invitation. If you signed up with a different Google account, contact your Platform Admin to update your registered email address.
-
-**I am redirected to the wrong portal after signing in.**
-Your role may have been assigned incorrectly. Contact your Platform Admin to verify and correct your role.
+For the full API reference, contact your auditraks administrator or refer to the API documentation provided with your subscription.
 
 ---
 
-### Batch and Event Issues
+## 8. Compliance Framework
 
-**I entered the wrong information on an event. Can I edit it?**
-Events cannot be edited after submission. Submit a Correction event referencing the original (see Section 8.3).
+auditraks runs five automated compliance checks against every batch. Checks trigger automatically when relevant events are submitted — no manual action is required.
 
-**My batch shows FLAGGED after I submitted a Primary Processing event.**
-The smelter ID you entered may not be on the current RMAP-approved list. Check that the ID was entered correctly. If it is correct, contact your Platform Admin — the smelter list may need to be updated.
+### RMAP Smelter Verification
 
-**My batch shows INSUFFICIENT_DATA.**
-Review the Compliance Checks tab for the batch. The compliance engine has identified one or more missing documents or events. Add the required events or documents to resolve this status.
+**Triggered by:** Submitting a Primary Processing (Smelting) event.
 
-**I cannot find a batch I created.**
-Ensure you are signed in to the correct account. Use the search bar on the Supplier Dashboard to search by batch number. If the batch still does not appear, it may have been created under a different supplier account — contact your Platform Admin.
+**What it checks:** The Smelter ID entered in the event is looked up against the current RMAP-approved smelter list (maintained by Platform Admins).
+
+**Pass:** The smelter ID is found on the RMAP list — the smelter has been audited under the Responsible Minerals Initiative.
+
+**Fail:** The smelter ID is not found. The batch is flagged. Verify the ID was entered correctly. If correct, the smelter may not have current RMAP certification — contact the smelter and notify your admin.
+
+### OECD DDG Origin Country Risk
+
+**Triggered by:** Batch creation (the origin country is assessed immediately).
+
+**What it checks:** The origin country is evaluated against the OECD's risk classification for conflict-affected and high-risk areas.
+
+**Pass:** The origin country is classified as low risk.
+
+**Fail:** The origin country is identified as conflict-affected or high-risk (e.g., DRC). The batch is flagged automatically. No manual review step is needed — the system catches it immediately.
+
+### Sanctions Screening
+
+**Triggered by:** Batch creation and when trading/transfer events are submitted.
+
+**What it checks:** The origin country, trading parties, and smelter are checked against applicable sanctions lists.
+
+**Pass:** No sanctions match.
+
+**Fail:** A match is found. The batch is flagged and requires review before any further trading.
+
+### Mass Balance Check
+
+**Triggered by:** Submitting a Concentration or Primary Processing event with both input and output weights.
+
+**What it checks:** The output weight is compared to the input weight. If the output exceeds the input by more than 5%, the check fails. This guards against reporting errors and fraudulent weight inflation.
+
+**Pass:** Output weight is within acceptable range of input weight.
+
+**Fail:** Output exceeds input by more than 5%. Review the weights on the event. If there is a genuine data entry error, submit a Correction event. If the discrepancy is legitimate (e.g., added materials), document the reason and contact your admin.
+
+### Event Sequence Integrity
+
+**Triggered by:** Every custody event submission.
+
+**What it checks:** The date of the new event is compared to the date of the most recent existing event. Out-of-order events are flagged.
+
+**Pass:** Events are in chronological order.
+
+**Fail:** The new event's date is earlier than the previous event. Check the date entered. If events genuinely occurred out of order (e.g., backdated lab results), document the reason.
+
+### SHA-256 Hash Chain
+
+Every custody event submitted to auditraks receives a cryptographic fingerprint — a SHA-256 hash. This hash is calculated from:
+
+- The event type and all field values
+- The submission timestamp
+- The submitting user
+- The hash of the previous event in the chain
+
+Because each event's hash depends on the previous event's hash, the entire chain is mathematically linked. Altering any event — even a single character — would change its hash, causing all subsequent events to no longer match. This makes undetected tampering computationally infeasible.
+
+**What this means for you:**
+- Buyers and auditors can trust that the event log has not been modified since it was recorded
+- Material Passports and Audit Dossiers include the hash chain integrity status
+- Platform Admins can run a manual integrity check on any batch at any time
+- The public verification page reflects the current integrity status
+
+### Compliance Status Rollup
+
+A batch's overall compliance status is determined by combining all individual check results:
+
+| Condition | Overall Status |
+|---|---|
+| All checks pass | **COMPLIANT** |
+| Any check fails | **FLAGGED** |
+| Checks cannot complete due to missing data | **INSUFFICIENT_DATA** |
+| No checks triggered yet | **PENDING** |
+
+Status is recalculated after every event submission. Relevant users are notified by email when a batch is flagged or when a flag is resolved.
 
 ---
 
-### Document Issues
+## 9. FAQ
 
-**My document upload is failing.**
-Check that your file meets the requirements: supported formats are PDF, JPEG, PNG, TIFF, and GIF; maximum file size is 25 MB. If your file meets these requirements and the upload still fails, try a different browser or contact support.
+**How do I fix an event I submitted with wrong information?**
+Events cannot be edited or deleted after submission — this is by design to maintain data integrity. Submit a Correction event referencing the original event's ID. Enter the corrected values and a written explanation. Both the original event and the correction remain visible in the timeline. Compliance checks are re-run after a correction.
 
-**I uploaded the wrong document.**
-Documents cannot be deleted. Upload the correct document and add a note in the description field indicating that the previous upload should be disregarded and specifying which document supersedes it.
+**My batch is showing FLAGGED after I submitted a smelting event. What do I do?**
+The most likely cause is an unrecognized Smelter ID. First, verify you entered the ID correctly — even a small typo will cause a failed RMAP check. If the ID is correct, contact your Tenant Admin. The RMAP smelter list may need to be updated, or the smelter's certification may have lapsed.
 
----
+**My batch shows INSUFFICIENT_DATA. How do I resolve it?**
+Open the batch and go to the Compliance Checks tab. The compliance engine will indicate which checks are inconclusive and what information is missing. Add the required events or documents and the status will update automatically.
 
-### Compliance and Reports
+**Why has my DRC-origin batch been flagged immediately?**
+DRC (Democratic Republic of Congo) is classified as a conflict-affected and high-risk area under OECD guidance. Any batch with a DRC origin country will automatically trigger an OECD DDG flag. This is expected behavior. You can continue adding events and pursuing verification — your Tenant Admin or Platform Admin can override the flag with documented justification if your sourcing practices meet OECD requirements.
 
-**Why has my batch been flagged for an origin country I believe is low risk?**
-auditraks uses origin country risk classifications based on published OECD guidance. If you believe the classification is incorrect, contact your Platform Admin — they can review the case and, if appropriate, override the flag with documented justification.
+**The Material Passport button is greyed out. Why?**
+Material Passports can only be generated for batches with a **COMPLIANT** status. Resolve any compliance flags or add missing data to satisfy the INSUFFICIENT_DATA checks, then try again.
 
-**I need to generate a Material Passport but the button is greyed out.**
-Material Passports can only be generated for batches with a COMPLIANT status. Resolve any compliance flags or missing data issues first.
+**A shared link I sent has expired. What do I do?**
+Shared links are valid for 30 days. Generate a new shared link from the batch detail view and send the updated link to the recipient.
 
-**A shared Material Passport link I sent has expired.**
-Shared links are valid for 30 days. Generate a new shared link from the Batch Detail view and send it to the recipient.
+**Can I split a batch after it has been marked completed?**
+No. A completed batch cannot be split. You must split the batch while it is still in CREATED or ACTIVE status.
 
-**Can external parties access our batch data through a shared link?**
-Shared Material Passport links display only the information included in the Material Passport itself. Detailed event logs, document contents, and commercially sensitive data are not exposed through shared links.
-
----
-
-### General Questions
+**How do I verify that a Material Passport is genuine?**
+Scan the QR code on the passport with any smartphone. This opens the public batch verification page at `accutrac.org/verify/{batchId}`, which shows the live compliance status directly from the database. Alternatively, navigate to that URL in any browser.
 
 **Is my data secure?**
-Yes. All data transmitted to and from auditraks is encrypted in transit using TLS. Stored data is encrypted at rest. Access to batch data is restricted to authorized users in the relevant supplier and buyer organizations, plus Platform Admins.
+Yes. All data in transit is encrypted using TLS. Data at rest is encrypted. Access to batch data is restricted to authorized users in the relevant organization. Every action is logged in the tamper-evident audit log.
 
 **Can multiple people in my organization use auditraks?**
-Yes. Each person should have their own individual account. Contact your Platform Admin to invite additional users. Sharing login credentials is not permitted.
+Yes. Each person should have their own individual account. Contact your Tenant Admin to invite additional users. Sharing login credentials is not permitted and can compromise your audit trail.
+
+**What is the difference between a Material Passport and an Audit Dossier?**
+A **Material Passport** is a concise summary designed for sharing with customers and downstream parties. It includes the custody chain summary, compliance status, and a QR verification code. An **Audit Dossier** is a comprehensive document for formal due diligence — it contains the complete event log, all compliance check details, document references with file hashes, and full hash chain verification. Use the Audit Dossier for regulatory submissions and formal audits.
+
+**How is this different from blockchain?**
+auditraks uses SHA-256 hash chains — the same tamper-evidence guarantee as blockchain, but without the cost, latency, or environmental overhead. Every event is cryptographically linked to the previous one. If any record were altered, the chain would break and the tampering would be immediately detectable.
+
+**What happens when my trial ends?**
+At the end of your 60-day trial, your subscription converts to the plan you selected at sign-up and your card on file is charged. You can upgrade, downgrade, or cancel at any time via the Stripe billing portal accessible from the Admin Dashboard. Cancellations take effect at the end of the current billing period.
+
+**My invitation email never arrived. What should I do?**
+Check your spam or junk folder first. If the email is not there, ask your Tenant Admin to resend the invitation. Make sure your organization's email system allows messages from the auditraks platform address. Invitation links expire after 7 days.
 
 **What do I do if I suspect a data integrity issue?**
-Contact your Platform Admin immediately. Do not attempt to correct the issue yourself. Platform Admins can run integrity checks and escalate to auditraks support if needed.
-
-**How do I contact support?**
-Contact your Platform Admin in the first instance. For platform-level issues that your admin cannot resolve, they will escalate to the auditraks support team.
+Contact your Tenant Admin immediately. Do not attempt to correct anything yourself. Admins can run an integrity check on any batch and escalate to the auditraks support team if needed.
 
 ---
 
-*auditraks User Manual — Version 2.0 — March 2026*
+*auditraks User Manual — Version 3.0 — March 2026*
 
-*This document is provided for guidance purposes. Features and interfaces may change as the platform is updated. For the most current information, refer to the latest version of this manual.*
+*This document is provided for guidance. Features and interfaces may be updated as the platform evolves. For the most current information, refer to the latest version of this manual.*
