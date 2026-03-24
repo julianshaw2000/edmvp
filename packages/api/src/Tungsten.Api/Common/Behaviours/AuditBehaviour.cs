@@ -1,6 +1,7 @@
 using MediatR;
 using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
 
@@ -10,7 +11,8 @@ public class AuditBehaviour<TRequest, TResponse>(
     AppDbContext db,
     ICurrentUserService currentUser,
     IHttpContextAccessor httpContextAccessor,
-    ILogger<AuditBehaviour<TRequest, TResponse>> logger)
+    ILogger<AuditBehaviour<TRequest, TResponse>> logger,
+    IWebhookDispatchService webhookDispatch)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
@@ -98,6 +100,24 @@ public class AuditBehaviour<TRequest, TResponse>(
 
             db.AuditLogs.Add(entry);
             await db.SaveChangesAsync(ct);
+
+            // Dispatch webhook (fire-and-forget — don't fail the request)
+            try
+            {
+                var webhookEventType = auditable.EntityType.ToLowerInvariant() switch
+                {
+                    "batch" => "batch." + auditable.AuditAction.ToLowerInvariant().Replace("batch", "").TrimStart('.'),
+                    "custodyevent" => "event.created",
+                    "generateddocument" => "document.generated",
+                    _ => auditable.EntityType.ToLowerInvariant() + ".updated",
+                };
+                _ = webhookDispatch.DispatchAsync(tenantId, webhookEventType,
+                    new { action = auditable.AuditAction, entityType = auditable.EntityType, entityId, result = resultText }, ct);
+            }
+            catch (Exception wex)
+            {
+                logger.LogWarning(wex, "Webhook dispatch failed for {Action}", auditable.AuditAction);
+            }
         }
         catch (Exception ex)
         {

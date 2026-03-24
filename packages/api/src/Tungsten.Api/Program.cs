@@ -28,6 +28,7 @@ using Tungsten.Api.Features.Admin;
 using Tungsten.Api.Features.Platform;
 using Tungsten.Api.Features.Signup;
 using Tungsten.Api.Features.Billing;
+using Tungsten.Api.Features.Webhooks;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,8 +104,10 @@ if (!string.IsNullOrEmpty(builder.Configuration["Resend:ApiKey"]))
 else
     builder.Services.AddSingleton<IEmailService, LogEmailService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IPlanEnforcementService, PlanEnforcementService>();
+builder.Services.AddScoped<IWebhookDispatchService, WebhookDispatchService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetMe.Handler>());
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantStatusBehaviour<,>));
@@ -295,6 +298,7 @@ app.MapAdminEndpoints();
 app.MapPlatformEndpoints();
 app.MapSignupEndpoints();
 app.MapBillingEndpoints();
+app.MapWebhookEndpoints();
 
 app.Run();
 

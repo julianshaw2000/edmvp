@@ -8,6 +8,7 @@ using Tungsten.Api.Common;
 using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Behaviours;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
 
@@ -68,8 +69,9 @@ public class AuditBehaviourTests
         var accessor = new HttpContextAccessor { HttpContext = httpContext };
         var currentUser = new CurrentUserService(accessor, db);
         var logger = Substitute.For<ILogger<AuditBehaviour<TRequest, TResponse>>>();
+        var webhookDispatch = Substitute.For<IWebhookDispatchService>();
 
-        var behaviour = new AuditBehaviour<TRequest, TResponse>(db, currentUser, accessor, logger);
+        var behaviour = new AuditBehaviour<TRequest, TResponse>(db, currentUser, accessor, logger, webhookDispatch);
         return (db, behaviour);
     }
 
@@ -158,8 +160,9 @@ public class AuditBehaviourTests
         var accessor = new HttpContextAccessor { HttpContext = null };
         var currentUser = Substitute.For<ICurrentUserService>();
         var logger = Substitute.For<ILogger<AuditBehaviour<TestAuditableCommand, Result<TestResponse>>>>();
+        var webhookDispatch = Substitute.For<IWebhookDispatchService>();
 
-        var behaviour = new AuditBehaviour<TestAuditableCommand, Result<TestResponse>>(db, currentUser, accessor, logger);
+        var behaviour = new AuditBehaviour<TestAuditableCommand, Result<TestResponse>>(db, currentUser, accessor, logger, webhookDispatch);
         var response = Result<TestResponse>.Success(new TestResponse(Guid.NewGuid(), "test"));
 
         await behaviour.Handle(

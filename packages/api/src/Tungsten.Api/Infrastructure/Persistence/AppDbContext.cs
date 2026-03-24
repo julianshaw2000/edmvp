@@ -18,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RiskCountryEntity> RiskCountries => Set<RiskCountryEntity>();
     public DbSet<SanctionedEntityEntity> SanctionedEntities => Set<SanctionedEntityEntity>();
     public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
+    public DbSet<WebhookEndpointEntity> WebhookEndpoints => Set<WebhookEndpointEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
