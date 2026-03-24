@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common;
 using Tungsten.Api.Common.Audit;
 using Tungsten.Api.Common.Auth;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
 
@@ -46,7 +47,7 @@ public static class CreateBatch
         }
     }
 
-    public class Handler(AppDbContext db, ICurrentUserService currentUser)
+    public class Handler(AppDbContext db, ICurrentUserService currentUser, IPlanEnforcementService planEnforcement)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> Handle(Command cmd, CancellationToken ct)
@@ -55,6 +56,10 @@ public static class CreateBatch
                 .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub && u.IsActive, ct);
             if (user is null)
                 return Result<Response>.Failure("User not found");
+
+            var limitError = await planEnforcement.CheckBatchLimitAsync(user.TenantId, ct);
+            if (limitError is not null)
+                return Result<Response>.Failure(limitError);
 
             var exists = await db.Batches.AnyAsync(
                 b => b.TenantId == user.TenantId && b.BatchNumber == cmd.BatchNumber, ct);

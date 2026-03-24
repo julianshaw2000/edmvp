@@ -11,6 +11,8 @@ public class TenantEntity
     public string? StripeSubscriptionId { get; set; }
     public string? PlanName { get; set; }
     public DateTime? TrialEndsAt { get; set; }
+    public int? MaxBatches { get; set; }
+    public int? MaxUsers { get; set; }
     public ICollection<UserEntity> Users { get; set; } = [];
     public ICollection<BatchEntity> Batches { get; set; } = [];
 }

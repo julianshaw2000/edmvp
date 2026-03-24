@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Tungsten.Api.Common.Auth;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.Batches;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
@@ -37,8 +38,10 @@ public class CreateBatchTests
         var (db, tenant, user) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        var planEnforcement = Substitute.For<IPlanEnforcementService>();
+        planEnforcement.CheckBatchLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
 
-        var handler = new CreateBatch.Handler(db, currentUser);
+        var handler = new CreateBatch.Handler(db, currentUser, planEnforcement);
         var command = new CreateBatch.Command(
             "BATCH-001", "tungsten", "CD", "Bisie Mine", 500.0m);
 
@@ -65,8 +68,10 @@ public class CreateBatchTests
 
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        var planEnforcement = Substitute.For<IPlanEnforcementService>();
+        planEnforcement.CheckBatchLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
 
-        var handler = new CreateBatch.Handler(db, currentUser);
+        var handler = new CreateBatch.Handler(db, currentUser, planEnforcement);
         var command = new CreateBatch.Command(
             "BATCH-001", "tungsten", "CD", "Bisie Mine", 500.0m);
 
