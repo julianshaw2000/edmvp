@@ -34,7 +34,7 @@ public static class CreateCheckoutSession
                 return Result<Response>.Failure($"Email '{cmd.Email}' is already in use");
 
             var priceId = PlanConfiguration.GetPriceId(cmd.Plan, config);
-            var baseUrl = config["BaseUrl"] ?? "https://accutrac-web.onrender.com";
+            var baseUrl = config["App:BaseUrl"] ?? config["BaseUrl"] ?? "https://accutrac-web.onrender.com";
 
             var options = new SessionCreateOptions
             {
@@ -70,10 +70,16 @@ public static class CreateCheckoutSession
                 }
             };
 
-            var service = new SessionService();
-            var session = await service.CreateAsync(options, cancellationToken: ct);
-
-            return Result<Response>.Success(new Response(session.Url));
+            try
+            {
+                var service = new SessionService();
+                var session = await service.CreateAsync(options, cancellationToken: ct);
+                return Result<Response>.Success(new Response(session.Url));
+            }
+            catch (StripeException ex)
+            {
+                return Result<Response>.Failure($"Payment setup failed: {ex.Message}");
+            }
         }
     }
 }
