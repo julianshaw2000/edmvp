@@ -80,6 +80,10 @@ public static class CreateCheckoutSession
             {
                 return Result<Response>.Failure($"Payment setup failed: {ex.Message}");
             }
+            catch (Exception ex)
+            {
+                return Result<Response>.Failure($"Payment setup failed: {ex.GetType().Name}: {ex.Message}");
+            }
         }
     }
 }

@@ -15,6 +15,10 @@ public class TenantStatusBehaviour<TRequest, TResponse>(
         if (httpContextAccessor.HttpContext is null)
             return await next();
 
+        // Skip for unauthenticated requests (e.g., public signup endpoint)
+        if (httpContextAccessor.HttpContext.User.Identity?.IsAuthenticated != true)
+            return await next();
+
         var tenantStatus = await currentUser.GetTenantStatusAsync(ct);
 
         if (tenantStatus is "SUSPENDED" or "CANCELLED")
