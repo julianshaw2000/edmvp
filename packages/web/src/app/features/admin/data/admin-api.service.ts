@@ -13,8 +13,10 @@ export class AdminApiService {
   private apiUrl = inject(API_URL);
 
   // User management
-  listUsers(): Observable<{ users: UserResponse[]; totalCount: number }> {
-    return this.http.get<{ users: UserResponse[]; totalCount: number }>(`${this.apiUrl}/api/users`);
+  listUsers(tenantId?: string): Observable<{ users: UserResponse[]; totalCount: number }> {
+    let params = new HttpParams();
+    if (tenantId) params = params.set('tenantId', tenantId);
+    return this.http.get<{ users: UserResponse[]; totalCount: number }>(`${this.apiUrl}/api/users`, { params });
   }
 
   createUser(req: CreateUserRequest): Observable<UserResponse> {
@@ -98,6 +100,7 @@ export class AdminApiService {
     if (filters.entityType) params = params.set('entityType', filters.entityType);
     if (filters.from) params = params.set('from', filters.from);
     if (filters.to) params = params.set('to', filters.to);
+    if (filters.tenantId) params = params.set('tenantId', filters.tenantId);
     return this.http.get<PagedAuditLogs>(`${this.apiUrl}/api/admin/audit-logs`, { params });
   }
 }

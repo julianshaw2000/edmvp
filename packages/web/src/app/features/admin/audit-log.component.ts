@@ -7,13 +7,14 @@ import { AdminFacade } from './admin.facade';
 import { AuditLogFilters, AUDIT_ACTION_LABELS } from './data/audit-log.models';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
+import { TenantFilterComponent } from './ui/tenant-filter.component';
 import { API_URL } from '../../core/http/api-url.token';
 
 @Component({
   selector: 'app-audit-log',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, JsonPipe, FormsModule, PageHeaderComponent, LoadingSpinnerComponent],
+  imports: [RouterLink, DatePipe, JsonPipe, FormsModule, PageHeaderComponent, LoadingSpinnerComponent, TenantFilterComponent],
   template: `
     <a routerLink="/admin" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
       <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,6 +41,9 @@ import { API_URL } from '../../core/http/api-url.token';
 
     <!-- Filters -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-6">
+      <div class="flex justify-end mb-3">
+        <app-tenant-filter (tenantChanged)="onTenantFilterChanged($event)" />
+      </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="block text-xs font-medium text-slate-500 mb-1.5">Action</label>
@@ -204,6 +208,7 @@ export class AuditLogComponent implements OnInit {
   filterAction = '';
   filterEntityType = '';
   filterResult = '';
+  filterTenantId = '';
 
   expandedId = signal<string | null>(null);
 
@@ -238,10 +243,17 @@ export class AuditLogComponent implements OnInit {
     };
     if (this.filterAction) filters.action = this.filterAction;
     if (this.filterEntityType) filters.entityType = this.filterEntityType;
+    if (this.filterTenantId) filters.tenantId = this.filterTenantId;
     this.facade.loadAuditLogs(filters);
   }
 
   onFilterChange() {
+    this.expandedId.set(null);
+    this.load(1);
+  }
+
+  onTenantFilterChanged(tenantId: string) {
+    this.filterTenantId = tenantId;
     this.expandedId.set(null);
     this.load(1);
   }

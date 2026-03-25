@@ -20,6 +20,7 @@ export interface AuditLogFilters {
   entityType?: string;
   from?: string;
   to?: string;
+  tenantId?: string;
 }
 
 export interface PagedAuditLogs {

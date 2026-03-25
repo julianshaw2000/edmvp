@@ -1,10 +1,12 @@
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { catchError, of, switchMap } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
+import { TenantFilterComponent } from './ui/tenant-filter.component';
 import { API_URL } from '../../core/http/api-url.token';
 
 export interface AnalyticsResponse {
@@ -28,7 +30,7 @@ export interface AnalyticsResponse {
   selector: 'app-analytics',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, PageHeaderComponent, LoadingSpinnerComponent],
+  imports: [RouterLink, PageHeaderComponent, LoadingSpinnerComponent, TenantFilterComponent],
   template: `
     <a routerLink="/admin" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
       <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,10 +39,13 @@ export interface AnalyticsResponse {
       Back to Dashboard
     </a>
 
-    <app-page-header
-      title="Analytics"
-      subtitle="Compliance trends and supply chain overview"
-    />
+    <div class="flex items-center justify-between mb-2">
+      <app-page-header
+        title="Analytics"
+        subtitle="Compliance trends and supply chain overview"
+      />
+      <app-tenant-filter (tenantChanged)="onTenantChanged($event)" />
+    </div>
 
     @if (loading()) {
       <div class="flex justify-center py-16">
@@ -260,11 +265,23 @@ export class AnalyticsComponent {
   private http = inject(HttpClient);
   private apiUrl = inject(API_URL);
 
-  private analytics$ = this.http
-    .get<AnalyticsResponse>(`${this.apiUrl}/api/analytics`)
-    .pipe(catchError(() => of(null)));
+  protected selectedTenantId = signal('');
+
+  private analytics$ = toObservable(this.selectedTenantId).pipe(
+    switchMap(tenantId => {
+      let params = new HttpParams();
+      if (tenantId) params = params.set('tenantId', tenantId);
+      return this.http
+        .get<AnalyticsResponse>(`${this.apiUrl}/api/analytics`, { params })
+        .pipe(catchError(() => of(null)));
+    })
+  );
 
   protected rawSignal = toSignal(this.analytics$, { initialValue: undefined });
+
+  onTenantChanged(tenantId: string) {
+    this.selectedTenantId.set(tenantId);
+  }
 
   protected loading = computed(() => this.rawSignal() === undefined);
   protected error = computed(() => this.rawSignal() === null);

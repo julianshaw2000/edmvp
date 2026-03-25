@@ -40,7 +40,7 @@ export class AdminFacade {
   readonly auditLogsTotalPages = this.store.auditLogsTotalPages;
 
   // Actions
-  loadUsers() { this.store.loadUsers(); }
+  loadUsers(tenantId?: string) { this.store.loadUsers(tenantId); }
   loadBatches() { this.store.loadBatches(); }
 
   inviteUser(req: CreateUserRequest) { this.store.inviteUser(req); }

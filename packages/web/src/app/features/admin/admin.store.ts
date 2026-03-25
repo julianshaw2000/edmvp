@@ -73,10 +73,10 @@ export class AdminStore {
   readonly submitting = this._submitting.asReadonly();
   readonly submitError = this._submitError.asReadonly();
 
-  loadUsers() {
+  loadUsers(tenantId?: string) {
     this._usersLoading.set(true);
     this._usersError.set(null);
-    this.api.listUsers().subscribe({
+    this.api.listUsers(tenantId).subscribe({
       next: (res) => {
         this._users.set(res.users);
         this._usersLoading.set(false);

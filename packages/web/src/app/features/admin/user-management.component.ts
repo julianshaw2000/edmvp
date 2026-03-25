@@ -7,12 +7,13 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { UserTableComponent } from './ui/user-table.component';
 import { UserFormComponent } from './ui/user-form.component';
+import { TenantFilterComponent } from './ui/tenant-filter.component';
 import { UserResponse, CreateUserRequest } from './data/admin.models';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [FormsModule, RouterLink, PageHeaderComponent, LoadingSpinnerComponent, UserTableComponent, UserFormComponent],
+  imports: [FormsModule, RouterLink, PageHeaderComponent, LoadingSpinnerComponent, UserTableComponent, UserFormComponent, TenantFilterComponent],
   template: `
     <a routerLink="/admin" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
       <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,12 +21,15 @@ import { UserResponse, CreateUserRequest } from './data/admin.models';
       </svg>
       Back to Dashboard
     </a>
-    <app-page-header
-      title="User Management"
-      subtitle="Invite and manage platform users"
-      actionLabel="Invite User"
-      (actionClicked)="toggleInviteForm()"
-    />
+    <div class="flex items-center justify-between mb-2">
+      <app-page-header
+        title="User Management"
+        subtitle="Invite and manage platform users"
+        actionLabel="Invite User"
+        (actionClicked)="toggleInviteForm()"
+      />
+      <app-tenant-filter (tenantChanged)="onTenantChanged($event)" />
+    </div>
 
     @if (showInviteForm()) {
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
@@ -134,6 +138,10 @@ export class UserManagementComponent implements OnInit {
 
   ngOnInit() {
     this.facade.loadUsers();
+  }
+
+  onTenantChanged(tenantId: string) {
+    this.facade.loadUsers(tenantId || undefined);
   }
 
   toggleInviteForm() {
