@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
       useRefreshTokens: false,
       cacheLocation: 'localstorage',
       authorizationParams: {
-        redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
+        redirect_uri: typeof window !== 'undefined' ? window.location.origin + '/login' : '',
         audience: environment.auth0.audience,
       },
     }),
