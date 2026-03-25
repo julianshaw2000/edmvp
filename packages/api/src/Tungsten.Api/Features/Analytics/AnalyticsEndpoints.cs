@@ -7,11 +7,11 @@ public static class AnalyticsEndpoints
 {
     public static IEndpointRouteBuilder MapAnalyticsEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/analytics", async (IMediator mediator, ILogger<GetAnalytics.Query> logger, CancellationToken ct) =>
+        app.MapGet("/api/analytics", async (Guid? tenantId, IMediator mediator, ILogger<GetAnalytics.Query> logger, CancellationToken ct) =>
         {
             try
             {
-                var result = await mediator.Send(new GetAnalytics.Query(), ct);
+                var result = await mediator.Send(new GetAnalytics.Query(tenantId), ct);
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(new { error = result.Error });

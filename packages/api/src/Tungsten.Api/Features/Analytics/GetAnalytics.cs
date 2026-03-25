@@ -8,7 +8,7 @@ namespace Tungsten.Api.Features.Analytics;
 
 public static class GetAnalytics
 {
-    public record Query : IRequest<Result<Response>>;
+    public record Query(Guid? TenantId = null) : IRequest<Result<Response>>;
 
     public record Response(
         int TotalBatches,
@@ -32,9 +32,29 @@ public static class GetAnalytics
     {
         public async Task<Result<Response>> Handle(Query query, CancellationToken ct)
         {
-            var tenantId = await currentUser.GetTenantIdAsync(ct);
+            var callerRole = await currentUser.GetRoleAsync(ct);
+            var batches = db.Batches.AsNoTracking();
+            IQueryable<Infrastructure.Persistence.Entities.CustodyEventEntity> events = db.CustodyEvents.AsNoTracking();
+            IQueryable<Infrastructure.Persistence.Entities.UserEntity> users = db.Users.AsNoTracking();
 
-            var batches = db.Batches.AsNoTracking().Where(b => b.TenantId == tenantId);
+            if (callerRole == Roles.Admin)
+            {
+                // PLATFORM_ADMIN: all tenants, optionally filter by one
+                if (query.TenantId.HasValue)
+                {
+                    batches = batches.Where(b => b.TenantId == query.TenantId.Value);
+                    events = events.Where(e => e.TenantId == query.TenantId.Value);
+                    users = users.Where(u => u.TenantId == query.TenantId.Value);
+                }
+            }
+            else
+            {
+                // TENANT_ADMIN: scoped to own tenant
+                var tenantId = await currentUser.GetTenantIdAsync(ct);
+                batches = batches.Where(b => b.TenantId == tenantId);
+                events = events.Where(e => e.TenantId == tenantId);
+                users = users.Where(u => u.TenantId == tenantId);
+            }
 
             var totalBatches = await batches.CountAsync(ct);
             var completedBatches = await batches.CountAsync(b => b.Status == "COMPLETED", ct);
@@ -42,8 +62,8 @@ public static class GetAnalytics
             var pendingBatches = await batches.CountAsync(b => b.ComplianceStatus == "PENDING", ct);
             var compliantBatches = await batches.CountAsync(b => b.ComplianceStatus == "COMPLIANT", ct);
 
-            var totalEvents = await db.CustodyEvents.CountAsync(e => e.TenantId == tenantId, ct);
-            var totalUsers = await db.Users.CountAsync(u => u.TenantId == tenantId && u.IsActive, ct);
+            var totalEvents = await events.CountAsync(ct);
+            var totalUsers = await users.CountAsync(u => u.IsActive, ct);
 
             // Load batch data for grouping in memory (tenant-scoped, bounded)
             var batchList = await batches
