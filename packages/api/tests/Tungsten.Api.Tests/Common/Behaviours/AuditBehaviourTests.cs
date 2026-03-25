@@ -84,7 +84,7 @@ public class AuditBehaviourTests
 
         var result = await behaviour.Handle(
             new TestAuditableCommand("test"),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -105,7 +105,7 @@ public class AuditBehaviourTests
 
         var result = await behaviour.Handle(
             new TestAuditableCommand("test"),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         Assert.False(result.IsSuccess);
@@ -124,7 +124,7 @@ public class AuditBehaviourTests
 
         await behaviour.Handle(
             new TestNonAuditableCommand("test"),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         var count = await db.AuditLogs.CountAsync();
@@ -141,7 +141,7 @@ public class AuditBehaviourTests
 
         await behaviour.Handle(
             new TestAuditableEventCommand("test", batchId),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         var log = await db.AuditLogs.FirstOrDefaultAsync();
@@ -167,7 +167,7 @@ public class AuditBehaviourTests
 
         await behaviour.Handle(
             new TestAuditableCommand("test"),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         var count = await db.AuditLogs.CountAsync();
@@ -182,7 +182,7 @@ public class AuditBehaviourTests
 
         var result = await behaviour.Handle(
             new TestVoidCommand("test"),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         Assert.False(result.IsSuccess);
@@ -202,7 +202,7 @@ public class AuditBehaviourTests
 
         await behaviour.Handle(
             new TestBatchCommand("test"),
-            _ => Task.FromResult(response),
+            () => Task.FromResult(response),
             CancellationToken.None);
 
         var log = await db.AuditLogs.FirstOrDefaultAsync();
