@@ -218,8 +218,10 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 app.MapHealthChecks("/health/ready");
 
 // Auth endpoints
-app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser) =>
+app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser, ILogger<Program> logger) =>
 {
+    try
+    {
     var auth0Sub = currentUser.Auth0Sub;
 
     // Extract email and name from token claims
@@ -287,6 +289,12 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
         return Results.Ok(meResult.Value);
 
     return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "/api/me failed for user");
+        return Results.Json(new { error = $"Login failed: {ex.GetType().Name}: {ex.Message}" }, statusCode: 500);
+    }
 }).RequireAuthorization();
 
 app.MapBatchEndpoints();
