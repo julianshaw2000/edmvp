@@ -9,7 +9,7 @@ namespace Tungsten.Api.Features.Admin;
 
 public static class ExportAuditLogs
 {
-    public record Query(Guid? UserId, string? Action, string? EntityType, DateTime? From, DateTime? To)
+    public record Query(Guid? UserId, string? Action, string? EntityType, DateTime? From, DateTime? To, Guid? TenantId = null)
         : IRequest<Result<byte[]>>;
 
     public class Handler(AppDbContext db, ICurrentUserService currentUser)
@@ -22,7 +22,9 @@ public static class ExportAuditLogs
 
             if (callerRole == Roles.Admin)
             {
-                // PLATFORM_ADMIN sees all
+                // PLATFORM_ADMIN: all tenants, optionally filter by one
+                if (query.TenantId.HasValue)
+                    q = q.Where(a => a.TenantId == query.TenantId.Value);
             }
             else
             {

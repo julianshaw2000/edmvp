@@ -35,10 +35,10 @@ public static class AdminEndpoints
         }).RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin);
 
         app.MapGet("/api/admin/audit-logs/export", async (
-            Guid? userId, string? action, string? entityType, DateTime? from, DateTime? to,
+            Guid? userId, string? action, string? entityType, DateTime? from, DateTime? to, Guid? tenantId,
             IMediator mediator, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new ExportAuditLogs.Query(userId, action, entityType, from, to), ct);
+            var result = await mediator.Send(new ExportAuditLogs.Query(userId, action, entityType, from, to, tenantId), ct);
             return result.IsSuccess
                 ? Results.File(result.Value, "text/csv", "audit-log.csv")
                 : Results.BadRequest(new { error = result.Error });

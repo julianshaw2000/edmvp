@@ -10,9 +10,9 @@ public static class UserEndpoints
         var group = app.MapGroup("/api/users")
             .RequireAuthorization(AuthorizationPolicies.RequireAdmin);
 
-        group.MapGet("/", async (IMediator mediator) =>
+        group.MapGet("/", async (Guid? tenantId, IMediator mediator) =>
         {
-            var result = await mediator.Send(new ListUsers.Query());
+            var result = await mediator.Send(new ListUsers.Query(tenantId));
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });

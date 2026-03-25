@@ -8,9 +8,9 @@ namespace Tungsten.Api.Features.Users;
 
 public static class ListUsers
 {
-    public record Query : IRequest<Result<Response>>;
+    public record Query(Guid? TenantId = null) : IRequest<Result<Response>>;
 
-    public record UserItem(Guid Id, string Email, string DisplayName, string Role, bool IsActive);
+    public record UserItem(Guid Id, string Email, string DisplayName, string Role, bool IsActive, string? TenantName);
 
     public record Response(IReadOnlyList<UserItem> Users, int TotalCount);
 
@@ -19,21 +19,26 @@ public static class ListUsers
     {
         public async Task<Result<Response>> Handle(Query query, CancellationToken ct)
         {
-            var user = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub && u.IsActive, ct);
-            if (user is null)
-                return Result<Response>.Failure("User not found");
-
             var callerRole = await currentUser.GetRoleAsync(ct);
-            var dbQuery = db.Users.AsNoTracking()
-                .Where(u => u.TenantId == user.TenantId);
+            var dbQuery = db.Users.AsNoTracking().AsQueryable();
 
-            if (callerRole == Roles.TenantAdmin)
+            if (callerRole == Roles.Admin)
+            {
+                // PLATFORM_ADMIN: all tenants, optionally filter by one
+                if (query.TenantId.HasValue)
+                    dbQuery = dbQuery.Where(u => u.TenantId == query.TenantId.Value);
+            }
+            else
+            {
+                // TENANT_ADMIN: scoped to own tenant, hide PLATFORM_ADMIN users
+                var tenantId = await currentUser.GetTenantIdAsync(ct);
+                dbQuery = dbQuery.Where(u => u.TenantId == tenantId);
                 dbQuery = dbQuery.Where(u => u.Role != Roles.Admin);
+            }
 
             var users = await dbQuery
                 .OrderBy(u => u.DisplayName)
-                .Select(u => new UserItem(u.Id, u.Email, u.DisplayName, u.Role, u.IsActive))
+                .Join(db.Tenants, u => u.TenantId, t => t.Id, (u, t) => new UserItem(u.Id, u.Email, u.DisplayName, u.Role, u.IsActive, t.Name))
                 .ToListAsync(ct);
 
             return Result<Response>.Success(new Response(users, users.Count));
