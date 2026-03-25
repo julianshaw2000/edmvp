@@ -45,25 +45,26 @@ public static class GetAnalytics
             var totalEvents = await db.CustodyEvents.CountAsync(e => e.TenantId == tenantId, ct);
             var totalUsers = await db.Users.CountAsync(u => u.TenantId == tenantId && u.IsActive, ct);
 
-            var mineralDist = await batches
-                .GroupBy(b => b.MineralType)
-                .Select(g => new MineralBreakdown(g.Key, g.Count()))
+            // Load batch data for grouping in memory (tenant-scoped, bounded)
+            var batchList = await batches
+                .Select(b => new { b.MineralType, b.OriginCountry, b.CreatedAt })
                 .ToListAsync(ct);
 
-            var countryDist = await batches
+            var mineralDist = batchList
+                .GroupBy(b => b.MineralType)
+                .Select(g => new MineralBreakdown(g.Key, g.Count()))
+                .ToList();
+
+            var countryDist = batchList
                 .GroupBy(b => b.OriginCountry)
                 .Select(g => new CountryBreakdown(g.Key, g.Count()))
                 .OrderByDescending(c => c.Count)
                 .Take(10)
-                .ToListAsync(ct);
+                .ToList();
 
-            // Monthly activity for last 6 months
             var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6);
-            var monthlyRaw = await batches
+            var monthlyBatches = batchList
                 .Where(b => b.CreatedAt >= sixMonthsAgo)
-                .ToListAsync(ct);
-
-            var monthlyBatches = monthlyRaw
                 .GroupBy(b => b.CreatedAt.ToString("yyyy-MM"))
                 .Select(g => new MonthlyActivity(g.Key, g.Count()))
                 .OrderBy(m => m.Month)
