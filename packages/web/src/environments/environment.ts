@@ -1,9 +1,11 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:5000',
-  auth0: {
-    domain: 'dev-htzakhlu.us.auth0.com',
-    clientId: '4tuGZeyEKnK3VzI9fJNb8qFqBrhQIQZ6',
-    audience: 'https://api.accutrac.org',
+  msal: {
+    clientId: 'MSAL_CLIENT_ID',
+    authority: 'https://TENANT_SUBDOMAIN.ciamlogin.com/TENANT_SUBDOMAIN.onmicrosoft.com',
+    redirectUri: 'http://localhost:4200/login',
+    resetPasswordAuthority: 'https://TENANT_SUBDOMAIN.ciamlogin.com/TENANT_SUBDOMAIN.onmicrosoft.com/B2C_1_password_reset',
+    apiClientId: 'API_CLIENT_ID',
   },
 };
