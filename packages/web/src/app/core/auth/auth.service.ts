@@ -46,8 +46,11 @@ export class AuthService {
   }
 
   logout() {
+    const account = this.msal.instance.getActiveAccount();
     this.msal.logoutRedirect({
-      account: this.msal.instance.getActiveAccount() ?? undefined,
+      account: account ?? undefined,
+      // logoutHint tells CIAM which session to end — skips the "pick an account" screen
+      logoutHint: account?.username ?? (account?.idTokenClaims?.['email'] as string | undefined),
       postLogoutRedirectUri: window.location.origin,
     });
   }
