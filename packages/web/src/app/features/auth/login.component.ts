@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
 import { MsalBroadcastService } from '@azure/msal-angular';
 import { InteractionStatus } from '@azure/msal-browser';
 import { AuthService } from '../../core/auth/auth.service';
@@ -46,20 +46,20 @@ import { API_URL } from '../../core/http/api-url.token';
     </div>
   `,
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   protected auth = inject(AuthService);
   private broadcastService = inject(MsalBroadcastService);
   private router = inject(Router);
   private apiUrl = inject(API_URL);
+  private destroyRef = inject(DestroyRef);
   loadingMessage = 'Checking authentication...';
   errorMessage = '';
-  private readonly destroying$ = new Subject<void>();
 
   ngOnInit() {
     this.broadcastService.inProgress$
       .pipe(
         filter(status => status === InteractionStatus.None),
-        takeUntil(this.destroying$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(async () => {
         if (this.auth.isLoggedIn()) {
@@ -84,11 +84,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.auth.login();
         }
       });
-  }
-
-  ngOnDestroy() {
-    this.destroying$.next();
-    this.destroying$.complete();
   }
 
   private navigateByRole(role: string) {

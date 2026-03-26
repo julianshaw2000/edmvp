@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
 
@@ -11,10 +11,10 @@ import { EventMessage, EventType, InteractionStatus } from '@azure/msal-browser'
   imports: [RouterOutlet],
   template: `<router-outlet />`,
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   private msal = inject(MsalService);
   private broadcastService = inject(MsalBroadcastService);
-  private readonly destroying$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     // Required: process redirect response before any other MSAL calls
@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.broadcastService.inProgress$
       .pipe(
         filter(status => status === InteractionStatus.None),
-        takeUntil(this.destroying$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         const accounts = this.msal.instance.getAllAccounts();
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.broadcastService.msalSubject$
       .pipe(
         filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
-        takeUntil(this.destroying$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         const accounts = this.msal.instance.getAllAccounts();
@@ -45,10 +45,5 @@ export class AppComponent implements OnInit, OnDestroy {
           this.msal.instance.setActiveAccount(accounts[0]);
         }
       });
-  }
-
-  ngOnDestroy() {
-    this.destroying$.next();
-    this.destroying$.complete();
   }
 }
