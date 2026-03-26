@@ -37,4 +37,8 @@ export const ADMIN_ROUTES: Routes = [
     path: 'api-keys',
     loadComponent: () => import('./api-keys.component').then(m => m.ApiKeysComponent),
   },
+  {
+    path: 'data-quality',
+    loadComponent: () => import('./data-quality.component').then(m => m.DataQualityComponent),
+  },
 ];

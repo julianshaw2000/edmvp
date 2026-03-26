@@ -8,6 +8,7 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { TenantFilterComponent } from './ui/tenant-filter.component';
 import { API_URL } from '../../core/http/api-url.token';
+import { AdminApiService } from './data/admin-api.service';
 
 export interface AnalyticsResponse {
   totalBatches: number;
@@ -44,8 +45,57 @@ export interface AnalyticsResponse {
         title="Analytics"
         subtitle="Compliance trends and supply chain overview"
       />
-      <app-tenant-filter (tenantChanged)="onTenantChanged($event)" />
+      <div class="flex items-center gap-3">
+        <app-tenant-filter (tenantChanged)="onTenantChanged($event)" />
+        <button
+          (click)="generateAiReport()"
+          [disabled]="reportLoading()"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+        >
+          @if (reportLoading()) {
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Generating...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.346.346a3 3 0 01-.84 2.121v.528a2 2 0 01-2 2H9a2 2 0 01-2-2v-.528a3 3 0 01-.84-2.121L3 12a9 9 0 1118 0z"/>
+            </svg>
+            AI Report
+          }
+        </button>
+      </div>
     </div>
+
+    <!-- AI Report Modal -->
+    @if (showReportModal()) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" (click)="closeReportModal($event)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col" (click)="$event.stopPropagation()">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.346.346a3 3 0 01-.84 2.121v.528a2 2 0 01-2 2H9a2 2 0 01-2-2v-.528a3 3 0 01-.84-2.121L3 12a9 9 0 1118 0z"/>
+              </svg>
+              <h2 class="text-base font-semibold text-slate-900">AI Compliance Report</h2>
+            </div>
+            <button (click)="showReportModal.set(false)" class="text-slate-400 hover:text-slate-600 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 py-5">
+            @if (reportContent()) {
+              <div class="prose prose-sm prose-slate max-w-none whitespace-pre-wrap text-sm text-slate-700 leading-relaxed font-mono">{{ reportContent() }}</div>
+            }
+          </div>
+          <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
+            <button (click)="showReportModal.set(false)" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">Close</button>
+          </div>
+        </div>
+      </div>
+    }
 
     @if (loading()) {
       <div class="flex justify-center py-16">
@@ -264,8 +314,12 @@ export interface AnalyticsResponse {
 export class AnalyticsComponent {
   private http = inject(HttpClient);
   private apiUrl = inject(API_URL);
+  private adminApi = inject(AdminApiService);
 
   protected selectedTenantId = signal('');
+  protected reportLoading = signal(false);
+  protected showReportModal = signal(false);
+  protected reportContent = signal<string | null>(null);
 
   private analytics$ = toObservable(this.selectedTenantId).pipe(
     switchMap(tenantId => {
@@ -281,6 +335,24 @@ export class AnalyticsComponent {
 
   onTenantChanged(tenantId: string) {
     this.selectedTenantId.set(tenantId);
+  }
+
+  generateAiReport() {
+    this.reportLoading.set(true);
+    this.adminApi.generateComplianceReport('current').subscribe({
+      next: (res) => {
+        this.reportContent.set(res.report);
+        this.showReportModal.set(true);
+        this.reportLoading.set(false);
+      },
+      error: () => {
+        this.reportLoading.set(false);
+      },
+    });
+  }
+
+  closeReportModal(event: MouseEvent) {
+    this.showReportModal.set(false);
   }
 
   protected loading = computed(() => this.rawSignal() === undefined);

@@ -2,11 +2,12 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './sidebar.component';
 import { TopbarComponent } from './topbar.component';
+import { ChatWidgetComponent } from '../../shared/ui/chat-widget.component';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, TopbarComponent],
+  imports: [RouterOutlet, SidebarComponent, TopbarComponent, ChatWidgetComponent],
   template: `
     <div class="flex min-h-screen bg-slate-50">
       <!-- Mobile overlay -->
@@ -42,6 +43,7 @@ import { TopbarComponent } from './topbar.component';
         </main>
       </div>
     </div>
+    <app-chat-widget />
   `,
 })
 export class ShellComponent {

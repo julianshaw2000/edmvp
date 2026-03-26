@@ -15,6 +15,7 @@ using Tungsten.Api.Infrastructure.Persistence.Entities;
 using Tungsten.Api.Common.Behaviours;
 using Tungsten.Api.Common.Middleware;
 using Tungsten.Api.Common.Services;
+using Tungsten.Api.Common.Services.AI;
 using Tungsten.Api.Features.Auth;
 using Tungsten.Api.Features.Batches;
 using Tungsten.Api.Features.Compliance;
@@ -31,6 +32,7 @@ using Tungsten.Api.Features.Billing;
 using Tungsten.Api.Features.Webhooks;
 using Tungsten.Api.Features.Analytics;
 using Tungsten.Api.Features.ApiKeys;
+using Tungsten.Api.Features.AI;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -110,6 +112,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IPlanEnforcementService, PlanEnforcementService>();
 builder.Services.AddScoped<IWebhookDispatchService, WebhookDispatchService>();
+builder.Services.AddSingleton<IAiService, ClaudeAiService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetMe.Handler>());
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantStatusBehaviour<,>));
@@ -312,6 +315,7 @@ app.MapBillingEndpoints();
 app.MapWebhookEndpoints();
 app.MapAnalyticsEndpoints();
 app.MapApiKeyEndpoints();
+app.MapAiEndpoints();
 
 app.Run();
 

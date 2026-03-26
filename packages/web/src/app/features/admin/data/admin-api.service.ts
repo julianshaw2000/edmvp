@@ -90,6 +90,19 @@ export class AdminApiService {
     return this.http.delete<void>(`${this.apiUrl}/api/api-keys/${id}`);
   }
 
+  // AI features
+  generateComplianceReport(period?: string): Observable<{ report: string }> {
+    return this.http.post<{ report: string }>(`${this.apiUrl}/api/ai/compliance-report`, { period });
+  }
+
+  chatWithAssistant(message: string, history?: { role: string; content: string }[]): Observable<{ reply: string }> {
+    return this.http.post<{ reply: string }>(`${this.apiUrl}/api/ai/chat`, { message, history });
+  }
+
+  getDataCompleteness(): Observable<{ batches: any[]; averageScore: number }> {
+    return this.http.get<{ batches: any[]; averageScore: number }>(`${this.apiUrl}/api/ai/data-completeness`);
+  }
+
   // Audit logs
   getAuditLogs(filters: AuditLogFilters): Observable<PagedAuditLogs> {
     let params = new HttpParams()
