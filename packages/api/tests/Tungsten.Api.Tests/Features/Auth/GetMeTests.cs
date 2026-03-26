@@ -11,7 +11,7 @@ namespace Tungsten.Api.Tests.Features.Auth;
 public class GetMeTests
 {
     [Fact]
-    public async Task Handle_ValidAuth0Sub_ReturnsUserProfile()
+    public async Task Handle_ValidEntraOid_ReturnsUserProfile()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -24,14 +24,14 @@ public class GetMeTests
 
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|123", Email = "test@example.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|123", Email = "test@example.com",
             DisplayName = "Test User", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|123");
+        currentUser.EntraOid.Returns("auth0|123");
 
         var handler = new GetMe.Handler(db, currentUser);
         var result = await handler.Handle(new GetMe.Query(), CancellationToken.None);
@@ -43,7 +43,7 @@ public class GetMeTests
     }
 
     [Fact]
-    public async Task Handle_UnknownAuth0Sub_ReturnsNotFound()
+    public async Task Handle_UnknownEntraOid_ReturnsNotFound()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -52,7 +52,7 @@ public class GetMeTests
         await using var db = new AppDbContext(options);
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|unknown");
+        currentUser.EntraOid.Returns("auth0|unknown");
 
         var handler = new GetMe.Handler(db, currentUser);
         var result = await handler.Handle(new GetMe.Query(), CancellationToken.None);

@@ -193,7 +193,7 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
 {
     try
     {
-    var auth0Sub = currentUser.Auth0Sub;
+    var auth0Sub = currentUser.EntraOid;
 
     // Extract email and name from token claims
     var email = httpContext.User.FindFirst("email")?.Value
@@ -204,15 +204,15 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
         ?? httpContext.User.FindFirst("https://auditraks.com/name")?.Value
         ?? "User";
 
-    // Check if a user with this Auth0Sub exists but has the wrong email (mis-linked)
+    // Check if a user with this EntraOid exists but has the wrong email (mis-linked)
     if (!string.IsNullOrEmpty(email))
     {
-        var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Auth0Sub == auth0Sub);
+        var existingUser = await db.Users.FirstOrDefaultAsync(u => u.EntraOid == auth0Sub);
         if (existingUser is not null && existingUser.Email != email)
         {
-            // This Auth0Sub was linked to the wrong user (e.g. fallback "user@auditraks.com").
+            // This EntraOid was linked to the wrong user (e.g. fallback "user@auditraks.com").
             // Unlink it so the correct user can be found/created below.
-            existingUser.Auth0Sub = $"unlinked|{existingUser.Auth0Sub}";
+            existingUser.EntraOid = $"unlinked|{existingUser.EntraOid}";
             existingUser.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
         }
@@ -226,10 +226,10 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
 
         // Check if there's an invited user with this email waiting to be linked
         var invited = await db.Users
-            .FirstOrDefaultAsync(u => u.Email == email && u.Auth0Sub.StartsWith("pending|"));
+            .FirstOrDefaultAsync(u => u.Email == email && u.EntraOid.StartsWith("pending|"));
         if (invited is not null)
         {
-            invited.Auth0Sub = auth0Sub;
+            invited.EntraOid = auth0Sub;
             invited.DisplayName = name;
             invited.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
@@ -244,7 +244,7 @@ app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbC
             .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
         if (existingByEmail is not null)
         {
-            existingByEmail.Auth0Sub = auth0Sub;
+            existingByEmail.EntraOid = auth0Sub;
             existingByEmail.DisplayName = name;
             existingByEmail.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();

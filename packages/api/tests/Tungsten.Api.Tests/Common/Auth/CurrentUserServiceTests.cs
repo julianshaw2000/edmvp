@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
@@ -17,7 +18,7 @@ public class CurrentUserServiceTests
             .Options;
         var db = new AppDbContext(options);
 
-        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, auth0Sub) };
+        var claims = new[] { new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", auth0Sub) };
         var identity = new ClaimsIdentity(claims, "Test");
         var httpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
         var accessor = new HttpContextAccessor { HttpContext = httpContext };
@@ -32,7 +33,7 @@ public class CurrentUserServiceTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, Auth0Sub = "auth0|test123", Email = "test@test.com", DisplayName = "Test", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|test123", Email = "test@test.com", DisplayName = "Test", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new CurrentUserService(accessor, db);
@@ -47,7 +48,7 @@ public class CurrentUserServiceTests
         var (db, accessor) = CreateContext("auth0|test456");
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), Auth0Sub = "auth0|test456", Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), EntraOid = "auth0|test456", Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new CurrentUserService(accessor, db);
@@ -63,7 +64,7 @@ public class CurrentUserServiceTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, Auth0Sub = "auth0|cache", Email = "c@c.com", DisplayName = "C", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|cache", Email = "c@c.com", DisplayName = "C", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new CurrentUserService(accessor, db);

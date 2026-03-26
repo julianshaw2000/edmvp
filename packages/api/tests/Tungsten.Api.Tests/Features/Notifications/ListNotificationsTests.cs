@@ -21,7 +21,7 @@ public class ListNotificationsTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -41,7 +41,7 @@ public class ListNotificationsTests
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         var handler = new ListNotifications.Handler(db, currentUser);
         var result = await handler.Handle(new ListNotifications.Query(), CancellationToken.None);

@@ -504,7 +504,7 @@ public class OecdDdgCheckerTests
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "AT", "Bad Corp");
         var buyer = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "b1", Email = "b@t.com",
+            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b@t.com",
             DisplayName = "B", Role = "BUYER", TenantId = tenantId, IsActive = true
         };
         db.Users.Add(buyer);
@@ -597,7 +597,7 @@ public class OecdDdgCheckerTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);

@@ -22,7 +22,7 @@ public class ListBatchDocumentsTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -52,7 +52,7 @@ public class ListBatchDocumentsTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
         var storage = Substitute.For<IFileStorageService>();
         storage.GetDownloadUrl(Arg.Any<string>()).Returns(x => $"/download/{x.Arg<string>()}");
 
@@ -77,12 +77,12 @@ public class ListBatchDocumentsTests
 
         var userA = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|a", Email = "a@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|a", Email = "a@t.com",
             DisplayName = "A", Role = "SUPPLIER", TenantId = tenantA.Id, IsActive = true
         };
         var userB = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|b", Email = "b@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|b", Email = "b@t.com",
             DisplayName = "B", Role = "SUPPLIER", TenantId = tenantB.Id, IsActive = true
         };
         db.Users.AddRange(userA, userB);
@@ -106,7 +106,7 @@ public class ListBatchDocumentsTests
 
         // User B tries to access tenant A's documents
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(userB.Auth0Sub);
+        currentUser.EntraOid.Returns(userB.EntraOid);
         var storage = Substitute.For<IFileStorageService>();
 
         var handler = new ListBatchDocuments.Handler(db, currentUser, storage);

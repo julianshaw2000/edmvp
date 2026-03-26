@@ -21,7 +21,7 @@ public static class UpdateUser
         public async Task<Result> Handle(Command cmd, CancellationToken ct)
         {
             var admin = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub && u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid && u.IsActive, ct);
             if (admin is null)
                 return Result.Failure("User not found");
 

@@ -19,9 +19,9 @@ public class RoleAuthorizationHandler(AppDbContext db, ICurrentUserService curre
     {
         try
         {
-            var sub = currentUser.Auth0Sub;
+            var sub = currentUser.EntraOid;
             var user = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Auth0Sub == sub && u.IsActive);
+                .FirstOrDefaultAsync(u => u.EntraOid == sub && u.IsActive);
 
             if (user is null) return;
 
@@ -43,9 +43,9 @@ public class TenantAccessHandler(AppDbContext db, ICurrentUserService currentUse
     {
         try
         {
-            var sub = currentUser.Auth0Sub;
+            var sub = currentUser.EntraOid;
             var user = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Auth0Sub == sub && u.IsActive);
+                .FirstOrDefaultAsync(u => u.EntraOid == sub && u.IsActive);
 
             if (user is null) return;
             context.Succeed(requirement);

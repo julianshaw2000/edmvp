@@ -37,7 +37,7 @@ public static class CreateUser
         public async Task<Result<Response>> Handle(Command cmd, CancellationToken ct)
         {
             var admin = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub && u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid && u.IsActive, ct);
             if (admin is null)
                 return Result<Response>.Failure("User not found");
 
@@ -57,7 +57,7 @@ public static class CreateUser
             var newUser = new UserEntity
             {
                 Id = Guid.NewGuid(),
-                Auth0Sub = $"pending|{Guid.NewGuid()}", // Will be updated when user first logs in
+                EntraOid = $"pending|{Guid.NewGuid()}", // Will be updated when user first logs in
                 Email = cmd.Email,
                 DisplayName = cmd.DisplayName,
                 Role = cmd.Role,

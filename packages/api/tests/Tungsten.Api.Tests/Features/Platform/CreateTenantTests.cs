@@ -30,7 +30,7 @@ public class CreateTenantTests
         Assert.NotNull(user);
         Assert.Equal("admin@acme.com", user.Email);
         Assert.Equal("TENANT_ADMIN", user.Role);
-        Assert.StartsWith("pending|", user.Auth0Sub);
+        Assert.StartsWith("pending|", user.EntraOid);
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class CreateTenantTests
 
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Existing", SchemaPrefix = "existing", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), Auth0Sub = "auth0|x", Email = "admin@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), EntraOid = "auth0|x", Email = "admin@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var handler = new CreateTenant.Handler(db);

@@ -30,13 +30,13 @@ public class TenantIsolationTests
         // user1 is a BUYER in tenant1 so it sees all tenant1 batches (not filtered by CreatedBy)
         db.Users.Add(new UserEntity
         {
-            Id = user1Id, Auth0Sub = "auth0|u1", Email = "u1@t1.com",
+            Id = user1Id, EntraOid = "auth0|u1", Email = "u1@t1.com",
             DisplayName = "User1", Role = "BUYER", TenantId = tenant1Id, IsActive = true
         });
         // user2 is in tenant2 (needed as CreatedBy for the tenant2 batch)
         db.Users.Add(new UserEntity
         {
-            Id = user2Id, Auth0Sub = "auth0|u2", Email = "u2@t2.com",
+            Id = user2Id, EntraOid = "auth0|u2", Email = "u2@t2.com",
             DisplayName = "User2", Role = "BUYER", TenantId = tenant2Id, IsActive = true
         });
 
@@ -58,9 +58,9 @@ public class TenantIsolationTests
         });
         await db.SaveChangesAsync();
 
-        // ListBatches.Handler resolves tenant via Auth0Sub -> DB user lookup
+        // ListBatches.Handler resolves tenant via EntraOid -> DB user lookup
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|u1");
+        currentUser.EntraOid.Returns("auth0|u1");
 
         var handler = new ListBatches.Handler(db, currentUser);
 
@@ -92,12 +92,12 @@ public class TenantIsolationTests
         // admin is in tenant1; otherUser is in tenant2
         db.Users.Add(new UserEntity
         {
-            Id = adminId, Auth0Sub = "auth0|admin1", Email = "admin@t1.com",
+            Id = adminId, EntraOid = "auth0|admin1", Email = "admin@t1.com",
             DisplayName = "Admin1", Role = "ADMIN", TenantId = tenant1Id, IsActive = true
         });
         db.Users.Add(new UserEntity
         {
-            Id = otherUserId, Auth0Sub = "auth0|admin2", Email = "admin@t2.com",
+            Id = otherUserId, EntraOid = "auth0|admin2", Email = "admin@t2.com",
             DisplayName = "Admin2", Role = "ADMIN", TenantId = tenant2Id, IsActive = true
         });
 

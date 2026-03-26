@@ -46,7 +46,7 @@ public class StripeWebhookHandler(AppDbContext db, ILogger<StripeWebhookHandler>
         var adminUser = new UserEntity
         {
             Id = Guid.NewGuid(),
-            Auth0Sub = $"pending|{Guid.NewGuid()}",
+            EntraOid = $"pending|{Guid.NewGuid()}",
             Email = adminEmail,
             DisplayName = adminName,
             Role = "TENANT_ADMIN",
