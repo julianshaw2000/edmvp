@@ -47,6 +47,7 @@ export class AuthService {
 
   logout() {
     this.msal.logoutRedirect({
+      account: this.msal.instance.getActiveAccount() ?? undefined,
       postLogoutRedirectUri: window.location.origin,
     });
   }
