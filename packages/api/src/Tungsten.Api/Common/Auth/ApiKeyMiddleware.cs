@@ -41,7 +41,7 @@ public class ApiKeyMiddleware(RequestDelegate next)
                 // Set identity claims so ICurrentUserService works
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, key.CreatedBy.Auth0Sub),
+                    new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", key.CreatedBy.EntraOid),
                     new Claim("api_key_id", key.Id.ToString()),
                 };
                 context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "ApiKey"));
