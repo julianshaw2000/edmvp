@@ -54,19 +54,30 @@ builder.Services.AddHostedService<DatabaseMigrationService>();
 // Entra External ID
 builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
 
-// CIAM (ciamlogin.com) tokens omit the 'tid' claim, which breaks Microsoft.Identity.Web's
-// default issuer validator. CIAM also uses the tenant GUID as the issuer subdomain
-// (e.g. https://{tenantId}.ciamlogin.com/{tenantId}/v2.0), not the friendly name.
-builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+// CIAM tokens lack 'tid' and use {tenantId}.ciamlogin.com as the issuer subdomain.
+// Microsoft.Identity.Web registers a PostConfigureOptions that overwrites IssuerValidator,
+// so we use PostConfigure (which runs after all PostConfigureOptions) to set ours last.
+builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     var tenantId = builder.Configuration["AzureAd:TenantId"]!;
+    var clientId = builder.Configuration["AzureAd:ClientId"]!;
     var expectedIssuer = $"https://{tenantId}.ciamlogin.com/{tenantId}/v2.0";
     options.TokenValidationParameters.ValidIssuers = [expectedIssuer];
+    options.TokenValidationParameters.ValidAudiences = [clientId, $"api://{clientId}"];
     options.TokenValidationParameters.IssuerValidator = (issuer, _, _) =>
     {
         if (string.Equals(issuer, expectedIssuer, StringComparison.OrdinalIgnoreCase))
             return issuer;
         throw new SecurityTokenInvalidIssuerException($"Invalid issuer '{issuer}'. Expected '{expectedIssuer}'.");
+    };
+    // Log auth failures so we can see the exact reason in Render logs
+    options.Events ??= new JwtBearerEvents();
+    var prev = options.Events.OnAuthenticationFailed;
+    options.Events.OnAuthenticationFailed = async ctx =>
+    {
+        var log = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+        log.LogError(ctx.Exception, "JWT auth failed: {Type}", ctx.Exception.GetType().Name);
+        if (prev != null) await prev(ctx);
     };
 });
 
