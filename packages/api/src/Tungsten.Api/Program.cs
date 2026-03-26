@@ -4,9 +4,11 @@ using Resend;
 using FluentValidation;
 using Microsoft.AspNetCore.RateLimiting;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tungsten.Api.Common.Auth;
@@ -51,6 +53,22 @@ builder.Services.AddHostedService<DatabaseMigrationService>();
 
 // Entra External ID
 builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
+
+// CIAM (ciamlogin.com) tokens omit the 'tid' claim, which breaks Microsoft.Identity.Web's
+// default issuer validator. Replace it with one that validates the CIAM issuer URL directly.
+builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    var tenantId = builder.Configuration["AzureAd:TenantId"]!;
+    var instance = (builder.Configuration["AzureAd:Instance"] ?? "https://login.microsoftonline.com/").TrimEnd('/');
+    var expectedIssuer = $"{instance}/{tenantId}/v2.0";
+    options.TokenValidationParameters.ValidIssuers = [expectedIssuer];
+    options.TokenValidationParameters.IssuerValidator = (issuer, _, _) =>
+    {
+        if (string.Equals(issuer, expectedIssuer, StringComparison.OrdinalIgnoreCase))
+            return issuer;
+        throw new SecurityTokenInvalidIssuerException($"Invalid issuer '{issuer}'. Expected '{expectedIssuer}'.");
+    };
+});
 
 builder.Services.AddAuthorization(options => options.AddTungstenPolicies());
 builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
