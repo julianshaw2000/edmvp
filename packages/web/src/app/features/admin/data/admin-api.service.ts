@@ -103,6 +103,34 @@ export class AdminApiService {
     return this.http.get<{ batches: any[]; averageScore: number }>(`${this.apiUrl}/api/ai/data-completeness`);
   }
 
+  getChurnPrediction(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/ai/churn-prediction`);
+  }
+
+  getUsageCoaching(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/ai/usage-coaching`);
+  }
+
+  getRevenueSummary(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/ai/revenue-summary`);
+  }
+
+  getTenantHealth(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/ai/tenant-health`);
+  }
+
+  generateIncidentReport(batchId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/api/ai/incident-report`, { batchId });
+  }
+
+  queryNaturalLanguage(question: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/api/ai/query`, { question });
+  }
+
+  getRegulatoryUpdates(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/ai/regulatory-updates`);
+  }
+
   // Audit logs
   getAuditLogs(filters: AuditLogFilters): Observable<PagedAuditLogs> {
     let params = new HttpParams()

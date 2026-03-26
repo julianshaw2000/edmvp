@@ -41,4 +41,8 @@ export const ADMIN_ROUTES: Routes = [
     path: 'data-quality',
     loadComponent: () => import('./data-quality.component').then(m => m.DataQualityComponent),
   },
+  {
+    path: 'platform-ai',
+    loadComponent: () => import('./platform-ai.component').then(m => m.PlatformAiComponent),
+  },
 ];
