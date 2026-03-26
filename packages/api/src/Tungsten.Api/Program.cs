@@ -70,14 +70,23 @@ builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.Authenticatio
             return issuer;
         throw new SecurityTokenInvalidIssuerException($"Invalid issuer '{issuer}'. Expected '{expectedIssuer}'.");
     };
-    // Log auth failures so we can see the exact reason in Render logs
+    // Log auth events so we can see the exact reason in Render logs
     options.Events ??= new JwtBearerEvents();
-    var prev = options.Events.OnAuthenticationFailed;
+    var prevFailed = options.Events.OnAuthenticationFailed;
     options.Events.OnAuthenticationFailed = async ctx =>
     {
         var log = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-        log.LogError(ctx.Exception, "JWT auth failed: {Type}", ctx.Exception.GetType().Name);
-        if (prev != null) await prev(ctx);
+        log.LogError(ctx.Exception, "JWT auth FAILED: {Type}", ctx.Exception.GetType().Name);
+        if (prevFailed != null) await prevFailed(ctx);
+    };
+    var prevChallenge = options.Events.OnChallenge;
+    options.Events.OnChallenge = async ctx =>
+    {
+        var log = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+        var hasToken = ctx.HttpContext.Request.Headers.ContainsKey("Authorization");
+        log.LogError("JWT CHALLENGE: hasAuthHeader={HasToken} error={Error} desc={Desc}",
+            hasToken, ctx.Error ?? "none", ctx.ErrorDescription ?? "none");
+        if (prevChallenge != null) await prevChallenge(ctx);
     };
 });
 
