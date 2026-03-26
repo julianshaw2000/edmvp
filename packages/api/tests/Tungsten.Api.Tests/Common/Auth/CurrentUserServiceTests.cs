@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using System.Security.Claims;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -70,5 +71,29 @@ public class CurrentUserServiceTests
         var second = await svc.GetUserIdAsync(CancellationToken.None);
 
         Assert.Equal(first, second);
+    }
+
+    [Fact]
+    public void EntraOid_ReadsOidClaim_WhenPresent()
+    {
+        var oid = Guid.NewGuid().ToString();
+        var claims = new[]
+        {
+            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", oid),
+        };
+        var identity = new ClaimsIdentity(claims, "test");
+        var principal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext { User = principal };
+        var accessor = Substitute.For<IHttpContextAccessor>();
+        accessor.HttpContext.Returns(httpContext);
+
+        var db = new AppDbContext(
+            new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options);
+
+        var svc = new CurrentUserService(accessor, db);
+        svc.EntraOid.Should().Be(oid);
     }
 }
