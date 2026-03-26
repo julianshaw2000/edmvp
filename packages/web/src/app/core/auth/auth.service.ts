@@ -45,12 +45,19 @@ export class AuthService {
     });
   }
 
-  logout() {
+  async logout() {
     const account = this.msal.instance.getActiveAccount();
+    let idTokenHint: string | undefined;
+    if (account) {
+      try {
+        // Acquire a fresh ID token — pass as id_token_hint so CIAM skips the "pick an account" screen
+        const response = await this.msal.instance.acquireTokenSilent({ account, scopes: [] });
+        idTokenHint = response.idToken;
+      } catch { /* proceed without hint */ }
+    }
     this.msal.logoutRedirect({
       account: account ?? undefined,
-      // logoutHint tells CIAM which session to end — skips the "pick an account" screen
-      logoutHint: account?.username ?? (account?.idTokenClaims?.['email'] as string | undefined),
+      idTokenHint,
       postLogoutRedirectUri: window.location.origin,
     });
   }
