@@ -2,7 +2,7 @@ import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
-import { MsalBroadcastService } from '@azure/msal-angular';
+import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { InteractionStatus } from '@azure/msal-browser';
 import { AuthService } from '../../core/auth/auth.service';
 import { API_URL } from '../../core/http/api-url.token';
@@ -48,6 +48,7 @@ import { API_URL } from '../../core/http/api-url.token';
 })
 export class LoginComponent implements OnInit {
   protected auth = inject(AuthService);
+  private msal = inject(MsalService);
   private broadcastService = inject(MsalBroadcastService);
   private router = inject(Router);
   private apiUrl = inject(API_URL);
@@ -56,6 +57,19 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit() {
+    // Process any pending redirect (e.g. post-logout return) BEFORE subscribing to
+    // inProgress$. Without this, inProgress$ emits its initial 'None' value before
+    // handleRedirectPromise clears the stale interaction flag, causing
+    // interaction_in_progress errors when the user tries to log in again.
+    this.msal.handleRedirectObservable().pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: () => this.watchAuthState(),
+      error: () => this.watchAuthState(),
+    });
+  }
+
+  private watchAuthState() {
     this.broadcastService.inProgress$
       .pipe(
         filter(status => status === InteractionStatus.None),
