@@ -45,22 +45,17 @@ export class AuthService {
     });
   }
 
-  async logout() {
+  logout() {
     const account = this.msal.instance.getActiveAccount();
-    let idTokenHint: string | undefined;
-    if (account) {
-      try {
-        // Must use real scopes — MSAL throws on empty scopes
-        const response = await this.msal.instance.acquireTokenSilent({
-          account,
-          scopes: [`api://${environment.msal.apiClientId}/.default`],
-        });
-        idTokenHint = response.idToken;
-      } catch { /* proceed without hint */ }
-    }
+    // login_hint claim must be added as an optional ID token claim in the Entra app registration
+    // (Token configuration → Add optional claim → ID → login_hint). Once present in idTokenClaims,
+    // MSAL automatically passes it as logout_hint to CIAM, which skips the account picker.
+    const logoutHint = (account?.idTokenClaims?.['login_hint'] as string | undefined)
+      ?? account?.username
+      ?? (account?.idTokenClaims?.['email'] as string | undefined);
     this.msal.logoutRedirect({
       account: account ?? undefined,
-      idTokenHint,
+      logoutHint,
       postLogoutRedirectUri: window.location.origin,
     });
   }
