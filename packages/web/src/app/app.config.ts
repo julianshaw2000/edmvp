@@ -1,6 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-import { provideHttpClient, withInterceptors, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
   MsalService,
   MsalGuard,
@@ -71,7 +71,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptors([errorInterceptor])),
+    provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),
     { provide: MSAL_INSTANCE, useFactory: msalInstanceFactory },
     { provide: MSAL_GUARD_CONFIG, useFactory: msalGuardConfigFactory },
     { provide: MSAL_INTERCEPTOR_CONFIG, useFactory: msalInterceptorConfigFactory },
