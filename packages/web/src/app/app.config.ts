@@ -78,6 +78,9 @@ export const appConfig: ApplicationConfig = {
     MsalService,
     MsalGuard,
     MsalBroadcastService,
+    // MsalInterceptor is class-based (HTTP_INTERCEPTORS) and runs AFTER functional
+    // interceptors (withInterceptors above). Order: errorInterceptor → MsalInterceptor.
+    // Do not reorder without understanding this dependency.
     { provide: HTTP_INTERCEPTORS, useClass: MsalInterceptor, multi: true },
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
