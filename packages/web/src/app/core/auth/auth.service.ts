@@ -37,6 +37,11 @@ export class AuthService {
   login() {
     this.msal.loginRedirect({
       scopes: [`api://${environment.msal.apiClientId}/.default`],
+    }).subscribe({
+      error: (err: any) => {
+        // interaction_in_progress means another auth flow already started — let it proceed
+        if (err?.errorCode !== 'interaction_in_progress') console.error('loginRedirect failed', err);
+      }
     });
   }
 

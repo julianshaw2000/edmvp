@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs/operators';
+import { filter, take, distinctUntilChanged } from 'rxjs/operators';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { InteractionStatus } from '@azure/msal-browser';
 import { AuthService } from '../../core/auth/auth.service';
@@ -72,7 +72,9 @@ export class LoginComponent implements OnInit {
   private watchAuthState() {
     this.broadcastService.inProgress$
       .pipe(
+        distinctUntilChanged(),
         filter(status => status === InteractionStatus.None),
+        take(1),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(async () => {
