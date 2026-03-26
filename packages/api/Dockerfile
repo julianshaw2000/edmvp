@@ -5,24 +5,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy project files first for layer caching (cache bust: anthropic-sdk)
-COPY packages/api/Tungsten.sln packages/api/
-COPY packages/api/src/Tungsten.Api/Tungsten.Api.csproj packages/api/src/Tungsten.Api/
-COPY packages/api/tests/Tungsten.Api.Tests/Tungsten.Api.Tests.csproj packages/api/tests/Tungsten.Api.Tests/
-COPY packages/worker/Tungsten.Worker/Tungsten.Worker.csproj packages/worker/Tungsten.Worker/
-
-# Restore (force fresh restore)
-WORKDIR /src/packages/api
-RUN dotnet restore src/Tungsten.Api/Tungsten.Api.csproj --force
-
-# Copy all source
-WORKDIR /src
-COPY packages/api/src/ packages/api/src/
+# Copy all source files
+COPY packages/api/ packages/api/
 COPY packages/worker/Tungsten.Worker/ packages/worker/Tungsten.Worker/
 
-# Publish
+# Restore, build, publish
 WORKDIR /src/packages/api
-RUN dotnet publish src/Tungsten.Api/Tungsten.Api.csproj -c Release -o /app
+RUN dotnet restore src/Tungsten.Api/Tungsten.Api.csproj
+RUN dotnet publish src/Tungsten.Api/Tungsten.Api.csproj -c Release -o /app --no-restore
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
