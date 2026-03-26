@@ -14,6 +14,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'login-failed',
+    loadComponent: () =>
+      import('./features/auth/login-failed.component').then(m => m.LoginFailedComponent),
+  },
+  {
     path: 'verify/:batchId',
     loadComponent: () => import('./features/public/verify-batch.component').then(m => m.VerifyBatchComponent),
   },
