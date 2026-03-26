@@ -18,6 +18,7 @@
 8. [Emergency Procedures](#8-emergency-procedures)
 9. [Useful Commands](#9-useful-commands)
 10. [Key Contacts and URLs](#10-key-contacts-and-urls)
+11. [AI Features](#11-ai-features)
 
 ---
 
@@ -573,6 +574,24 @@ If this fails, the API key is invalid or the domain is not verified. If this suc
 2. **Check Render logs** — look for the actual error. Common: an EF Core query translation error (a LINQ expression that cannot be translated to SQL).
 3. If the query fails consistently, check whether there is a large volume of data for a particular tenant causing a full table scan. Add a filter and refresh.
 
+### AI Features Not Working
+
+**Symptom:** "Generate AI Report" button produces no output, the AI chatbot does not respond, or AI Insights tabs show an error.
+
+1. **Check `OpenAI__ApiKey` is set** on the Render `accutrac-api` service. Go to **Render > accutrac-api > Environment**. If the variable is missing or blank, the API returns a 500 on every AI endpoint.
+2. **Verify the key is valid** — go to **https://platform.openai.com/api-keys** and confirm the key is active and not expired or over its usage limit.
+3. **Check Render logs** — filter to `accutrac-api` and search for `OpenAI`. Any authentication or quota errors will appear here.
+4. **Check OpenAI usage** — if the platform's monthly token spend has hit the spending cap at https://platform.openai.com, requests will be rejected until the cap is raised or the billing period resets.
+
+### Regulatory Monitoring Showing No Results
+
+**Symptom:** The Regulatory Monitoring tab (Admin Dashboard > AI Insights > Regulatory Monitoring) returns no articles or shows an error.
+
+1. **Check `Tavily__ApiKey` is set** on the Render `accutrac-api` service. Tavily is the web search provider — without this key, the regulatory search cannot run.
+2. **Verify the key is valid** — log in at https://app.tavily.com and confirm the key is active and has remaining search credits.
+3. **Check Render logs** for HTTP errors from the Tavily API call.
+4. If the key is valid but results are stale, the Tavily search runs on demand each time you load the tab — there is no cache. A blank result usually means the key is missing rather than that there is no current news.
+
 ### Compliance Check Not Running
 
 1. **Check Background Worker status** on Render — it must be running. If it has crashed, restart it.
@@ -796,6 +815,137 @@ All credential files are in `docs/` and are gitignored. Never commit them.
 | `Sentry__Dsn` | API | No error tracking (non-critical) |
 | `Cors__AllowedOrigins__0` | API | CORS may block frontend requests |
 | `Cors__AllowedOrigins__1` | API | CORS may block frontend requests |
+| `OpenAI__ApiKey` | API | All AI features fail (reports, chatbot, insights, data quality) |
+| `Tavily__ApiKey` | API | Regulatory Monitoring tab returns no results |
+
+---
+
+## 11. AI Features
+
+auditraks includes AI-powered features for both PLATFORM_ADMIN and TENANT_ADMIN users. All AI features use OpenAI GPT-4o-mini via direct HTTP API calls. Regulatory Monitoring additionally uses Tavily for live web search.
+
+**Required environment variables:**
+
+| Variable | Service | Purpose |
+|---|---|---|
+| `OpenAI__ApiKey` | API | Powers all AI features — reports, chatbot, insights, data quality scoring |
+| `Tavily__ApiKey` | API | Powers Regulatory Monitoring web search only |
+
+If either key is missing, the affected features will fail with an error. See [Troubleshooting — AI Features Not Working](#ai-features-not-working) for diagnostic steps.
+
+### AI Insights (PLATFORM_ADMIN only)
+
+Navigate to **Admin Dashboard > AI Insights**. This section is only visible to PLATFORM_ADMIN accounts — tenant admins cannot access it.
+
+The AI Insights section has five tabs:
+
+**Churn Prediction**
+Analyses tenant usage patterns and assigns each tenant a churn risk level: HIGH, MEDIUM, or LOW. Each risk assessment includes specific reasons — for example, a tenant may be HIGH risk because they have not logged any events in 30 days and their trial is expiring soon. Use this to prioritise outreach before tenants cancel.
+
+**Usage Coaching**
+Generates AI-written suggestions for each tenant based on their recent platform behaviour. Examples: "Tenant X hasn't logged events in 14 days — consider sending a check-in email" or "Tenant Y has created batches but never generated a Material Passport — they may not know this feature exists." These are advisory and intended to guide your customer success activities.
+
+**Revenue Summary**
+Generates an executive-level business summary covering: total monthly recurring revenue (MRR), number of active subscriptions, number of trials, upcoming trial expirations (next 14 days), and any subscriptions in past-due status. The summary is written in plain prose, suitable for copying into a board update or investor report.
+
+**Tenant Health Scoring**
+Scores each tenant from 0 to 100 across five dimensions:
+- **Users** — are they using the user limit they are paying for?
+- **Batch Frequency** — how recently and consistently are they creating batches?
+- **Feature Adoption** — are they using Passports, Dossiers, API keys, and webhooks?
+- **Compliance** — what proportion of their batches are compliant vs. flagged?
+- **Recency** — how recently did any user in the tenant last sign in?
+
+Scores are colour-coded: green (>80), amber (50–80), red (<50). A tenant with a red score across multiple dimensions is a high-priority account for intervention.
+
+**Natural Language Queries**
+Type a plain-English question into the query box and receive filtered results from the platform data. Example queries:
+- "Show me all DRC batches"
+- "Which tenants have more than 5 flagged batches?"
+- "List users who have never logged in"
+- "Show batches created in the last 30 days with INSUFFICIENT_DATA status"
+
+The AI interprets the question, applies filters to the underlying data, and returns matching records in a table. This is a read-only feature — it cannot create, update, or delete any data.
+
+**Regulatory Monitoring**
+Searches the web in real time using Tavily, then sends the results to OpenAI for structured analysis. It surfaces current news and regulatory developments related to RMAP, OECD Due Diligence Guidance, Dodd-Frank Section 1502, and EU Conflict Minerals Regulation.
+
+Because it uses live web data rather than OpenAI training data, it reflects recent regulatory changes. Results appear as a structured briefing with source links. This tab requires both `OpenAI__ApiKey` and `Tavily__ApiKey` to be set.
+
+### AI Compliance Reports (PLATFORM_ADMIN and TENANT_ADMIN)
+
+Navigate to **Admin Dashboard > Analytics** and click the **Generate AI Report** button (top-right of the Analytics page).
+
+The report is generated by sending the current analytics data — compliance breakdown, mineral distribution, batch counts, origin countries — to OpenAI, which returns a professional compliance summary in markdown. The summary is rendered on screen and can be selected and copied for use in documents or emails.
+
+The report typically includes:
+- An executive summary of overall compliance health
+- Commentary on flagged batches and likely causes
+- Observations on origin country risk
+- Suggested next steps for the compliance programme
+
+The report reflects data at the time the button is clicked. Click **Generate AI Report** again at any time to produce a fresh report.
+
+### AI Chatbot (PLATFORM_ADMIN and TENANT_ADMIN)
+
+A floating chat widget appears in the **bottom-right corner of every authenticated page** (for both PLATFORM_ADMIN and TENANT_ADMIN users). Click the chat icon to open it.
+
+The chatbot answers questions about the auditraks platform — features, compliance frameworks, how to perform tasks, what statuses mean, and so on. It is scoped to platform knowledge and will not answer unrelated questions.
+
+Example questions the chatbot handles well:
+- "How do I generate a Material Passport?"
+- "What does INSUFFICIENT_DATA mean?"
+- "How do I invite a new Supplier user?"
+- "What is the RMAP smelter list?"
+- "Where do I find the audit log export?"
+
+The chatbot does not have access to your live platform data — it cannot tell you about specific batches or users. For data-level queries, use Natural Language Queries (PLATFORM_ADMIN) or the standard Analytics and Audit Log views.
+
+### Data Quality Scoring (PLATFORM_ADMIN and TENANT_ADMIN)
+
+Navigate to **Admin Dashboard > Data Quality**.
+
+Each batch is scored from 0 to 100 based on five criteria:
+
+| Criterion | Points |
+|---|---|
+| Events logged (at least one custody event) | 20 |
+| Smelting event present | 20 |
+| Supporting documents attached | 20 |
+| Compliance status is COMPLIANT or FLAGGED (not PENDING/INSUFFICIENT_DATA) | 20 |
+| Origin mine recorded | 20 |
+
+Scores are colour-coded:
+- **Green** (>80) — the batch record is substantially complete
+- **Amber** (50–80) — the batch is partially complete; data entry is in progress or some fields were missed
+- **Red** (<50) — the batch is missing significant data; it will not support a Material Passport or meaningful audit documentation
+
+Use this view to identify batches that need attention before an audit, or to coach tenant admins whose overall data quality is low.
+
+### AI Incident Reports (PLATFORM_ADMIN and TENANT_ADMIN)
+
+For any batch with a FLAGGED compliance status, an **Generate Incident Report** option is available on the batch detail view (Compliance Checks tab).
+
+Clicking it sends the batch's compliance check results, event timeline, and associated metadata to OpenAI, which returns a structured, auditor-ready incident report in markdown. The report includes:
+- A summary of what was flagged and why
+- The specific compliance check(s) that failed
+- The relevant regulatory framework (RMAP, OECD DDG, etc.)
+- Recommended remediation steps
+
+This report is intended to give a Tenant Admin a head start on documenting the incident for regulatory purposes — it should be reviewed and confirmed by a human before formal submission.
+
+### Cost Monitoring
+
+AI features generate OpenAI API calls on demand. At GPT-4o-mini pricing these are inexpensive individually, but usage will accumulate as the platform scales.
+
+**To monitor costs:**
+
+1. Go to **https://platform.openai.com/usage** and log in with the OpenAI account that owns the API key set in `OpenAI__ApiKey`.
+2. Review daily token usage and costs. Filter by model to see GPT-4o-mini usage specifically.
+3. Set a **spending cap** at https://platform.openai.com/account/limits to prevent unexpected charges. A monthly cap of $20–50 is reasonable for early-stage usage.
+4. If token usage is unexpectedly high, check whether any tenant is repeatedly generating AI reports in bulk — this would appear in the Audit Log as frequent AI report actions.
+
+Tavily costs are similarly usage-based. Monitor at **https://app.tavily.com** under your account's usage dashboard.
 
 ---
 

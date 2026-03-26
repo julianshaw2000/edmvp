@@ -17,7 +17,8 @@
 7. [Webhook Notifications](#7-webhook-notifications)
 8. [Managing Your Subscription](#8-managing-your-subscription)
 9. [Compliance Reporting](#9-compliance-reporting)
-10. [FAQ](#10-faq)
+10. [AI Features](#10-ai-features)
+11. [FAQ](#11-faq)
 
 ---
 
@@ -255,6 +256,10 @@ Everything above, plus:
 - Invite users and manage their roles and access
 - View the full audit log of every action taken on the platform
 - Access the analytics dashboard (compliance trends, mineral distribution, monthly activity, origin countries)
+- Generate AI-written compliance reports from the Analytics page
+- Check data quality scores for all batches (Admin Dashboard > Data Quality)
+- Generate AI incident reports for flagged batches
+- Use the AI chatbot (floating widget, bottom-right corner) to get platform guidance
 - Create and revoke API keys for programmatic integrations
 - Configure webhook notifications for external systems
 - Manage billing via the Stripe portal (view invoices, update payment method, change plan, cancel)
@@ -717,7 +722,89 @@ To generate either document, a Buyer user navigates to the batch detail view and
 
 ---
 
-## 10. FAQ
+## 10. AI Features
+
+auditraks includes AI-powered features available to all Tenant Admin users. These features use OpenAI GPT-4o-mini and require no setup on your part — they are active as long as the platform is running.
+
+> **Note:** There is a separate **AI Insights** section (Admin Dashboard > AI Insights) covering churn prediction, revenue summaries, tenant health scoring, and cross-tenant natural language queries. That section is only available to the platform owner (PLATFORM_ADMIN) and is not visible to Tenant Admin accounts.
+
+### AI Compliance Reports
+
+Navigate to **Admin Dashboard > Analytics** and click the **Generate AI Report** button at the top-right of the page.
+
+The platform sends your current analytics data — compliance breakdown, mineral distribution, batch counts, and origin countries — to an AI model, which returns a professional compliance summary. The summary typically includes:
+
+- An executive overview of your compliance programme's current health
+- Commentary on flagged batches and their likely causes
+- Observations on origin country risk relevant to OECD DDG
+- Suggested next steps
+
+The report is displayed on screen in formatted text. You can select and copy it into a document, email, or management report. Click **Generate AI Report** again at any time to produce a fresh report reflecting your latest data.
+
+This is particularly useful for preparing quarterly compliance reviews or briefing management without having to manually interpret the charts.
+
+### AI Chatbot
+
+A floating chat widget is visible in the **bottom-right corner of every authenticated page** while you are signed in. Click the icon to open the chat panel.
+
+The chatbot answers questions about the auditraks platform — how features work, what statuses mean, how to perform tasks, and information about RMAP and OECD compliance frameworks. It is scoped to platform knowledge.
+
+Example questions it handles well:
+
+- "How do I generate a Material Passport?"
+- "What does INSUFFICIENT_DATA mean?"
+- "How do I invite a Buyer user?"
+- "What is the difference between an Audit Dossier and a Material Passport?"
+- "How do I export the audit log?"
+- "What triggers the RMAP smelter check?"
+
+The chatbot does not have access to your live data — it cannot look up specific batches, users, or events. For questions about your data, use the Analytics page, the Audit Log, or the batch detail views directly.
+
+### Data Quality Scoring
+
+Navigate to **Admin Dashboard > Data Quality**.
+
+This page scores every batch in your organisation from 0 to 100 based on how complete its data record is. The scoring criteria are:
+
+| Criterion | Points |
+|---|---|
+| At least one custody event logged | 20 |
+| A smelting event is present | 20 |
+| Supporting documents are attached | 20 |
+| Compliance status has been determined (not PENDING or INSUFFICIENT_DATA) | 20 |
+| Origin mine is recorded on the batch | 20 |
+
+**Score colours:**
+- **Green** (score above 80) — the batch record is substantially complete and ready for audit documentation
+- **Amber** (score 50–80) — the batch is partially complete; some data entry is still needed
+- **Red** (score below 50) — the batch is missing significant data and will not support a Material Passport or reliable compliance reporting
+
+Use this view before a scheduled audit or compliance review to identify batches that need attention. Share the list with your Supplier users and ask them to complete any missing events or documents.
+
+A batch with a red score will typically also show PENDING or INSUFFICIENT_DATA compliance status — resolving the data gaps will move both the quality score and the compliance status forward together.
+
+### AI Incident Reports
+
+For any batch showing a **FLAGGED** compliance status, you can generate an AI-written incident report.
+
+**How to generate one:**
+
+1. Navigate to the batch detail view (via the Supplier or Buyer portal, or directly from the Admin Dashboard if you have the batch ID).
+2. Click the **Compliance Checks** tab.
+3. Click **Generate Incident Report**.
+
+The platform sends the batch's compliance check results, event timeline, and metadata to an AI model, which returns a structured incident report suitable for auditor review. The report includes:
+
+- A summary of what was flagged and why
+- The specific compliance check(s) that failed
+- The relevant regulatory framework (RMAP, OECD DDG, Sanctions, etc.)
+- Recommended remediation steps
+
+The report is displayed on screen and can be copied into your compliance documentation. It is intended as a starting point — review it for accuracy and supplement it with your own context before formal submission to auditors or regulators.
+
+---
+
+## 11. FAQ
 
 **How do I add more users?**
 Navigate to Admin Dashboard > Manage Users > Invite User. Enter their email, name, and role (Supplier or Buyer) and click Send Invitation. They will receive an email with an activation link valid for 7 days. If you are on the Starter plan and have reached your 5-user limit, you will need to upgrade to Pro before inviting more users.
@@ -763,6 +850,15 @@ Yes. All data in transit is encrypted using TLS. Data at rest is encrypted at th
 
 **Can I verify that a Material Passport is genuine?**
 Yes. Scan the QR code printed on the passport using any smartphone camera or QR reader app. This opens the public batch verification page at `https://auditraks.com/verify/{batchId}`, which shows the live compliance status directly from the database — not from the PDF itself. If the compliance status on the verification page does not match what the passport says, contact auditraks support.
+
+**The AI chatbot is not appearing — what do I do?**
+The chat widget appears in the bottom-right corner of every authenticated page. If it is not visible, try a hard refresh (Ctrl+Shift+R or Cmd+Shift+R). If it still does not appear, the platform's AI service may be temporarily unavailable — contact auditraks support at support@auditraks.com.
+
+**Can the AI Compliance Report replace a formal audit document?**
+No. The AI report is a summary tool designed to help you interpret your analytics data and communicate compliance health. It is not a legally recognised audit document. For formal regulatory submissions and external auditor requests, use the Audit Log CSV export and the Audit Dossier (both of which contain source data with full traceability). The AI report is best used for internal management briefings and as a starting point for drafting compliance narratives.
+
+**I see an "AI Insights" option mentioned — why can't I access it?**
+The AI Insights page (covering churn prediction, revenue summaries, tenant health scoring, and cross-tenant queries) is only available to the platform owner's PLATFORM_ADMIN account. It is not accessible to Tenant Admin users because it contains platform-wide data across all customers. The AI features available to you as Tenant Admin — Compliance Reports, Chatbot, Data Quality, and Incident Reports — are described in [Section 10](#10-ai-features).
 
 ---
 
