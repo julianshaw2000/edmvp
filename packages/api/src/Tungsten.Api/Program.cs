@@ -4,10 +4,9 @@ using Resend;
 using FluentValidation;
 using Microsoft.AspNetCore.RateLimiting;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Web;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tungsten.Api.Common.Auth;
@@ -50,40 +49,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Run migrations in background so Kestrel starts accepting requests immediately
 builder.Services.AddHostedService<DatabaseMigrationService>();
 
-// Auth0
-var auth0Domain = builder.Configuration["Auth0:Domain"];
-var auth0Audience = builder.Configuration["Auth0:Audience"];
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        if (!string.IsNullOrEmpty(auth0Domain))
-        {
-            options.Authority = $"https://{auth0Domain}/";
-            options.Audience = auth0Audience;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidIssuer = $"https://{auth0Domain}/",
-                ValidateAudience = true,
-                ValidAudience = auth0Audience,
-                ValidateLifetime = true,
-            };
-        }
-        else
-        {
-            // Dev mode: no Auth0 configured — allow anonymous for testing
-            options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    // Skip token validation when no Auth0 is configured
-                    context.NoResult();
-                    return Task.CompletedTask;
-                }
-            };
-        }
-    });
+// Entra External ID
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
 
 builder.Services.AddAuthorization(options => options.AddTungstenPolicies());
 builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
@@ -193,17 +160,18 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
-// Sentry user context (Auth0 sub only — no PII)
+// Sentry user context (Entra OID only — no PII)
 app.Use(async (context, next) =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
     {
-        var sub = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (sub is not null)
+        var oid = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+            ?? context.User.FindFirst("oid")?.Value;
+        if (oid is not null)
         {
             SentrySdk.ConfigureScope(scope =>
             {
-                scope.User = new Sentry.SentryUser { Id = sub };
+                scope.User = new Sentry.SentryUser { Id = oid };
             });
         }
     }
@@ -221,77 +189,58 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 app.MapHealthChecks("/health/ready");
 
 // Auth endpoints
-app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser, ILogger<Program> logger) =>
+app.MapGet("/api/me", async (
+    HttpContext httpContext,
+    IMediator mediator,
+    AppDbContext db,
+    ICurrentUserService currentUser,
+    ILogger<Program> logger) =>
 {
     try
     {
-    var auth0Sub = currentUser.Auth0Sub;
+        var oid = currentUser.EntraOid;
 
-    // Extract email and name from token claims
-    var email = httpContext.User.FindFirst("email")?.Value
-        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-        ?? httpContext.User.FindFirst("https://auditraks.com/email")?.Value;
-    var name = httpContext.User.FindFirst("name")?.Value
-        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
-        ?? httpContext.User.FindFirst("https://auditraks.com/name")?.Value
-        ?? "User";
+        // Extract email and name from token claims
+        var email = httpContext.User.FindFirst("email")?.Value
+            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+        var name = httpContext.User.FindFirst("name")?.Value
+            ?? httpContext.User.FindFirst("preferred_username")?.Value
+            ?? "User";
 
-    // Check if a user with this Auth0Sub exists but has the wrong email (mis-linked)
-    if (!string.IsNullOrEmpty(email))
-    {
-        var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Auth0Sub == auth0Sub);
-        if (existingUser is not null && existingUser.Email != email)
+        // Check if invited user with this email is waiting to be linked (pending| prefix)
+        if (!string.IsNullOrEmpty(email))
         {
-            // This Auth0Sub was linked to the wrong user (e.g. fallback "user@auditraks.com").
-            // Unlink it so the correct user can be found/created below.
-            existingUser.Auth0Sub = $"unlinked|{existingUser.Auth0Sub}";
-            existingUser.UpdatedAt = DateTime.UtcNow;
-            await db.SaveChangesAsync();
-        }
-        else if (existingUser is not null)
-        {
-            // Correct match — return the user
-            var result = await mediator.Send(new GetMe.Query());
-            if (result.IsSuccess)
-                return Results.Ok(result.Value);
+            var invited = await db.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.EntraOid.StartsWith("pending|"));
+            if (invited is not null)
+            {
+                invited.EntraOid = oid;
+                invited.DisplayName = name;
+                invited.UpdatedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync();
+            }
         }
 
-        // Check if there's an invited user with this email waiting to be linked
-        var invited = await db.Users
-            .FirstOrDefaultAsync(u => u.Email == email && u.Auth0Sub.StartsWith("pending|"));
-        if (invited is not null)
-        {
-            invited.Auth0Sub = auth0Sub;
-            invited.DisplayName = name;
-            invited.UpdatedAt = DateTime.UtcNow;
-            await db.SaveChangesAsync();
+        var meResult = await mediator.Send(new GetMe.Query());
+        if (meResult.IsSuccess)
+            return Results.Ok(meResult.Value);
 
-            var retryResult = await mediator.Send(new GetMe.Query());
-            if (retryResult.IsSuccess)
-                return Results.Ok(retryResult.Value);
+        // Not found — check if this is a Google social login (first time)
+        var idp = httpContext.User.FindFirst("idp")?.Value
+            ?? httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/identityprovider")?.Value;
+        var isGoogleLogin = idp?.Contains("google", StringComparison.OrdinalIgnoreCase) == true;
+
+        if (isGoogleLogin && !string.IsNullOrEmpty(email))
+        {
+            // First-time Google user — require admin activation before access
+            var existingByEmail = await db.Users.AnyAsync(u => u.Email == email);
+            if (!existingByEmail)
+            {
+                return Results.Json(new { status = "pending_activation" }, statusCode: 403);
+            }
         }
 
-        // Check if there's already a user with this email (linked to another identity)
-        var existingByEmail = await db.Users
-            .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
-        if (existingByEmail is not null)
-        {
-            existingByEmail.Auth0Sub = auth0Sub;
-            existingByEmail.DisplayName = name;
-            existingByEmail.UpdatedAt = DateTime.UtcNow;
-            await db.SaveChangesAsync();
-
-            var retryResult = await mediator.Send(new GetMe.Query());
-            if (retryResult.IsSuccess)
-                return Results.Ok(retryResult.Value);
-        }
-    }
-
-    var meResult = await mediator.Send(new GetMe.Query());
-    if (meResult.IsSuccess)
-        return Results.Ok(meResult.Value);
-
-    return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
+        return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
     }
     catch (Exception ex)
     {

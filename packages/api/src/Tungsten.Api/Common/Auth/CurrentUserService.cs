@@ -6,7 +6,7 @@ namespace Tungsten.Api.Common.Auth;
 
 public interface ICurrentUserService
 {
-    string Auth0Sub { get; }
+    string EntraOid { get; }
     Task<Guid> GetUserIdAsync(CancellationToken ct);
     Task<Guid> GetTenantIdAsync(CancellationToken ct);
     Task<string> GetTenantStatusAsync(CancellationToken ct);
@@ -20,8 +20,10 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, AppDbC
     private string? _role;
     private string? _tenantStatus;
 
-    public string Auth0Sub =>
-        httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+    public string EntraOid =>
+        httpContextAccessor.HttpContext?.User
+            .FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+        ?? httpContextAccessor.HttpContext?.User.FindFirst("oid")?.Value
         ?? throw new UnauthorizedAccessException("No authenticated user");
 
     public async Task<Guid> GetUserIdAsync(CancellationToken ct)
@@ -54,10 +56,11 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, AppDbC
 
     private async Task ResolveUserAsync(CancellationToken ct)
     {
-        var sub = Auth0Sub;
+        var oid = EntraOid;
         var user = await db.Users.AsNoTracking()
-            .Where(u => u.Auth0Sub == sub && u.IsActive)
-            .Join(db.Tenants, u => u.TenantId, t => t.Id, (u, t) => new { u.Id, u.TenantId, u.Role, TenantStatus = t.Status })
+            .Where(u => u.EntraOid == oid && u.IsActive)
+            .Join(db.Tenants, u => u.TenantId, t => t.Id,
+                (u, t) => new { u.Id, u.TenantId, u.Role, TenantStatus = t.Status })
             .FirstOrDefaultAsync(ct)
             ?? throw new UnauthorizedAccessException("User not found");
 

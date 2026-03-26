@@ -28,7 +28,7 @@ public static class GetMe
             var user = await db.Users
                 .AsNoTracking()
                 .Include(u => u.Tenant)
-                .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub, ct);
+                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid, ct);
 
             if (user is null || !user.IsActive)
                 return Result<Response>.Failure("User not found");

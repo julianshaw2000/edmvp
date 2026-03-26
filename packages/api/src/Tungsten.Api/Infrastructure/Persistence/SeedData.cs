@@ -57,7 +57,7 @@ public static class SeedData
         var platformAdmin = new UserEntity
         {
             Id = Guid.NewGuid(),
-            Auth0Sub = "pending|platform-admin",
+            EntraOid = "pending|platform-admin",
             Email = "julianshaw2000@gmail.com",
             DisplayName = "Julian Shaw",
             Role = "PLATFORM_ADMIN",
@@ -97,7 +97,7 @@ public static class SeedData
             demoUser = new UserEntity
             {
                 Id = Guid.NewGuid(),
-                Auth0Sub = $"seed|demo-supplier-{Guid.NewGuid():N}",
+                EntraOid = $"seed|demo-supplier-{Guid.NewGuid():N}",
                 Email = "supplier@auditraks.com",
                 DisplayName = "Demo Supplier (Nyungwe Mining Co.)",
                 Role = "SUPPLIER",

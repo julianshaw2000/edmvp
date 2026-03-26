@@ -20,12 +20,12 @@ public class UpdateUserRoleEnforcementTests
         var callerId = Guid.NewGuid();
         var targetId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "T", SchemaPrefix = "t", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = callerId, Auth0Sub = "auth0|caller", Email = "c@t.com", DisplayName = "C", Role = "TENANT_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = targetId, Auth0Sub = "auth0|target", Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = callerId, EntraOid = "auth0|caller", Email = "c@t.com", DisplayName = "C", Role = "TENANT_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = targetId, EntraOid = "auth0|target", Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|caller");
+        currentUser.EntraOid.Returns("auth0|caller");
         currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns("TENANT_ADMIN");
 
         var handler = new UpdateUser.Handler(db, currentUser);
@@ -46,12 +46,12 @@ public class UpdateUserRoleEnforcementTests
         var callerId = Guid.NewGuid();
         var targetId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "T", SchemaPrefix = "t", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = callerId, Auth0Sub = "auth0|caller", Email = "c@t.com", DisplayName = "C", Role = "TENANT_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = targetId, Auth0Sub = "auth0|target", Email = "t@t.com", DisplayName = "T", Role = "TENANT_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = callerId, EntraOid = "auth0|caller", Email = "c@t.com", DisplayName = "C", Role = "TENANT_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = targetId, EntraOid = "auth0|target", Email = "t@t.com", DisplayName = "T", Role = "TENANT_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|caller");
+        currentUser.EntraOid.Returns("auth0|caller");
         currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns("TENANT_ADMIN");
 
         var handler = new UpdateUser.Handler(db, currentUser);

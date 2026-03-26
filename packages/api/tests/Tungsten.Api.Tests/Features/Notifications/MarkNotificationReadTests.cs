@@ -21,7 +21,7 @@ public class MarkNotificationReadTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -36,7 +36,7 @@ public class MarkNotificationReadTests
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         var handler = new MarkNotificationRead.Handler(db, currentUser);
         var result = await handler.Handle(new MarkNotificationRead.Command(notification.Id), CancellationToken.None);
@@ -58,12 +58,12 @@ public class MarkNotificationReadTests
         db.Tenants.Add(tenant);
         var userA = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|a", Email = "a@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|a", Email = "a@t.com",
             DisplayName = "A", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         var userB = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|b", Email = "b@t.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|b", Email = "b@t.com",
             DisplayName = "B", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(userA, userB);
@@ -79,7 +79,7 @@ public class MarkNotificationReadTests
 
         // User B tries to mark user A's notification as read
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(userB.Auth0Sub);
+        currentUser.EntraOid.Returns(userB.EntraOid);
 
         var handler = new MarkNotificationRead.Handler(db, currentUser);
         var result = await handler.Handle(new MarkNotificationRead.Command(notification.Id), CancellationToken.None);

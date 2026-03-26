@@ -22,7 +22,7 @@ public class ListAuditLogsTests
 
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "T1", SchemaPrefix = "t1", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
         db.Tenants.Add(new TenantEntity { Id = otherTenantId, Name = "T2", SchemaPrefix = "t2", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, Auth0Sub = "auth0|admin", Email = "a@a.com", DisplayName = "Admin", Role = "PLATFORM_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|admin", Email = "a@a.com", DisplayName = "Admin", Role = "PLATFORM_ADMIN", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
 
         db.AuditLogs.Add(new AuditLogEntity { Id = Guid.NewGuid(), TenantId = tenantId, UserId = userId, Action = "CreateBatch", EntityType = "Batch", Result = "Success", Timestamp = DateTime.UtcNow });
         db.AuditLogs.Add(new AuditLogEntity { Id = Guid.NewGuid(), TenantId = otherTenantId, UserId = userId, Action = "CreateBatch", EntityType = "Batch", Result = "Success", Timestamp = DateTime.UtcNow });

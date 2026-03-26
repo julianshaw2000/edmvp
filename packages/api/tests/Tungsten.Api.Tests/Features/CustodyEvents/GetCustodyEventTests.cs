@@ -21,7 +21,7 @@ public class GetCustodyEventTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|s", Email = "s@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@test.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -45,7 +45,7 @@ public class GetCustodyEventTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         var handler = new GetCustodyEvent.Handler(db, currentUser);
         var result = await handler.Handle(new GetCustodyEvent.Query(evt.Id), CancellationToken.None);
@@ -67,12 +67,12 @@ public class GetCustodyEventTests
 
         var userA = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|a", Email = "a@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|a", Email = "a@test.com",
             DisplayName = "A", Role = "SUPPLIER", TenantId = tenantA.Id, IsActive = true
         };
         var userB = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|b", Email = "b@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|b", Email = "b@test.com",
             DisplayName = "B", Role = "SUPPLIER", TenantId = tenantB.Id, IsActive = true
         };
         db.Users.AddRange(userA, userB);
@@ -98,7 +98,7 @@ public class GetCustodyEventTests
 
         // User B tries to access tenant A's event
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(userB.Auth0Sub);
+        currentUser.EntraOid.Returns(userB.EntraOid);
 
         var handler = new GetCustodyEvent.Handler(db, currentUser);
         var result = await handler.Handle(new GetCustodyEvent.Query(evt.Id), CancellationToken.None);

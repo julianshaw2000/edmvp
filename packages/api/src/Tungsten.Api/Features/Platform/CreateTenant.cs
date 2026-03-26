@@ -57,7 +57,7 @@ public static class CreateTenant
             var adminUser = new UserEntity
             {
                 Id = Guid.NewGuid(),
-                Auth0Sub = $"pending|{Guid.NewGuid()}",
+                EntraOid = $"pending|{Guid.NewGuid()}",
                 Email = cmd.AdminEmail,
                 DisplayName = cmd.AdminEmail.Split('@')[0],
                 Role = "TENANT_ADMIN",

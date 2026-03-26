@@ -23,7 +23,7 @@ public class CreateBatchTests
 
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|1", Email = "s@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|1", Email = "s@test.com",
             DisplayName = "Supplier", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -37,7 +37,7 @@ public class CreateBatchTests
     {
         var (db, tenant, user) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
         var planEnforcement = Substitute.For<IPlanEnforcementService>();
         planEnforcement.CheckBatchLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
 
@@ -67,7 +67,7 @@ public class CreateBatchTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
         var planEnforcement = Substitute.For<IPlanEnforcementService>();
         planEnforcement.CheckBatchLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((string?)null);
 

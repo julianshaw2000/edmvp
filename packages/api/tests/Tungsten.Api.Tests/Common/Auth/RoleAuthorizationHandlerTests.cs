@@ -27,13 +27,13 @@ public class RoleAuthorizationHandlerTests
         db.Tenants.Add(tenant);
         db.Users.Add(new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|1", Email = "s@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|1", Email = "s@test.com",
             DisplayName = "Supplier", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         });
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|1");
+        currentUser.EntraOid.Returns("auth0|1");
 
         var handler = new RoleAuthorizationHandler(db, currentUser);
         var requirement = new RoleRequirement(Roles.Supplier);
@@ -51,13 +51,13 @@ public class RoleAuthorizationHandlerTests
         db.Tenants.Add(tenant);
         db.Users.Add(new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|2", Email = "b@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|2", Email = "b@test.com",
             DisplayName = "Buyer", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         });
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|2");
+        currentUser.EntraOid.Returns("auth0|2");
 
         var handler = new RoleAuthorizationHandler(db, currentUser);
         var requirement = new RoleRequirement(Roles.Supplier);
@@ -75,13 +75,13 @@ public class RoleAuthorizationHandlerTests
         db.Tenants.Add(tenant);
         db.Users.Add(new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|admin", Email = "a@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|admin", Email = "a@test.com",
             DisplayName = "Admin", Role = "PLATFORM_ADMIN", TenantId = tenant.Id, IsActive = true
         });
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|admin");
+        currentUser.EntraOid.Returns("auth0|admin");
 
         var handler = new RoleAuthorizationHandler(db, currentUser);
         var requirement = new RoleRequirement(Roles.Supplier);
@@ -99,13 +99,13 @@ public class RoleAuthorizationHandlerTests
         db.Tenants.Add(tenant);
         db.Users.Add(new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|inactive", Email = "i@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|inactive", Email = "i@test.com",
             DisplayName = "Inactive", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = false
         });
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns("auth0|inactive");
+        currentUser.EntraOid.Returns("auth0|inactive");
 
         var handler = new RoleAuthorizationHandler(db, currentUser);
         var requirement = new RoleRequirement(Roles.Supplier);

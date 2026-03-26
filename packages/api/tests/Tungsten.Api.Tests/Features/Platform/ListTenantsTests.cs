@@ -17,7 +17,7 @@ public class ListTenantsTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Acme", SchemaPrefix = "acme", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, Auth0Sub = "auth0|1", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|1", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         db.Batches.Add(new BatchEntity { Id = Guid.NewGuid(), TenantId = tenantId, BatchNumber = "B-001", MineralType = "Tungsten", OriginCountry = "RW", OriginMine = "Mine", WeightKg = 100, Status = "CREATED", ComplianceStatus = "PENDING", CreatedBy = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 

@@ -1,9 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { AuthService as Auth0Service } from '@auth0/auth0-angular';
+import { MsalService } from '@azure/msal-angular';
 import { HttpClient } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { API_URL } from '../http/api-url.token';
+import { environment } from '../../../environments/environment';
 
 export interface UserProfile {
   id: string;
@@ -18,12 +18,9 @@ export interface UserProfile {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private auth0 = inject(Auth0Service);
+  private msal = inject(MsalService);
   private http = inject(HttpClient);
   private apiUrl = inject(API_URL);
-
-  readonly isAuthenticated = toSignal(this.auth0.isAuthenticated$, { initialValue: false });
-  readonly isLoading = toSignal(this.auth0.isLoading$, { initialValue: true });
 
   private _profile = signal<UserProfile | null>(null);
   private _profileLoading = signal(false);
@@ -33,12 +30,27 @@ export class AuthService {
   readonly profileError = this._profileError.asReadonly();
   readonly role = computed(() => this._profile()?.role ?? null);
 
+  isLoggedIn(): boolean {
+    return this.msal.instance.getAllAccounts().length > 0;
+  }
+
   login() {
-    this.auth0.loginWithRedirect();
+    this.msal.loginRedirect({
+      scopes: [`api://${environment.msal.apiClientId}/.default`],
+    });
   }
 
   logout() {
-    this.auth0.logout({ logoutParams: { returnTo: window.location.origin } });
+    this.msal.logoutRedirect({
+      postLogoutRedirectUri: window.location.origin,
+    });
+  }
+
+  resetPassword() {
+    this.msal.loginRedirect({
+      authority: environment.msal.resetPasswordAuthority,
+      scopes: [],
+    });
   }
 
   loadProfile(): Promise<UserProfile | null> {

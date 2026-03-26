@@ -23,7 +23,7 @@ public class CreateCustodyEventTests
 
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), Auth0Sub = "auth0|s", Email = "s@test.com",
+            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@test.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -46,7 +46,7 @@ public class CreateCustodyEventTests
     {
         var (db, tenant, user, batch) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         var metadata = JsonSerializer.SerializeToElement(new
         {
@@ -78,7 +78,7 @@ public class CreateCustodyEventTests
     {
         var (db, tenant, user, batch) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         // Create first event directly in DB
         var firstEvent = new CustodyEventEntity
@@ -119,7 +119,7 @@ public class CreateCustodyEventTests
     {
         var (db, tenant, user, batch) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         var metadata = JsonSerializer.SerializeToElement(new
         {
@@ -150,7 +150,7 @@ public class CreateCustodyEventTests
     {
         var (db, tenant, user, batch) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.Auth0Sub.Returns(user.Auth0Sub);
+        currentUser.EntraOid.Returns(user.EntraOid);
 
         var metadata = JsonSerializer.SerializeToElement(new { /* missing required fields */ });
 

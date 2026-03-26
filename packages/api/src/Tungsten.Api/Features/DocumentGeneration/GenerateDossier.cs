@@ -28,7 +28,7 @@ public static class GenerateDossier
         {
             var user = await db.Users.AsNoTracking()
                 .Include(u => u.Tenant)
-                .FirstOrDefaultAsync(u => u.Auth0Sub == currentUser.Auth0Sub && u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid && u.IsActive, ct);
             if (user is null)
                 return Result<Response>.Failure("User not found");
 
