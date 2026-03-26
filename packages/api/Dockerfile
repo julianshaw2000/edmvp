@@ -22,7 +22,7 @@ COPY packages/worker/Tungsten.Worker/ packages/worker/Tungsten.Worker/
 
 # Publish
 WORKDIR /src/packages/api
-RUN dotnet publish src/Tungsten.Api/Tungsten.Api.csproj -c Release -o /app --no-restore
+RUN dotnet publish src/Tungsten.Api/Tungsten.Api.csproj -c Release -o /app
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
