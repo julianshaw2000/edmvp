@@ -12,11 +12,12 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.HasKey(u => u.Id);
 
-        builder.Property(u => u.Auth0Sub)
+        builder.Property(u => u.EntraOid)
+            .HasColumnName("entra_oid")
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.HasIndex(u => u.Auth0Sub)
+        builder.HasIndex(u => u.EntraOid)
             .IsUnique();
 
         builder.Property(u => u.Email)
