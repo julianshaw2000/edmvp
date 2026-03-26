@@ -1,9 +1,11 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService as Auth0Service } from '@auth0/auth0-angular';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+import { MsalBroadcastService } from '@azure/msal-angular';
+import { InteractionStatus } from '@azure/msal-browser';
 import { AuthService } from '../../core/auth/auth.service';
 import { API_URL } from '../../core/http/api-url.token';
-import { filter, take, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -46,50 +48,47 @@ import { filter, take, switchMap } from 'rxjs';
 })
 export class LoginComponent implements OnInit, OnDestroy {
   protected auth = inject(AuthService);
-  private auth0 = inject(Auth0Service);
+  private broadcastService = inject(MsalBroadcastService);
   private router = inject(Router);
   private apiUrl = inject(API_URL);
   loadingMessage = 'Checking authentication...';
   errorMessage = '';
-  private destroyed = false;
+  private readonly destroying$ = new Subject<void>();
 
   ngOnInit() {
-    this.auth0.isLoading$.pipe(
-      filter(loading => !loading),
-      take(1),
-      switchMap(() => this.auth0.isAuthenticated$),
-      take(1),
-    ).subscribe(async isAuthenticated => {
-      if (isAuthenticated) {
-        this.loadingMessage = 'Loading your profile...';
-        const profile = await this.auth.loadProfile();
-        if (profile) {
-          this.navigateByRole(profile.role);
-        } else if (this.auth.profileError()?.startsWith('No account found')) {
-          this.errorMessage = 'No account found. Contact your administrator to get access.';
-        } else {
-          // Backend may be cold-starting — poll health until ready, then retry
-          this.loadingMessage = 'Server is starting up, please wait...';
-          await this.waitForBackend();
-          if (this.destroyed) return;
+    this.broadcastService.inProgress$
+      .pipe(
+        filter(status => status === InteractionStatus.None),
+        takeUntil(this.destroying$),
+      )
+      .subscribe(async () => {
+        if (this.auth.isLoggedIn()) {
           this.loadingMessage = 'Loading your profile...';
-          const retry = await this.auth.loadProfile();
-          if (retry) {
-            this.navigateByRole(retry.role);
+          const profile = await this.auth.loadProfile();
+          if (profile) {
+            this.navigateByRole(profile.role);
+          } else if (this.auth.profileError()?.startsWith('No account found')) {
+            this.errorMessage = 'No account found. Contact your administrator to get access.';
           } else {
-            this.errorMessage = this.auth.profileError() || 'Unable to load your profile. Please try again.';
+            this.loadingMessage = 'Server is starting up, please wait...';
+            await this.waitForBackend();
+            const retry = await this.auth.loadProfile();
+            if (retry) {
+              this.navigateByRole(retry.role);
+            } else {
+              this.errorMessage = this.auth.profileError() || 'Unable to load your profile. Please try again.';
+            }
           }
+        } else {
+          this.loadingMessage = 'Redirecting to sign in...';
+          this.auth.login();
         }
-      } else {
-        // Not authenticated — redirect to Auth0 hosted login
-        this.loadingMessage = 'Redirecting to sign in...';
-        this.auth.login();
-      }
-    });
+      });
   }
 
   ngOnDestroy() {
-    this.destroyed = true;
+    this.destroying$.next();
+    this.destroying$.complete();
   }
 
   private navigateByRole(role: string) {
@@ -102,13 +101,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private async waitForBackend(): Promise<void> {
     const maxAttempts = 15;
-    for (let i = 0; i < maxAttempts && !this.destroyed; i++) {
+    for (let i = 0; i < maxAttempts; i++) {
       try {
         const res = await fetch(`${this.apiUrl}/health`);
-        if (res.ok) {
-          const body = await res.json();
-          if (body.status === 'healthy') return;
-        }
+        if (res.ok) return;
       } catch { /* server not up yet */ }
       this.loadingMessage = `Server is starting up, please wait... (${i + 1}/${maxAttempts})`;
       await new Promise(r => setTimeout(r, 2000));
