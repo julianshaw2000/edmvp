@@ -4,10 +4,9 @@ using Resend;
 using FluentValidation;
 using Microsoft.AspNetCore.RateLimiting;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Web;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tungsten.Api.Common.Auth;
@@ -50,40 +49,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Run migrations in background so Kestrel starts accepting requests immediately
 builder.Services.AddHostedService<DatabaseMigrationService>();
 
-// Auth0
-var auth0Domain = builder.Configuration["Auth0:Domain"];
-var auth0Audience = builder.Configuration["Auth0:Audience"];
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        if (!string.IsNullOrEmpty(auth0Domain))
-        {
-            options.Authority = $"https://{auth0Domain}/";
-            options.Audience = auth0Audience;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidIssuer = $"https://{auth0Domain}/",
-                ValidateAudience = true,
-                ValidAudience = auth0Audience,
-                ValidateLifetime = true,
-            };
-        }
-        else
-        {
-            // Dev mode: no Auth0 configured — allow anonymous for testing
-            options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    // Skip token validation when no Auth0 is configured
-                    context.NoResult();
-                    return Task.CompletedTask;
-                }
-            };
-        }
-    });
+// Entra External ID
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
 
 builder.Services.AddAuthorization(options => options.AddTungstenPolicies());
 builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
@@ -193,17 +160,18 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
-// Sentry user context (Auth0 sub only — no PII)
+// Sentry user context (Entra OID only — no PII)
 app.Use(async (context, next) =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
     {
-        var sub = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (sub is not null)
+        var oid = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+            ?? context.User.FindFirst("oid")?.Value;
+        if (oid is not null)
         {
             SentrySdk.ConfigureScope(scope =>
             {
-                scope.User = new Sentry.SentryUser { Id = sub };
+                scope.User = new Sentry.SentryUser { Id = oid };
             });
         }
     }
