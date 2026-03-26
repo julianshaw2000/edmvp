@@ -55,12 +55,12 @@ builder.Services.AddHostedService<DatabaseMigrationService>();
 builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
 
 // CIAM (ciamlogin.com) tokens omit the 'tid' claim, which breaks Microsoft.Identity.Web's
-// default issuer validator. Replace it with one that validates the CIAM issuer URL directly.
+// default issuer validator. CIAM also uses the tenant GUID as the issuer subdomain
+// (e.g. https://{tenantId}.ciamlogin.com/{tenantId}/v2.0), not the friendly name.
 builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     var tenantId = builder.Configuration["AzureAd:TenantId"]!;
-    var instance = (builder.Configuration["AzureAd:Instance"] ?? "https://login.microsoftonline.com/").TrimEnd('/');
-    var expectedIssuer = $"{instance}/{tenantId}/v2.0";
+    var expectedIssuer = $"https://{tenantId}.ciamlogin.com/{tenantId}/v2.0";
     options.TokenValidationParameters.ValidIssuers = [expectedIssuer];
     options.TokenValidationParameters.IssuerValidator = (issuer, _, _) =>
     {
