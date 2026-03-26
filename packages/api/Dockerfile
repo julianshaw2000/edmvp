@@ -5,15 +5,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy project files first for layer caching
+# Copy project files first for layer caching (cache bust: anthropic-sdk)
 COPY packages/api/Tungsten.sln packages/api/
 COPY packages/api/src/Tungsten.Api/Tungsten.Api.csproj packages/api/src/Tungsten.Api/
 COPY packages/api/tests/Tungsten.Api.Tests/Tungsten.Api.Tests.csproj packages/api/tests/Tungsten.Api.Tests/
 COPY packages/worker/Tungsten.Worker/Tungsten.Worker.csproj packages/worker/Tungsten.Worker/
 
-# Restore
+# Restore (force fresh restore)
 WORKDIR /src/packages/api
-RUN dotnet restore src/Tungsten.Api/Tungsten.Api.csproj
+RUN dotnet restore src/Tungsten.Api/Tungsten.Api.csproj --force
 
 # Copy all source
 WORKDIR /src
