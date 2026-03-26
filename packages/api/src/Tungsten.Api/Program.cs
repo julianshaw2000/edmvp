@@ -189,77 +189,58 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 app.MapHealthChecks("/health/ready");
 
 // Auth endpoints
-app.MapGet("/api/me", async (HttpContext httpContext, IMediator mediator, AppDbContext db, ICurrentUserService currentUser, ILogger<Program> logger) =>
+app.MapGet("/api/me", async (
+    HttpContext httpContext,
+    IMediator mediator,
+    AppDbContext db,
+    ICurrentUserService currentUser,
+    ILogger<Program> logger) =>
 {
     try
     {
-    var auth0Sub = currentUser.EntraOid;
+        var oid = currentUser.EntraOid;
 
-    // Extract email and name from token claims
-    var email = httpContext.User.FindFirst("email")?.Value
-        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-        ?? httpContext.User.FindFirst("https://auditraks.com/email")?.Value;
-    var name = httpContext.User.FindFirst("name")?.Value
-        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
-        ?? httpContext.User.FindFirst("https://auditraks.com/name")?.Value
-        ?? "User";
+        // Extract email and name from token claims
+        var email = httpContext.User.FindFirst("email")?.Value
+            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+        var name = httpContext.User.FindFirst("name")?.Value
+            ?? httpContext.User.FindFirst("preferred_username")?.Value
+            ?? "User";
 
-    // Check if a user with this EntraOid exists but has the wrong email (mis-linked)
-    if (!string.IsNullOrEmpty(email))
-    {
-        var existingUser = await db.Users.FirstOrDefaultAsync(u => u.EntraOid == auth0Sub);
-        if (existingUser is not null && existingUser.Email != email)
+        // Check if invited user with this email is waiting to be linked (pending| prefix)
+        if (!string.IsNullOrEmpty(email))
         {
-            // This EntraOid was linked to the wrong user (e.g. fallback "user@auditraks.com").
-            // Unlink it so the correct user can be found/created below.
-            existingUser.EntraOid = $"unlinked|{existingUser.EntraOid}";
-            existingUser.UpdatedAt = DateTime.UtcNow;
-            await db.SaveChangesAsync();
-        }
-        else if (existingUser is not null)
-        {
-            // Correct match — return the user
-            var result = await mediator.Send(new GetMe.Query());
-            if (result.IsSuccess)
-                return Results.Ok(result.Value);
+            var invited = await db.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.EntraOid.StartsWith("pending|"));
+            if (invited is not null)
+            {
+                invited.EntraOid = oid;
+                invited.DisplayName = name;
+                invited.UpdatedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync();
+            }
         }
 
-        // Check if there's an invited user with this email waiting to be linked
-        var invited = await db.Users
-            .FirstOrDefaultAsync(u => u.Email == email && u.EntraOid.StartsWith("pending|"));
-        if (invited is not null)
-        {
-            invited.EntraOid = auth0Sub;
-            invited.DisplayName = name;
-            invited.UpdatedAt = DateTime.UtcNow;
-            await db.SaveChangesAsync();
+        var meResult = await mediator.Send(new GetMe.Query());
+        if (meResult.IsSuccess)
+            return Results.Ok(meResult.Value);
 
-            var retryResult = await mediator.Send(new GetMe.Query());
-            if (retryResult.IsSuccess)
-                return Results.Ok(retryResult.Value);
+        // Not found — check if this is a Google social login (first time)
+        var idp = httpContext.User.FindFirst("idp")?.Value
+            ?? httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/identityprovider")?.Value;
+        var isGoogleLogin = idp?.Contains("google", StringComparison.OrdinalIgnoreCase) == true;
+
+        if (isGoogleLogin && !string.IsNullOrEmpty(email))
+        {
+            // First-time Google user — require admin activation before access
+            var existingByEmail = await db.Users.AnyAsync(u => u.Email == email);
+            if (!existingByEmail)
+            {
+                return Results.Json(new { status = "pending_activation" }, statusCode: 403);
+            }
         }
 
-        // Check if there's already a user with this email (linked to another identity)
-        var existingByEmail = await db.Users
-            .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
-        if (existingByEmail is not null)
-        {
-            existingByEmail.EntraOid = auth0Sub;
-            existingByEmail.DisplayName = name;
-            existingByEmail.UpdatedAt = DateTime.UtcNow;
-            await db.SaveChangesAsync();
-
-            var retryResult = await mediator.Send(new GetMe.Query());
-            if (retryResult.IsSuccess)
-                return Results.Ok(retryResult.Value);
-        }
-    }
-
-    var meResult = await mediator.Send(new GetMe.Query());
-    if (meResult.IsSuccess)
-        return Results.Ok(meResult.Value);
-
-    return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
+        return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
     }
     catch (Exception ex)
     {
