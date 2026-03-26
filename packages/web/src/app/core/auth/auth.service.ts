@@ -50,8 +50,11 @@ export class AuthService {
     let idTokenHint: string | undefined;
     if (account) {
       try {
-        // Acquire a fresh ID token — pass as id_token_hint so CIAM skips the "pick an account" screen
-        const response = await this.msal.instance.acquireTokenSilent({ account, scopes: [] });
+        // Must use real scopes — MSAL throws on empty scopes
+        const response = await this.msal.instance.acquireTokenSilent({
+          account,
+          scopes: [`api://${environment.msal.apiClientId}/.default`],
+        });
         idTokenHint = response.idToken;
       } catch { /* proceed without hint */ }
     }
