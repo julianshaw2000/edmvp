@@ -148,22 +148,22 @@ public class ComplianceNotificationServiceTests
 
         var supplier = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "s1", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "s1", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         var buyer1 = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b1@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b1", Email = "b1@t.com",
             DisplayName = "B1", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         };
         var buyer2 = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b2", Email = "b2@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b2", Email = "b2@t.com",
             DisplayName = "B2", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         };
         var buyer3 = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b3", Email = "b3@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b3", Email = "b3@t.com",
             DisplayName = "B3", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(supplier, buyer1, buyer2, buyer3);
@@ -192,17 +192,17 @@ public class ComplianceNotificationServiceTests
 
         var supplier = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "s1", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "s1", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         var inactiveBuyer = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b1@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b1", Email = "b1@t.com",
             DisplayName = "B1", Role = "BUYER", TenantId = tenant.Id, IsActive = false
         };
         var inactiveAdmin = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "a1", Email = "a1@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "a1", Email = "a1@t.com",
             DisplayName = "A1", Role = "PLATFORM_ADMIN", TenantId = tenant.Id, IsActive = false
         };
         db.Users.AddRange(supplier, inactiveBuyer, inactiveAdmin);
@@ -227,12 +227,12 @@ public class ComplianceNotificationServiceTests
 
         var inactiveSupplier = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "s1", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "s1", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = false
         };
         var activeBuyer = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b1@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b1", Email = "b1@t.com",
             DisplayName = "B1", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(inactiveSupplier, activeBuyer);
@@ -310,17 +310,17 @@ public class ComplianceNotificationServiceTests
 
         var supplier = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "s1", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "s1", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         var buyer = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b1", Email = "b@t.com",
             DisplayName = "B", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         };
         var admin = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "a1", Email = "a@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "a1", Email = "a@t.com",
             DisplayName = "A", Role = "PLATFORM_ADMIN", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(supplier, buyer, admin);

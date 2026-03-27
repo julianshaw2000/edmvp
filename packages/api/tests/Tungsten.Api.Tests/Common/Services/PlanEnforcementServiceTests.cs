@@ -33,7 +33,7 @@ public class PlanEnforcementServiceTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "T", SchemaPrefix = "t", Status = "ACTIVE", MaxBatches = 10, CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, EntraOid = "a", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, IdentityUserId = "a", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         db.Batches.Add(new BatchEntity { Id = Guid.NewGuid(), TenantId = tenantId, BatchNumber = "B-001", MineralType = "Tungsten", OriginCountry = "RW", OriginMine = "M", WeightKg = 100, Status = "CREATED", ComplianceStatus = "PENDING", CreatedBy = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
@@ -52,7 +52,7 @@ public class PlanEnforcementServiceTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "T", SchemaPrefix = "t", Status = "ACTIVE", MaxBatches = 1, CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, EntraOid = "a", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, IdentityUserId = "a", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         db.Batches.Add(new BatchEntity { Id = Guid.NewGuid(), TenantId = tenantId, BatchNumber = "B-001", MineralType = "Tungsten", OriginCountry = "RW", OriginMine = "M", WeightKg = 100, Status = "CREATED", ComplianceStatus = "PENDING", CreatedBy = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
@@ -87,7 +87,7 @@ public class PlanEnforcementServiceTests
 
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "T", SchemaPrefix = "t", Status = "ACTIVE", MaxUsers = 1, CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), EntraOid = "a", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), IdentityUserId = "a", Email = "a@a.com", DisplayName = "A", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new PlanEnforcementService(db);

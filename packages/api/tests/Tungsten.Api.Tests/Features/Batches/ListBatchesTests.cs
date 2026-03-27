@@ -22,12 +22,12 @@ public class ListBatchesTests
 
         var supplier1 = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s1", Email = "s1@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s1", Email = "s1@test.com",
             DisplayName = "S1", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         var supplier2 = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s2", Email = "s2@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s2", Email = "s2@test.com",
             DisplayName = "S2", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(supplier1, supplier2);
@@ -49,7 +49,7 @@ public class ListBatchesTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(supplier1.EntraOid);
+        currentUser.IdentityUserId.Returns(supplier1.IdentityUserId);
 
         var handler = new ListBatches.Handler(db, currentUser);
         var result = await handler.Handle(new ListBatches.Query(1, 20), CancellationToken.None);
@@ -71,12 +71,12 @@ public class ListBatchesTests
 
         var supplier = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@test.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         var buyer = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|b", Email = "b@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|b", Email = "b@test.com",
             DisplayName = "B", Role = "BUYER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(supplier, buyer);
@@ -98,7 +98,7 @@ public class ListBatchesTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(buyer.EntraOid);
+        currentUser.IdentityUserId.Returns(buyer.IdentityUserId);
 
         var handler = new ListBatches.Handler(db, currentUser);
         var result = await handler.Handle(new ListBatches.Query(1, 20), CancellationToken.None);

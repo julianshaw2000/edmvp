@@ -23,7 +23,7 @@ public class CreateCorrectionTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@test.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -48,7 +48,7 @@ public class CreateCorrectionTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(user.EntraOid);
+        currentUser.IdentityUserId.Returns(user.IdentityUserId);
 
         var metadata = JsonSerializer.SerializeToElement(new
         {

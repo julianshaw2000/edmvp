@@ -7,8 +7,11 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Tungsten.Api.Infrastructure.Identity;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tungsten.Api.Common.Auth;
@@ -51,44 +54,48 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Run migrations in background so Kestrel starts accepting requests immediately
 builder.Services.AddHostedService<DatabaseMigrationService>();
 
-// Entra External ID
-builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
+// Identity
+builder.Services.AddDbContext<IdentityDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// CIAM tokens lack 'tid' and use {tenantId}.ciamlogin.com as the issuer subdomain.
-// Microsoft.Identity.Web registers a PostConfigureOptions that overwrites IssuerValidator,
-// so we use PostConfigure (which runs after all PostConfigureOptions) to set ours last.
-builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+builder.Services.AddIdentity<AppIdentityUser, IdentityRole>(options =>
 {
-    var tenantId = builder.Configuration["AzureAd:TenantId"]!;
-    var clientId = builder.Configuration["AzureAd:ClientId"]!;
-    var expectedIssuer = $"https://{tenantId}.ciamlogin.com/{tenantId}/v2.0";
-    options.TokenValidationParameters.ValidIssuers = [expectedIssuer];
-    options.TokenValidationParameters.ValidAudiences = [clientId, $"api://{clientId}"];
-    options.TokenValidationParameters.IssuerValidator = (issuer, _, _) =>
+    options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = true;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+})
+.AddEntityFrameworkStores<IdentityDbContext>()
+.AddDefaultTokenProviders();
+
+// JWT bearer (self-issued tokens)
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        if (string.Equals(issuer, expectedIssuer, StringComparison.OrdinalIgnoreCase))
-            return issuer;
-        throw new SecurityTokenInvalidIssuerException($"Invalid issuer '{issuer}'. Expected '{expectedIssuer}'.");
-    };
-    // Log auth events so we can see the exact reason in Render logs
-    options.Events ??= new JwtBearerEvents();
-    var prevFailed = options.Events.OnAuthenticationFailed;
-    options.Events.OnAuthenticationFailed = async ctx =>
-    {
-        var log = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-        log.LogError(ctx.Exception, "JWT auth FAILED: {Type}", ctx.Exception.GetType().Name);
-        if (prevFailed != null) await prevFailed(ctx);
-    };
-    var prevChallenge = options.Events.OnChallenge;
-    options.Events.OnChallenge = async ctx =>
-    {
-        var log = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-        var hasToken = ctx.HttpContext.Request.Headers.ContainsKey("Authorization");
-        log.LogError("JWT CHALLENGE: hasAuthHeader={HasToken} error={Error} desc={Desc}",
-            hasToken, ctx.Error ?? "none", ctx.ErrorDescription ?? "none");
-        if (prevChallenge != null) await prevChallenge(ctx);
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.FromSeconds(30),
     };
 });
+
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddAuthorization(options => options.AddTungstenPolicies());
 builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
@@ -135,7 +142,8 @@ builder.Services.AddCors(options =>
             ?? ["http://localhost:4200", "https://accutrac-web.onrender.com", "https://auditraks.com"];
         policy.WithOrigins(origins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -198,18 +206,17 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseMiddleware<AuditLoggingMiddleware>();
 
-// Sentry user context (Entra OID only — no PII)
+// Sentry user context
 app.Use(async (context, next) =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
     {
-        var oid = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
-            ?? context.User.FindFirst("oid")?.Value;
-        if (oid is not null)
+        var userId = context.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userId is not null)
         {
             SentrySdk.ConfigureScope(scope =>
             {
-                scope.User = new Sentry.SentryUser { Id = oid };
+                scope.User = new Sentry.SentryUser { Id = userId };
             });
         }
     }
@@ -227,63 +234,36 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 app.MapHealthChecks("/health/ready");
 
 // Auth endpoints
+var auth = app.MapGroup("/api/auth").WithTags("Auth");
+auth.MapPost("/login", Login.Handle).AllowAnonymous();
+auth.MapPost("/refresh", RefreshToken.Handle).AllowAnonymous();
+auth.MapPost("/logout", Logout.Handle).AllowAnonymous();
+auth.MapPost("/register", Register.Handle).AllowAnonymous();
+auth.MapPost("/forgot-password", ForgotPassword.Handle).AllowAnonymous().RequireRateLimiting("public");
+auth.MapPost("/reset-password", ResetPassword.Handle).AllowAnonymous().RequireRateLimiting("public");
+auth.MapGet("/confirm-email", ConfirmEmail.Handle).AllowAnonymous();
+auth.MapPost("/resend-confirmation", ResendConfirmation.Handle).AllowAnonymous().RequireRateLimiting("public");
+
 app.MapGet("/api/me", async (
-    HttpContext httpContext,
     IMediator mediator,
-    AppDbContext db,
-    ICurrentUserService currentUser,
     ILogger<Program> logger) =>
 {
     try
     {
-        var oid = currentUser.EntraOid;
-
-        // Extract email and name from token claims
-        var email = httpContext.User.FindFirst("email")?.Value
-            ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-        var name = httpContext.User.FindFirst("name")?.Value
-            ?? httpContext.User.FindFirst("preferred_username")?.Value
-            ?? "User";
-
-        // Check if invited user with this email is waiting to be linked (pending| prefix)
-        if (!string.IsNullOrEmpty(email))
-        {
-            var invited = await db.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.EntraOid.StartsWith("pending|"));
-            if (invited is not null)
-            {
-                invited.EntraOid = oid;
-                invited.DisplayName = name;
-                invited.UpdatedAt = DateTime.UtcNow;
-                await db.SaveChangesAsync();
-            }
-        }
-
         var meResult = await mediator.Send(new GetMe.Query());
         if (meResult.IsSuccess)
             return Results.Ok(meResult.Value);
 
-        // Not found — check if this is a Google social login (first time)
-        var idp = httpContext.User.FindFirst("idp")?.Value
-            ?? httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/identityprovider")?.Value;
-        var isGoogleLogin = idp?.Contains("google", StringComparison.OrdinalIgnoreCase) == true;
-
-        if (isGoogleLogin && !string.IsNullOrEmpty(email))
-        {
-            // First-time Google user — require admin activation before access
-            var existingByEmail = await db.Users.AnyAsync(u => u.Email == email);
-            if (!existingByEmail)
-            {
-                return Results.Json(new { status = "pending_activation" }, statusCode: 403);
-            }
-        }
-
-        return Results.Json(new { error = "No account found. Contact your administrator to get access." }, statusCode: 403);
+        return Results.Json(new { error = "No account found." }, statusCode: 403);
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Results.Json(new { error = "Not authenticated." }, statusCode: 401);
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "/api/me failed for user");
-        return Results.Json(new { error = $"Login failed: {ex.GetType().Name}: {ex.Message}" }, statusCode: 500);
+        logger.LogError(ex, "/api/me failed");
+        return Results.Json(new { error = $"Login failed: {ex.Message}" }, statusCode: 500);
     }
 }).RequireAuthorization();
 

@@ -3,7 +3,7 @@ namespace Tungsten.Api.Infrastructure.Persistence.Entities;
 public class UserEntity
 {
     public Guid Id { get; set; }
-    public required string EntraOid { get; set; }
+    public required string IdentityUserId { get; set; }
     public required string Email { get; set; }
     public required string DisplayName { get; set; }
     public required string Role { get; set; }

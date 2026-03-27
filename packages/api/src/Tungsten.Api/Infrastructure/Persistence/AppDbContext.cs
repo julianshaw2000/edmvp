@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
 
 namespace Tungsten.Api.Infrastructure.Persistence;
@@ -20,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
     public DbSet<WebhookEndpointEntity> WebhookEndpoints => Set<WebhookEndpointEntity>();
     public DbSet<ApiKeyEntity> ApiKeys => Set<ApiKeyEntity>();
+    public DbSet<RefreshTokenEntity> RefreshTokens => Set<RefreshTokenEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

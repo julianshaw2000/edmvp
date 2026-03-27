@@ -28,7 +28,7 @@ public static class GeneratePassport
         {
             var user = await db.Users.AsNoTracking()
                 .Include(u => u.Tenant)
-                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid && u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.IdentityUserId == currentUser.IdentityUserId && u.IsActive, ct);
             if (user is null)
                 return Result<Response>.Failure("User not found");
 

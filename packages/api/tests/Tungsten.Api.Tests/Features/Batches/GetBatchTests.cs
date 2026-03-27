@@ -21,7 +21,7 @@ public class GetBatchTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|1", Email = "s@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|1", Email = "s@test.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -37,7 +37,7 @@ public class GetBatchTests
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(user.EntraOid);
+        currentUser.IdentityUserId.Returns(user.IdentityUserId);
 
         var handler = new GetBatch.Handler(db, currentUser);
         var result = await handler.Handle(new GetBatch.Query(batch.Id), CancellationToken.None);
@@ -58,14 +58,14 @@ public class GetBatchTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|1", Email = "s@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|1", Email = "s@test.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(user.EntraOid);
+        currentUser.IdentityUserId.Returns(user.IdentityUserId);
 
         var handler = new GetBatch.Handler(db, currentUser);
         var result = await handler.Handle(new GetBatch.Query(Guid.NewGuid()), CancellationToken.None);
