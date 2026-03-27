@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Tungsten.Api.Infrastructure.Identity;
 
 namespace Tungsten.Api.Infrastructure.Persistence;
 
@@ -16,6 +17,11 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
         try
         {
             using var scope = services.CreateScope();
+
+            // Identity tables (separate schema)
+            var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+            await identityDb.Database.MigrateAsync(stoppingToken);
+
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await db.Database.MigrateAsync(stoppingToken);
 
