@@ -45,4 +45,14 @@ export const ADMIN_ROUTES: Routes = [
     path: 'platform-ai',
     loadComponent: () => import('./platform-ai.component').then(m => m.PlatformAiComponent),
   },
+  {
+    path: 'batches/new',
+    loadComponent: () => import('../../shared/components/create-batch.component').then(m => m.SharedCreateBatchComponent),
+    data: { returnRoute: '/admin' },
+  },
+  {
+    path: 'batches/:id',
+    loadComponent: () => import('../supplier/batch-detail.component').then(m => m.BatchDetailComponent),
+    data: { returnRoute: '/admin' },
+  },
 ];

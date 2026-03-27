@@ -5,6 +5,7 @@ namespace Tungsten.Api.Common.Auth;
 public static class AuthorizationPolicies
 {
     public const string RequireSupplier = "RequireSupplier";
+    public const string RequireSupplierOrAdmin = "RequireSupplierOrAdmin";
     public const string RequireBuyer = "RequireBuyer";
     public const string RequireAdmin = "RequireAdmin";
     public const string RequirePlatformAdmin = "RequirePlatformAdmin";
@@ -14,6 +15,9 @@ public static class AuthorizationPolicies
     {
         options.AddPolicy(RequireSupplier, policy =>
             policy.Requirements.Add(new RoleRequirement(Roles.Supplier)));
+
+        options.AddPolicy(RequireSupplierOrAdmin, policy =>
+            policy.Requirements.Add(new RoleRequirement(Roles.Supplier, Roles.TenantAdmin)));
 
         options.AddPolicy(RequireBuyer, policy =>
             policy.Requirements.Add(new RoleRequirement(Roles.Buyer)));

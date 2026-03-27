@@ -7,7 +7,8 @@ export const SUPPLIER_ROUTES: Routes = [
   },
   {
     path: 'new-batch',
-    loadComponent: () => import('./create-batch.component').then(m => m.CreateBatchComponent),
+    loadComponent: () => import('../../shared/components/create-batch.component').then(m => m.SharedCreateBatchComponent),
+    data: { returnRoute: '/supplier' },
   },
   {
     path: 'submit',

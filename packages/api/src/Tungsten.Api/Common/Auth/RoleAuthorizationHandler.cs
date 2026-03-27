@@ -25,7 +25,7 @@ public class RoleAuthorizationHandler(AppDbContext db, ICurrentUserService curre
 
             if (user is null) return;
 
-            if (user.Role == Roles.Admin || user.Role == Roles.TenantAdmin || requirement.AllowedRoles.Contains(user.Role))
+            if (user.Role == Roles.Admin || requirement.AllowedRoles.Contains(user.Role))
                 context.Succeed(requirement);
         }
         catch (UnauthorizedAccessException)

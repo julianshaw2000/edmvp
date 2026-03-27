@@ -15,7 +15,7 @@ public static class BatchEndpoints
             return result.IsSuccess
                 ? Results.Created($"/api/batches/{result.Value.Id}", result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireSupplier);
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrAdmin);
 
         group.MapGet("/{id:guid}", async (Guid id, IMediator mediator) =>
         {
@@ -40,7 +40,7 @@ public static class BatchEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireSupplier);
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrAdmin);
 
         group.MapPost("/{id:guid}/split", async (Guid id, SplitBatch.Command command, IMediator mediator) =>
         {
@@ -49,7 +49,7 @@ public static class BatchEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireSupplier);
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrAdmin);
 
         group.MapGet("/{id:guid}/activity", async (Guid id, IMediator mediator, CancellationToken ct) =>
         {

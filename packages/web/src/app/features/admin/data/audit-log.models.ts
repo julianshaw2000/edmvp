@@ -30,15 +30,7 @@ export interface PagedAuditLogs {
   pageSize: number;
 }
 
-export interface BatchActivity {
-  id: string;
-  userDisplayName: string;
-  action: string;
-  entityType: string;
-  result: string;
-  failureReason: string | null;
-  timestamp: string;
-}
+export type { BatchActivity } from '../../../shared/models/batch.models';
 
 export const AUDIT_ACTION_LABELS: Record<string, string> = {
   CreateBatch: 'Created batch',

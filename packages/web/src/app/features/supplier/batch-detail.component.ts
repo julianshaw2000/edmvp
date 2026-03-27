@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, input, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -27,7 +27,7 @@ import { BatchActivity } from '../admin/data/audit-log.models';
     @if (facade.detailLoading()) {
       <app-loading-spinner />
     } @else if (facade.selectedBatch(); as batch) {
-      <a routerLink="/supplier" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+      <a [routerLink]="returnRoute" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
         <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
@@ -245,7 +245,9 @@ export class BatchDetailComponent implements OnInit {
   id = input.required<string>();
   protected facade = inject(SupplierFacade);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private api = inject(SupplierApiService);
+  protected returnRoute = this.route.snapshot.data['returnRoute'] ?? '/supplier';
 
   tabs = [
     { id: 'overview', label: 'Overview' },

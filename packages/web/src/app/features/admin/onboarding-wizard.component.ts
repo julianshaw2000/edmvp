@@ -33,7 +33,7 @@ const STEPS: WizardStep[] = [
     title: 'Create your first batch',
     description: 'Track your first mineral batch through the supply chain. Each batch gets a unique ID and full custody trail.',
     actionLabel: 'Create Batch',
-    actionRoute: '/supplier/new-batch',
+    actionRoute: '/admin/batches/new',
   },
   {
     number: 4,
