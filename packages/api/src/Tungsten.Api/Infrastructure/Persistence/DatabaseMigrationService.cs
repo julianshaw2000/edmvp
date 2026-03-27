@@ -67,6 +67,38 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
                 logger.LogInformation("Promoted julianshaw2000@gmail.com to PLATFORM_ADMIN");
             }
 
+            // Ensure demo users exist (idempotent)
+            var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Status == "ACTIVE", stoppingToken);
+            if (tenant is not null)
+            {
+                var demoUsers = new[]
+                {
+                    ("buyer@auditraks.com", "Klaus Steinberger (Wolfram Bergbau)", "BUYER"),
+                    ("admin@auditraks.com", "Marie Uwimana (Compliance Director)", "TENANT_ADMIN"),
+                };
+                foreach (var (email, name, role) in demoUsers)
+                {
+                    if (!await db.Users.AnyAsync(u => u.Email == email, stoppingToken))
+                    {
+                        var id = Guid.NewGuid();
+                        db.Users.Add(new Tungsten.Api.Infrastructure.Persistence.Entities.UserEntity
+                        {
+                            Id = id,
+                            IdentityUserId = $"pending|{id}",
+                            Email = email,
+                            DisplayName = name,
+                            Role = role,
+                            TenantId = tenant.Id,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow,
+                        });
+                        logger.LogInformation("Created demo user {Email} ({Role})", email, role);
+                    }
+                }
+                await db.SaveChangesAsync(stoppingToken);
+            }
+
             try
             {
                 await SeedData.SeedDemoBatchesIfNeededAsync(db);

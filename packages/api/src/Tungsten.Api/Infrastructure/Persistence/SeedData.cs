@@ -68,6 +68,36 @@ public static class SeedData
         };
         db.Users.Add(platformAdmin);
 
+        // Demo buyer
+        var buyerUser = new UserEntity
+        {
+            Id = Guid.NewGuid(),
+            IdentityUserId = $"pending|{Guid.NewGuid()}",
+            Email = "buyer@auditraks.com",
+            DisplayName = "Klaus Steinberger (Wolfram Bergbau)",
+            Role = "BUYER",
+            TenantId = tenant.Id,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+        db.Users.Add(buyerUser);
+
+        // Demo tenant admin
+        var tenantAdmin = new UserEntity
+        {
+            Id = Guid.NewGuid(),
+            IdentityUserId = $"pending|{Guid.NewGuid()}",
+            Email = "admin@auditraks.com",
+            DisplayName = "Marie Uwimana (Compliance Director)",
+            Role = "TENANT_ADMIN",
+            TenantId = tenant.Id,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+        db.Users.Add(tenantAdmin);
+
         await db.SaveChangesAsync();
 
         // --- Demo data for investor walkthrough ---
