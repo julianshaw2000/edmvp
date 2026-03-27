@@ -41,6 +41,19 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
                 END $$;
                 """, stoppingToken);
 
+            // One-time: migrate existing Entra users to pending| so they can register
+            var entraUsers = await db.Database.ExecuteSqlRawAsync("""
+                UPDATE users
+                SET identity_user_id = 'pending|' || "Id"::text
+                WHERE identity_user_id IS NOT NULL
+                  AND identity_user_id NOT LIKE 'pending|%'
+                  AND NOT EXISTS (
+                    SELECT 1 FROM identity."AspNetUsers" a WHERE a."Id" = users.identity_user_id
+                  )
+                """, stoppingToken);
+            if (entraUsers > 0)
+                logger.LogInformation("Migrated {Count} existing users to pending| for Identity registration", entraUsers);
+
             await SeedData.SeedAsync(db);
 
             // Ensure platform admin exists and has correct role
