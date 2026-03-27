@@ -44,8 +44,12 @@ var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 // Database — with Neon serverless resilience
+// Neon's pooler drops idle connections after ~5 min. Keepalive + short pool lifetime
+// ensures we don't hold stale TCP connections that cause "Exception while reading from stream".
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    + ";Pooling=true;Minimum Pool Size=0;Maximum Pool Size=20;Connection Idle Lifetime=60;Connection Pruning Interval=10;Keepalive=30;Timeout=15";
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsql =>
+    options.UseNpgsql(connectionString, npgsql =>
     {
         npgsql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorCodesToAdd: null);
         npgsql.CommandTimeout(30);
@@ -56,7 +60,7 @@ builder.Services.AddHostedService<DatabaseMigrationService>();
 
 // Identity
 builder.Services.AddDbContext<IdentityDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentity<AppIdentityUser, IdentityRole>(options =>
 {
