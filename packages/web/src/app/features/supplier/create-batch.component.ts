@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupplierFacade } from './supplier.facade';
+import { AuthService } from '../../core/auth/auth.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 const MINERAL_TYPES = [
@@ -19,7 +20,7 @@ const MINERAL_TYPES = [
   standalone: true,
   imports: [FormsModule, RouterLink, PageHeaderComponent],
   template: `
-    <a routerLink="/supplier" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
+    <a [routerLink]="returnRoute" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 group">
       <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
@@ -133,6 +134,7 @@ const MINERAL_TYPES = [
 export class CreateBatchComponent {
   protected facade = inject(SupplierFacade);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   mineralTypes = MINERAL_TYPES;
 
@@ -141,6 +143,11 @@ export class CreateBatchComponent {
   originCountry = '';
   mineSite = '';
   estimatedWeight: number | null = null;
+
+  protected get returnRoute(): string {
+    const role = this.auth.role();
+    return role === 'PLATFORM_ADMIN' || role === 'TENANT_ADMIN' ? '/admin' : '/supplier';
+  }
 
   onSubmit() {
     if (!this.batchNumber || !this.mineralType || !this.originCountry || !this.mineSite || this.estimatedWeight == null) {
@@ -153,10 +160,10 @@ export class CreateBatchComponent {
       originMine: this.mineSite,
       weightKg: this.estimatedWeight,
     });
-    this.router.navigate(['/supplier']);
+    this.router.navigate([this.returnRoute]);
   }
 
   onCancel() {
-    this.router.navigate(['/supplier']);
+    this.router.navigate([this.returnRoute]);
   }
 }
