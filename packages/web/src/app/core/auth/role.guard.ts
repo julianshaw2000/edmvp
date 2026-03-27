@@ -10,8 +10,8 @@ export function roleGuard(...allowedRoles: string[]): CanActivateFn {
     const role = auth.role();
     if (!role) return router.parseUrl('/login');
 
-    if (role === 'PLATFORM_ADMIN' || allowedRoles.includes(role)) return true;
+    if (role === 'PLATFORM_ADMIN' || role === 'TENANT_ADMIN' || allowedRoles.includes(role)) return true;
 
-    return router.parseUrl('/unauthorized');
+    return router.parseUrl('/login');
   };
 }
