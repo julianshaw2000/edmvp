@@ -99,6 +99,16 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
                 await db.SaveChangesAsync(stoppingToken);
             }
 
+            // Auto-confirm demo @auditraks.com accounts (emails not deliverable)
+            var confirmed = await identityDb.Database.ExecuteSqlRawAsync("""
+                UPDATE identity."AspNetUsers"
+                SET "EmailConfirmed" = true
+                WHERE "EmailConfirmed" = false
+                  AND "Email" LIKE '%@auditraks.com'
+                """, stoppingToken);
+            if (confirmed > 0)
+                logger.LogInformation("Auto-confirmed {Count} demo @auditraks.com accounts", confirmed);
+
             try
             {
                 await SeedData.SeedDemoBatchesIfNeededAsync(db);
