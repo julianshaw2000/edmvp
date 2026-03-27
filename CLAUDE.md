@@ -15,7 +15,7 @@ Full spec: `docs/Tungsten_Pilot_MVP_Spec_Render_v0_1.docx`
 - **Frontend:** Single Angular 21+ app (Render Static Site) with three lazy-loaded feature modules — Supplier Portal, Buyer Portal, Admin Dashboard. Route guards enforce role client-side; every API endpoint enforces role server-side independently.
 - **Backend:** ASP.NET Core (.NET 10+) Web API (Render Web Service) using Vertical Slice architecture with MediatR CQRS. Minimal APIs preferred over controllers.
 - **Database:** PostgreSQL on Render. Single-tenant by schema prefix.
-- **Auth:** Auth0 — JWT bearer tokens. Role resolved via `/me` endpoint after JWT validation, not from JWT claims alone.
+- **Auth:** ASP.NET Core Identity — self-issued JWT access tokens (15 min) + HttpOnly refresh token cookie (14 days). Password reset and email confirmation via Resend transactional email. Role resolved via `/me` endpoint after JWT validation, not from JWT claims alone.
 - **Worker:** Background service for compliance checking and document generation (Render Background Worker).
 - **Monorepo structure:** `/packages/api`, `/packages/worker`, `/packages/web`, `/packages/shared`. Shared package contains domain types, Zod validation schemas, and compliance rule interfaces.
 

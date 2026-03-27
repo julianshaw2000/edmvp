@@ -280,7 +280,7 @@ public class BatchComplianceRollupTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);

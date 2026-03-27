@@ -27,7 +27,7 @@ public static class ListCustodyEvents
         public async Task<Result<PagedResponse<EventItem>>> Handle(Query query, CancellationToken ct)
         {
             var user = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid && u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.IdentityUserId == currentUser.IdentityUserId && u.IsActive, ct);
             if (user is null)
                 return Result<PagedResponse<EventItem>>.Failure("User not found");
 

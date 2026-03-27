@@ -21,19 +21,19 @@ public class ListUsersTests
         db.Tenants.Add(tenant);
         var admin = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|admin", Email = "admin@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|admin", Email = "admin@test.com",
             DisplayName = "Admin", Role = "PLATFORM_ADMIN", TenantId = tenant.Id, IsActive = true
         };
         var supplier = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@test.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@test.com",
             DisplayName = "Supplier", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.AddRange(admin, supplier);
         await db.SaveChangesAsync();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns("auth0|admin");
+        currentUser.IdentityUserId.Returns("auth0|admin");
         currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult("PLATFORM_ADMIN"));
 
         var handler = new ListUsers.Handler(db, currentUser);

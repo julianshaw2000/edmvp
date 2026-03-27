@@ -16,7 +16,7 @@ public class CreateCheckoutSessionTests
 
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Existing", SchemaPrefix = "existing", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), EntraOid = "auth0|x", Email = "taken@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), IdentityUserId = "auth0|x", Email = "taken@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var handler = new CreateCheckoutSession.Handler(db, null!);

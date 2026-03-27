@@ -21,7 +21,7 @@ public class UploadDocumentTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -52,7 +52,7 @@ public class UploadDocumentTests
     {
         var (db, user, evt) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(user.EntraOid);
+        currentUser.IdentityUserId.Returns(user.IdentityUserId);
         var storage = Substitute.For<IFileStorageService>();
         storage.UploadAsync(Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns("documents/test.pdf");
@@ -81,7 +81,7 @@ public class UploadDocumentTests
     {
         var (db, user, evt) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(user.EntraOid);
+        currentUser.IdentityUserId.Returns(user.IdentityUserId);
         var storage = Substitute.For<IFileStorageService>();
 
         var handler = new UploadDocument.Handler(db, currentUser, storage);
@@ -103,7 +103,7 @@ public class UploadDocumentTests
     {
         var (db, user, evt) = SetupDb();
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns(user.EntraOid);
+        currentUser.IdentityUserId.Returns(user.IdentityUserId);
         var storage = Substitute.For<IFileStorageService>();
 
         var handler = new UploadDocument.Handler(db, currentUser, storage);

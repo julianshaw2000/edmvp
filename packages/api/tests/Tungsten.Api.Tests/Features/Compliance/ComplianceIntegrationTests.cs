@@ -495,7 +495,7 @@ public class ComplianceIntegrationTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -563,7 +563,7 @@ public class ComplianceIntegrationTests
         var (batchId, tenantId, eventId, _) = await SeedPrimaryProcessingEvent(db, "AT", "Corp", "CID000999");
         var buyer = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b1", Email = "b@t.com",
             DisplayName = "B", Role = "BUYER", TenantId = tenantId, IsActive = true
         };
         db.Users.Add(buyer);
@@ -589,7 +589,7 @@ public class ComplianceIntegrationTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);
@@ -622,7 +622,7 @@ public class ComplianceIntegrationTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);

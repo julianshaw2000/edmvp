@@ -42,7 +42,7 @@ public static class CreateCorrection
         public async Task<Result<Response>> Handle(Command cmd, CancellationToken ct)
         {
             var user = await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.EntraOid == currentUser.EntraOid && u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.IdentityUserId == currentUser.IdentityUserId && u.IsActive, ct);
             if (user is null)
                 return Result<Response>.Failure("User not found");
 

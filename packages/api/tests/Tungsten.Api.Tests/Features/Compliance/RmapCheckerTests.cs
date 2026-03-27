@@ -300,7 +300,7 @@ public class RmapCheckerTests
         var (batchId, tenantId, eventId) = await SeedBatchAndEvent(db, "PRIMARY_PROCESSING", "CID000999");
         var buyer = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "b1", Email = "b@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "b1", Email = "b@t.com",
             DisplayName = "B", Role = "BUYER", TenantId = tenantId, IsActive = true
         };
         db.Users.Add(buyer);
@@ -366,7 +366,7 @@ public class RmapCheckerTests
         db.Tenants.Add(tenant);
         var user = new UserEntity
         {
-            Id = Guid.NewGuid(), EntraOid = "auth0|s", Email = "s@t.com",
+            Id = Guid.NewGuid(), IdentityUserId = "auth0|s", Email = "s@t.com",
             DisplayName = "S", Role = "SUPPLIER", TenantId = tenant.Id, IsActive = true
         };
         db.Users.Add(user);

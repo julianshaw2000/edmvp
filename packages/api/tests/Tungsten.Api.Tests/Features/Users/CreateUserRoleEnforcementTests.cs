@@ -20,11 +20,11 @@ public class CreateUserRoleEnforcementTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|caller", Email = "caller@test.com", DisplayName = "Caller", Role = callerRole, TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, IdentityUserId = "auth0|caller", Email = "caller@test.com", DisplayName = "Caller", Role = callerRole, TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         db.SaveChanges();
 
         var currentUser = Substitute.For<ICurrentUserService>();
-        currentUser.EntraOid.Returns("auth0|caller");
+        currentUser.IdentityUserId.Returns("auth0|caller");
         currentUser.GetRoleAsync(Arg.Any<CancellationToken>()).Returns(callerRole);
 
         return (db, currentUser);

@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.Signup;
+using Tungsten.Api.Infrastructure.Identity;
 using Tungsten.Api.Infrastructure.Persistence;
 using Tungsten.Api.Infrastructure.Persistence.Entities;
 
@@ -15,8 +17,10 @@ public class StripeWebhookTests
     {
         var logger = Substitute.For<ILogger<StripeWebhookHandler>>();
         var emailService = Substitute.For<IEmailService>();
+        var userManager = Substitute.For<UserManager<AppIdentityUser>>(
+            Substitute.For<IUserStore<AppIdentityUser>>(), null!, null!, null!, null!, null!, null!, null!, null!);
         var config = new ConfigurationBuilder().Build();
-        return new StripeWebhookHandler(db, logger, emailService, config);
+        return new StripeWebhookHandler(db, userManager, logger, emailService, config);
     }
 
     [Fact]
@@ -44,7 +48,7 @@ public class StripeWebhookTests
         Assert.NotNull(user);
         Assert.Equal("john@acme.com", user.Email);
         Assert.Equal("TENANT_ADMIN", user.Role);
-        Assert.StartsWith("pending|", user.EntraOid);
+        Assert.StartsWith("pending|", user.IdentityUserId);
     }
 
     [Fact]
@@ -56,7 +60,7 @@ public class StripeWebhookTests
 
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Existing", SchemaPrefix = "existing", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), EntraOid = "auth0|x", Email = "john@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), IdentityUserId = "auth0|x", Email = "john@acme.com", DisplayName = "X", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var handler = CreateHandler(db);

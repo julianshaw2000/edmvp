@@ -33,7 +33,7 @@ public class CurrentUserServiceTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|test123", Email = "test@test.com", DisplayName = "Test", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, IdentityUserId = "auth0|test123", Email = "test@test.com", DisplayName = "Test", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new CurrentUserService(accessor, db);
@@ -48,7 +48,7 @@ public class CurrentUserServiceTests
         var (db, accessor) = CreateContext("auth0|test456");
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), EntraOid = "auth0|test456", Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = Guid.NewGuid(), IdentityUserId = "auth0|test456", Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new CurrentUserService(accessor, db);
@@ -64,7 +64,7 @@ public class CurrentUserServiceTests
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Test", SchemaPrefix = "test", Status = "ACTIVE", CreatedAt = DateTime.UtcNow });
-        db.Users.Add(new UserEntity { Id = userId, EntraOid = "auth0|cache", Email = "c@c.com", DisplayName = "C", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
+        db.Users.Add(new UserEntity { Id = userId, IdentityUserId = "auth0|cache", Email = "c@c.com", DisplayName = "C", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
         var svc = new CurrentUserService(accessor, db);
@@ -75,7 +75,7 @@ public class CurrentUserServiceTests
     }
 
     [Fact]
-    public void EntraOid_ReadsOidClaim_WhenPresent()
+    public void IdentityUserId_ReadsOidClaim_WhenPresent()
     {
         var oid = Guid.NewGuid().ToString();
         var claims = new[]
@@ -95,6 +95,6 @@ public class CurrentUserServiceTests
                 .Options);
 
         var svc = new CurrentUserService(accessor, db);
-        svc.EntraOid.Should().Be(oid);
+        svc.IdentityUserId.Should().Be(oid);
     }
 }
