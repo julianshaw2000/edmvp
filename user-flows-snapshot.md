@@ -1,0 +1,534 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "Skip to main content"
+    - banner "Microsoft Entra admin center" [ref=e3]:
+      - button "Show Microsoft Cloud menu" [ref=e5] [cursor=pointer]:
+        - img [ref=e7]
+      - heading "Microsoft Entra admin center" [level=1] [ref=e9]:
+        - link "Microsoft Entra admin center" [ref=e10] [cursor=pointer]:
+          - /url: "#home"
+      - search [ref=e11]:
+        - generic [ref=e12]:
+          - img [ref=e14]
+          - combobox "Search resources, services, and docs (G+/)" [expanded] [ref=e248]
+      - button "Copilot" [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: Copilot
+      - generic [ref=e23]:
+        - generic "Notifications 24 unread" [ref=e993]:
+          - button "Notifications" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+          - generic [ref=e994]: 20+
+        - button "Settings" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+        - button "Support + Troubleshooting" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+        - button "Feedback" [ref=e35] [cursor=pointer]:
+          - img [ref=e36]
+      - button "Account menu Currently signed in as julianshawuk2000@gmail.com, under Accutrac Customers (accutracext.onmicrosoft.com) tenant" [ref=e39] [cursor=pointer]:
+        - 'generic "Name: julianuk shaw Email: julianshawuk2000@gmail.com Directory: Accutrac Customers (d278dfa4-c5c4-4390-94e8-08eef0763c7c) Domain: accutracext.onmicrosoft.com" [ref=e40]':
+          - generic [ref=e41]:
+            - generic [ref=e42]: julianshawuk2000@gmail.com
+            - generic [ref=e43]: Accutrac Customers (accutracext.onmicrosoft.com)
+    - generic [ref=e47]:
+      - navigation "Services" [ref=e48]:
+        - iframe [ref=e50]:
+          - generic [ref=f35e6]:
+            - navigation "Main menu" [ref=f35e7]:
+              - list [ref=f35e8]:
+                - listitem [ref=f35e9] [cursor=pointer]:
+                  - link "Home" [ref=f35e10]:
+                    - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/EntraLanding.ReactView
+                    - img [ref=f35e13]
+                    - generic [ref=f35e14]: Home
+                - listitem [ref=f35e15] [cursor=pointer]:
+                  - link "Entra agents" [ref=f35e16]:
+                    - /url: https://entra.microsoft.com/#blade/Microsoft_Entra_Copilot/AgentsLibrary.ReactView
+                    - img [ref=f35e19]
+                    - generic [ref=f35e20]: Entra agents
+                - listitem [ref=f35e21]
+                - listitem [ref=f35e22] [cursor=pointer]:
+                  - button "Expand Favorites section" [ref=f35e23]:
+                    - generic [ref=f35e24]:
+                      - generic [ref=f35e26]: 
+                      - generic [ref=f35e27]: Favorites
+                      - generic [ref=f35e28]: 
+                - listitem [ref=f35e29]
+                - listitem [ref=f35e30] [cursor=pointer]:
+                  - button "Collapse Entra ID section" [expanded] [ref=f35e31]:
+                    - generic [ref=f35e32]:
+                      - img [ref=f35e35]
+                      - generic [ref=f35e36]: Entra ID
+                      - generic [ref=f35e37]: 
+                  - list [ref=f35e38]:
+                    - listitem [ref=f35e39]:
+                      - link "Overview" [ref=f35e40]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/TenantOverview.ReactView/initialValue//tabId//recommendationResourceId//fromNav/Identity
+                        - generic [ref=f35e42]: 
+                        - generic [ref=f35e43]: Overview
+                      - switch "Toggle favorite" [ref=f35e44]
+                    - listitem [ref=f35e46]:
+                      - link "Users" [ref=f35e47]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/menuId/
+                        - generic [ref=f35e49]: 
+                        - generic [ref=f35e50]: Users
+                      - switch "Toggle favorite" [ref=f35e51]
+                    - listitem [ref=f35e53]:
+                      - link "Groups" [ref=f35e54]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/GroupsManagementMenuBlade/menuId/Overview
+                        - generic [ref=f35e56]: 
+                        - generic [ref=f35e57]: Groups
+                      - switch "Toggle favorite" [ref=f35e58]
+                    - listitem [ref=f35e60]:
+                      - link "Devices" [ref=f35e61]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_Devices/DevicesMenuBlade/menuId/Overview
+                        - generic [ref=f35e63]: 
+                        - generic [ref=f35e64]: Devices
+                      - switch "Toggle favorite" [ref=f35e65]
+                    - listitem [ref=f35e67]:
+                      - link "Agent ID (Preview)" [ref=f35e68]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_RegisteredApps/AllAgents.MenuView
+                        - img [ref=f35e71]
+                        - generic [ref=f35e72]: Agent ID (Preview)
+                      - switch "Toggle favorite" [ref=f35e73]
+                    - listitem [ref=f35e75]:
+                      - link "Enterprise apps" [ref=f35e76]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade
+                        - img [ref=f35e79]
+                        - generic [ref=f35e80]: Enterprise apps
+                      - switch "Toggle favorite" [ref=f35e81]
+                    - listitem [ref=f35e83]:
+                      - link "App registrations" [ref=f35e84]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade/quickStartType//sourceType/Microsoft_AAD_IAM
+                        - img [ref=f35e87]
+                        - generic [ref=f35e88]: App registrations
+                      - switch "Toggle favorite" [ref=f35e89]
+                    - listitem [ref=f35e91]:
+                      - link "Roles & admins" [ref=f35e92]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/RolesManagementMenuBlade
+                        - img [ref=f35e95]
+                        - generic [ref=f35e96]: Roles & admins
+                      - switch "Toggle favorite" [ref=f35e97]
+                    - listitem [ref=f35e99]:
+                      - link "Delegated admin partners" [ref=f35e100]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/PartnerRelationships.ReactView
+                        - img [ref=f35e103]
+                        - generic [ref=f35e104]: Delegated admin partners
+                      - switch "Toggle favorite" [ref=f35e105]
+                    - listitem [ref=f35e107]:
+                      - link "Tenant governance (Preview)" [ref=f35e108]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_Entra_TenantManagement/TenantGovernance.MenuView/initialSection/governedTenants
+                        - img [ref=f35e111]
+                        - generic [ref=f35e112]: Tenant governance (Preview)
+                      - switch "Toggle favorite" [ref=f35e113]
+                    - listitem [ref=f35e115]:
+                      - link "Domain services" [ref=f35e116]:
+                        - /url: https://entra.microsoft.com/#blade/HubsExtension/Resources/resourceType/Microsoft.AAD%2FdomainServices
+                        - img [ref=f35e119]
+                        - generic [ref=f35e120]: Domain services
+                      - switch "Toggle favorite" [ref=f35e121]
+                    - listitem [ref=f35e123]:
+                      - link "Security Store" [ref=f35e124]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_B2CAdmin/Marketplace.ReactView
+                        - img [ref=f35e127]
+                        - generic [ref=f35e128]: Security Store
+                      - switch "Toggle favorite" [ref=f35e129]
+                    - listitem [ref=f35e131]:
+                      - link "Conditional Access" [ref=f35e132]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_ConditionalAccess/ConditionalAccessBlade/menuId//fromNav/Identity
+                        - img [ref=f35e135]
+                        - generic [ref=f35e136]: Conditional Access
+                      - switch "Toggle favorite" [ref=f35e137]
+                    - listitem [ref=f35e139]:
+                      - link "Multifactor authentication" [ref=f35e140]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/MultifactorAuthenticationMenuBlade/fromProviders//fromNav/
+                        - img [ref=f35e143]
+                        - generic [ref=f35e144]: Multifactor authentication
+                      - switch "Toggle favorite" [ref=f35e145]
+                    - listitem [ref=f35e147]:
+                      - link "Identity Secure Score" [ref=f35e148]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/SecurityMenuBlade/menuId/IdentitySecureScore/fromNav/Identity
+                        - img [ref=f35e151]
+                        - generic [ref=f35e152]: Identity Secure Score
+                      - switch "Toggle favorite" [ref=f35e153]
+                    - listitem [ref=f35e155]:
+                      - link "Authentication methods" [ref=f35e156]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/fromNav/
+                        - img [ref=f35e159]
+                        - generic [ref=f35e160]: Authentication methods
+                      - switch "Toggle favorite" [ref=f35e161]
+                    - listitem [ref=f35e163]:
+                      - link "Account recovery (Preview)" [ref=f35e164]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_AuthenticationMethods/AccountRecovery.ReactView/fromNav/
+                        - img [ref=f35e167]
+                        - generic [ref=f35e168]: Account recovery (Preview)
+                      - switch "Toggle favorite" [ref=f35e169]
+                    - listitem [ref=f35e171]:
+                      - link "Password reset" [ref=f35e172]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/PasswordResetMenuBlade/fromNav/
+                        - img [ref=f35e175]
+                        - generic [ref=f35e176]: Password reset
+                      - switch "Toggle favorite" [ref=f35e177]
+                    - listitem [ref=f35e179]:
+                      - link "Custom security attributes" [ref=f35e180]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/CustomAttributesCatalogAttributeSetsBlade
+                        - img [ref=f35e183]
+                        - generic [ref=f35e184]: Custom security attributes
+                      - switch "Toggle favorite" [ref=f35e185]
+                    - listitem [ref=f35e187]:
+                      - link "Certificate authorities" [ref=f35e188]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/CertificateAuthorities.ReactView
+                        - img [ref=f35e191]
+                        - generic [ref=f35e192]: Certificate authorities
+                      - switch "Toggle favorite" [ref=f35e193]
+                    - listitem [ref=f35e195]:
+                      - link "External Identities" [ref=f35e196]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/menuId/ExternalIdentitiesGettingStarted
+                        - img [ref=f35e199]
+                        - generic [ref=f35e200]: External Identities
+                      - switch "Toggle favorite" [ref=f35e201]
+                    - listitem [ref=f35e203]:
+                      - link "Cross-tenant synchronization" [ref=f35e204]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_B2CAdmin/CiamFeatureUnavailable.ReactView
+                        - img [ref=f35e207]
+                        - generic [ref=f35e208]: Cross-tenant synchronization
+                      - switch "Toggle favorite" [ref=f35e209]
+                    - listitem [ref=f35e211]:
+                      - link "Entra Connect" [ref=f35e212]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_Connect_Provisioning/AADConnectMenuBlade
+                        - img [ref=f35e215]
+                        - generic [ref=f35e216]: Entra Connect
+                      - switch "Toggle favorite" [ref=f35e217]
+                    - listitem [ref=f35e219]:
+                      - link "Backup and recovery (Preview)" [ref=f35e220]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_Entra_EntraRecovery/EntraRecovery.MenuView
+                        - generic [ref=f35e222]: 
+                        - generic [ref=f35e223]: Backup and recovery (Preview)
+                      - switch "Toggle favorite" [ref=f35e224]
+                    - listitem [ref=f35e226]:
+                      - link "Domain names" [ref=f35e227]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/DomainsManagementMenuBlade
+                        - img [ref=f35e230]
+                        - generic [ref=f35e231]: Domain names
+                      - switch "Toggle favorite" [ref=f35e232]
+                    - listitem [ref=f35e234]:
+                      - link "Custom branding" [ref=f35e235]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_UsersAndTenants/CompanyBrandingMenuBlade
+                        - generic [ref=f35e237]: 
+                        - generic [ref=f35e238]: Custom branding
+                      - switch "Toggle favorite" [ref=f35e239]
+                    - listitem [ref=f35e241]:
+                      - link "Mobility" [ref=f35e242]:
+                        - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/MdmList.ReactView
+                        - img [ref=f35e245]
+                        - generic [ref=f35e246]: Mobility
+                      - switch "Toggle favorite" [ref=f35e247]
+                    - listitem [ref=f35e249]:
+                      - button "Expand Monitoring & health section" [ref=f35e250]:
+                        - generic [ref=f35e251]:
+                          - generic [ref=f35e253]: 
+                          - generic [ref=f35e254]: Monitoring & health
+                          - generic [ref=f35e255]: 
+                - listitem [ref=f35e256]
+                - listitem [ref=f35e257] [cursor=pointer]:
+                  - button "Expand ID Protection section" [ref=f35e258]:
+                    - generic [ref=f35e259]:
+                      - img [ref=f35e262]
+                      - generic [ref=f35e263]: ID Protection
+                      - generic [ref=f35e264]: 
+                - listitem [ref=f35e265]
+                - listitem [ref=f35e266] [cursor=pointer]:
+                  - button "Expand ID Governance section" [ref=f35e267]:
+                    - generic [ref=f35e268]:
+                      - img [ref=f35e271]
+                      - generic [ref=f35e272]: ID Governance
+                      - generic [ref=f35e273]: 
+                - listitem [ref=f35e274]
+                - listitem [ref=f35e275] [cursor=pointer]:
+                  - button "Expand Verified ID section" [ref=f35e276]:
+                    - generic [ref=f35e277]:
+                      - img [ref=f35e280]
+                      - generic [ref=f35e281]: Verified ID
+                      - generic [ref=f35e282]: 
+                - listitem [ref=f35e283]
+                - listitem [ref=f35e284] [cursor=pointer]:
+                  - button "Expand Global Secure Access section" [ref=f35e285]:
+                    - generic [ref=f35e286]:
+                      - img [ref=f35e289]
+                      - generic [ref=f35e290]: Global Secure Access
+                      - generic [ref=f35e291]: 
+                - listitem [ref=f35e292]
+                - listitem [ref=f35e293] [cursor=pointer]:
+                  - link "What's new" [ref=f35e294]:
+                    - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_IAM/ChangeManagementHubList.ReactView
+                    - img [ref=f35e297]
+                    - generic [ref=f35e298]: What's new
+                  - switch "Toggle favorite" [ref=f35e299]
+                - listitem [ref=f35e301] [cursor=pointer]:
+                  - button "Expand Billing section" [ref=f35e302]:
+                    - generic [ref=f35e303]:
+                      - img [ref=f35e306]
+                      - generic [ref=f35e307]: Billing
+                      - generic [ref=f35e308]: 
+                - listitem [ref=f35e309] [cursor=pointer]:
+                  - link "Security Store" [ref=f35e310]:
+                    - /url: https://entra.microsoft.com/#blade/Microsoft_Azure_SecureExchange/EmbedStore.ReactView/service/Entra/ecsService/Entra/tabs/%5B%22All%22%2C%22Agent%22%5D
+                    - img [ref=f35e313]
+                    - generic [ref=f35e314]: Security Store
+                - listitem [ref=f35e315] [cursor=pointer]:
+                  - link "Diagnose & solve problems" [ref=f35e316]:
+                    - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_DXP/DiagnosticsHome.ReactView/tag/top-level
+                    - img [ref=f35e319]
+                    - generic [ref=f35e320]: Diagnose & solve problems
+                  - switch "Toggle favorite" [ref=f35e321]
+                - listitem [ref=f35e323] [cursor=pointer]:
+                  - link "New support request" [ref=f35e324]:
+                    - /url: https://entra.microsoft.com/#blade/Microsoft_AAD_DXP/SupportTroubleshooting.ReactView/callerName/EntraNav/fullScreenMode/true
+                    - img [ref=f35e327]
+                    - generic [ref=f35e328]: New support request
+                  - switch "Toggle favorite" [ref=f35e329]
+            - navigation "Learn and support menu" [ref=f35e331]:
+              - list
+            - button "Collapse nav" [ref=f35e332] [cursor=pointer]:
+              - generic [ref=f35e334]: 
+      - main [ref=e51]:
+        - generic [ref=e52]:
+          - navigation "Breadcrumb" [ref=e56]:
+            - navigation "Breadcrumb" [ref=e59]:
+              - list [ref=e60]:
+                - listitem [ref=e61] [cursor=pointer]:
+                  - link "Home" [ref=e62]:
+                    - /url: "#home"
+                - listitem [ref=e8800]:
+                  - img [ref=e8801]
+                - listitem [ref=e8803] [cursor=pointer]:
+                  - link "External Identities" [ref=e8804]:
+                    - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/ExternalIdentitiesGettingStarted/menuId/UserFlows"
+          - region "External Identities | User flows Accutrac Customers" [ref=e8805]:
+            - generic "External Identities | User flows Accutrac Customers" [ref=e8808]:
+              - generic [ref=e8809]:
+                - img [ref=e8811]
+                - generic [ref=e8813]:
+                  - generic [ref=e8814]:
+                    - heading "External Identities | User flows" [level=2] [ref=e8815]
+                    - generic [ref=e8816]:
+                      - button "More content actions" [ref=e8818] [cursor=pointer]:
+                        - img [ref=e8821]
+                      - button "Close content 'External Identities | User flows'" [ref=e8824] [cursor=pointer]:
+                        - img [ref=e8827]
+                  - generic [ref=e8830]: Accutrac Customers
+            - generic [ref=e8831]:
+              - generic [ref=e8834]:
+                - generic [ref=e8841]:
+                  - generic [ref=e8843]:
+                    - img [ref=e8845]
+                    - generic "Search box" [ref=e8847]:
+                      - searchbox "Search box" [ref=e8852]
+                  - list [ref=e8855]:
+                    - listitem "Quick Access" [ref=e8856]:
+                      - list [ref=e8857]:
+                        - listitem [ref=e8858]:
+                          - link "Overview" [ref=e8859] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/ExternalIdentitiesGettingStarted/menuId/UserFlows"
+                            - img [ref=e8861]
+                            - generic [ref=e8863]: Overview
+                        - listitem [ref=e8864]:
+                          - link "Cross-tenant access settings" [ref=e8865] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/CrossTenantAccessSettings/menuId/UserFlows"
+                            - img [ref=e8867]
+                            - generic [ref=e8869]: Cross-tenant access settings
+                        - listitem [ref=e8870]:
+                          - link "All identity providers" [ref=e8871] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/IdentityProviders/menuId/UserFlows"
+                            - img [ref=e8873]
+                            - generic [ref=e8875]: All identity providers
+                        - listitem [ref=e8876]:
+                          - link "Sign-in identifiers" [ref=e8877] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/SignInIdentifiers/menuId/UserFlows"
+                            - img [ref=e8879]
+                            - generic [ref=e8881]: Sign-in identifiers
+                        - listitem [ref=e8882]:
+                          - link "External collaboration settings" [ref=e8883] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/Settings/menuId/UserFlows"
+                            - img [ref=e8885]
+                            - generic [ref=e8887]: External collaboration settings
+                        - listitem [ref=e8888]:
+                          - link "Diagnose and solve problems" [ref=e8889] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/Diagnose/menuId/UserFlows"
+                            - img [ref=e8891]
+                            - generic [ref=e8893]: Diagnose and solve problems
+                    - listitem "Self-service sign up" [ref=e8894]:
+                      - generic [ref=e8896]: Self-service sign up
+                      - list [ref=e8897]:
+                        - listitem [ref=e8898]:
+                          - link "Custom user attributes" [ref=e8899] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/UserAttributes/menuId/UserFlows"
+                            - img [ref=e8901]
+                            - generic [ref=e8903]: Custom user attributes
+                        - listitem [ref=e8904]:
+                          - link "Custom authentication extensions" [ref=e8905] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/CustomExtension/menuId/UserFlows"
+                            - img [ref=e8907]
+                            - generic [ref=e8909]: Custom authentication extensions
+                        - listitem [ref=e8910]:
+                          - link "User flows" [ref=e8911] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/UserFlows/menuId/UserFlows"
+                            - img [ref=e8913]
+                            - generic [ref=e8915]: User flows
+                    - listitem "Subscriptions" [ref=e8916]:
+                      - generic [ref=e8918]: Subscriptions
+                      - list [ref=e8919]:
+                        - listitem [ref=e8920]:
+                          - link "Linked subscriptions" [ref=e8921] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/B2BLinkedSubscriptions/menuId/UserFlows"
+                            - img [ref=e8923]
+                            - generic [ref=e8925]: Linked subscriptions
+                    - listitem "Lifecycle management" [ref=e8926]:
+                      - generic [ref=e8928]: Lifecycle management
+                      - list [ref=e8929]:
+                        - listitem [ref=e8930]:
+                          - link "Terms of use" [ref=e8931] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/TermsOfUse/menuId/UserFlows"
+                            - img [ref=e8933]
+                            - generic [ref=e8935]: Terms of use
+                        - listitem [ref=e8936]:
+                          - link "Access reviews" [ref=e8937] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/AccessReviews/menuId/UserFlows"
+                            - img [ref=e8939]
+                            - generic [ref=e8941]: Access reviews
+                    - listitem "Troubleshooting + Support" [ref=e8942]:
+                      - generic [ref=e8944]: Troubleshooting + Support
+                      - list [ref=e8945]:
+                        - listitem [ref=e8946]:
+                          - link "New support request" [ref=e8947] [cursor=pointer]:
+                            - /url: "#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/supportRequest/menuId/UserFlows"
+                            - img [ref=e8949]
+                            - generic [ref=e8951]: New support request
+                - button "Hide the menu for External Identities" [expanded] [ref=e8952] [cursor=pointer]:
+                  - img [ref=e8953]
+              - generic [ref=e8956]:
+                - toolbar [ref=e8959]:
+                  - button "New user flow" [ref=e8960] [cursor=pointer]:
+                    - img [ref=e8962]
+                    - generic [ref=e8964]: New user flow
+                  - separator [ref=e8965] [cursor=pointer]:
+                    - img [ref=e8967]
+                  - button "Got feedback?" [ref=e8969] [cursor=pointer]:
+                    - img [ref=e8971]
+                    - generic [ref=e8973]: Got feedback?
+                - generic [ref=e8982]:
+                  - generic [ref=e8987]:
+                    - generic [ref=e8989]: User flow name
+                    - textbox "User flow name" [active] [ref=e8994]:
+                      - /placeholder: Search using user flow name
+                  - grid [ref=e8995]:
+                    - row "Name Type" [ref=e9000]:
+                      - columnheader "Name" [ref=e9001]
+                      - columnheader "Type" [ref=e9002]
+                    - rowgroup [ref=e9007]:
+                      - row "No user flows found." [ref=e9008]:
+                        - gridcell "No user flows found." [ref=e9009]
+                    - generic [ref=e9012]:
+                      - navigation "Pagination":
+                        - list
+  - generic:
+    - generic:
+      - generic: Content closed.
+    - generic:
+      - generic: Content is loading.
+      - generic: Content is ready.
+      - generic: Content is busy.
+      - generic: Content is ready.
+    - generic:
+      - generic: Loading page 1
+      - generic: Loading page 1
+      - generic: Loaded 0 rows. Done loading.
+      - generic: Loading page 1
+      - generic: Loaded 0 rows. Done loading.
+      - generic: Loading page 1
+      - generic: Loaded 0 rows. Done loading.
+  - img [ref=e137]
+  - img [ref=e138]
+  - img [ref=e139]
+  - img [ref=e140]
+  - img [ref=e141]
+  - img [ref=e142]
+  - img [ref=e143]
+  - img [ref=e144]
+  - img [ref=e145]
+  - img [ref=e146]
+  - img [ref=e147]
+  - img [ref=e148]
+  - img [ref=e149]
+  - img [ref=e150]
+  - img [ref=e151]
+  - img [ref=e152]
+  - img [ref=e153]
+  - img [ref=e154]
+  - img [ref=e155]
+  - img [ref=e156]
+  - img [ref=e157]
+  - img [ref=e158]
+  - img [ref=e159]
+  - img [ref=e247]
+  - img [ref=e257]
+  - img [ref=e419]
+  - img [ref=e420]
+  - img [ref=e421]
+  - img [ref=e422]
+  - img [ref=e423]
+  - img [ref=e424]
+  - img [ref=e425]
+  - img [ref=e426]
+  - img [ref=e427]
+  - img [ref=e428]
+  - img [ref=e429]
+  - img [ref=e430]
+  - img [ref=e501]
+  - img [ref=e502]
+  - img [ref=e503]
+  - img [ref=e504]
+  - img [ref=e523]
+  - img [ref=e669]
+  - img [ref=e670]
+  - img [ref=e671]
+  - img [ref=e672]
+  - img [ref=e673]
+  - img [ref=e969]
+  - img [ref=e970]
+  - img [ref=e1008]
+  - img [ref=e1009]
+  - img [ref=e1010]
+  - img [ref=e1011]
+  - img [ref=e1012]
+  - img [ref=e1013]
+  - img [ref=e1014]
+  - img [ref=e1015]
+  - img [ref=e1016]
+  - img [ref=e1017]
+  - img [ref=e1018]
+  - img [ref=e1019]
+  - img [ref=e1020]
+  - img [ref=e1021]
+  - img [ref=e1022]
+  - img [ref=e1023]
+  - img [ref=e1024]
+  - img [ref=e1025]
+  - img [ref=e1026]
+  - img [ref=e1027]
+  - img [ref=e1028]
+  - img [ref=e1029]
+  - img [ref=e1030]
+  - img [ref=e1031]
+  - img [ref=e1032]
+  - img [ref=e1033]
+  - img [ref=e1034]
+  - img [ref=e1035]
+  - img [ref=e1036]
+  - img [ref=e1037]
+  - img [ref=e1038]
+  - img [ref=e1039]
+  - img [ref=e1040]
+  - img [ref=e1041]
+  - img [ref=e1042]
+  - img [ref=e1043]

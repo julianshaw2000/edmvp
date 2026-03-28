@@ -1,0 +1,588 @@
+/* ============================================================
+   pandoc-markdown-to-pdf.css
+   Stylesheet for Pandoc Markdown → PDF conversion
+   
+   Usage:
+     pandoc input.md -o output.pdf \
+       --css pandoc-markdown-to-pdf.css \
+       --pdf-engine=weasyprint \
+       --standalone \
+       --toc
+   
+   Or via HTML intermediary:
+     pandoc input.md -o output.html --standalone --css pandoc-markdown-to-pdf.css
+     weasyprint output.html output.pdf
+   
+   Pandoc classes targeted:
+     #TOC, .title, .author, .date, .subtitle,
+     .sourceCode, .highlight, span.kw/st/co/dt/fu etc.,
+     .footnotes, figure, figcaption, blockquote,
+     div.note, div.warning, div.tip (custom divs)
+   ============================================================ */
+
+/* ── @page Setup ─────────────────────────────────────────── */
+@page {
+  size: A4 portrait;
+  margin: 28mm 22mm 28mm 22mm;
+
+  /* Running header — picks up the document title via string-set */
+  @top-center {
+    content: string(doc-title);
+    font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    font-size: 7.5pt;
+    color: #94a3b8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Running footer — author left, page number right */
+  @bottom-left {
+    content: string(doc-author);
+    font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    font-size: 7.5pt;
+    color: #94a3b8;
+  }
+
+  @bottom-center {
+    content: string(doc-date);
+    font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    font-size: 7.5pt;
+    color: #94a3b8;
+  }
+
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    font-size: 7.5pt;
+    color: #94a3b8;
+  }
+}
+
+/* Suppress headers/footers on the title page */
+@page :first {
+  @top-center  { content: none; }
+  @bottom-left { content: none; }
+  @bottom-center { content: none; }
+  @bottom-right { content: none; }
+}
+
+/* ── CSS Custom Properties ───────────────────────────────── */
+:root {
+  /* Typography */
+  --font-sans:   'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif:  Georgia, 'Times New Roman', serif;
+  --font-mono:   'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --size-base:   10.5pt;
+  --lh-body:     1.8;
+
+  /* Colour palette */
+  --ink:         #1e293b;   /* body text          */
+  --heading:     #0f172a;   /* headings           */
+  --accent:      #1d4ed8;   /* links, borders     */
+  --accent-light:#dbeafe;   /* accent tint        */
+  --muted:       #64748b;   /* secondary text     */
+  --border:      #e2e8f0;   /* dividers / table   */
+  --surface:     #f8fafc;   /* blockquote / table row bg */
+  --code-bg:     #1e293b;   /* code block dark bg */
+  --code-text:   #e2e8f0;   /* code block text    */
+  --inline-bg:   #f1f5f9;   /* inline code bg     */
+  --inline-fg:   #be185d;   /* inline code text   */
+  --note-bg:     #eff6ff;   /* info callout       */
+  --note-bdr:    #3b82f6;
+  --warn-bg:     #fff7ed;   /* warning callout    */
+  --warn-bdr:    #f97316;
+  --tip-bg:      #f0fdf4;   /* tip callout        */
+  --tip-bdr:     #22c55e;
+
+  /* Shape */
+  --radius:      4px;
+}
+
+/* ── Base Reset ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Body ────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  font-size: var(--size-base);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  background: #fff;
+  text-rendering: optimizeLegibility;
+  orphans: 3;
+  widows: 3;
+}
+
+/* ── Pandoc Title Block ───────────────────────────────────
+   Generated from YAML front matter:
+     title:    My Document
+     subtitle: An Overview
+     author:   Julian Shaw
+     date:     2026-03-24
+   ─────────────────────────────────────────────────────── */
+header#title-block-header {
+  text-align: center;
+  padding: 36pt 0 28pt;
+  margin-bottom: 32pt;
+  border-bottom: 3px solid var(--accent);
+  page-break-after: avoid;
+}
+
+h1.title {
+  string-set: doc-title content();
+  font-size: 26pt;
+  font-weight: 800;
+  color: var(--heading);
+  line-height: 1.15;
+  margin-bottom: 6pt;
+}
+
+p.subtitle {
+  font-size: 14pt;
+  color: var(--muted);
+  font-weight: 400;
+  margin-bottom: 14pt;
+}
+
+p.author {
+  string-set: doc-author content();
+  font-size: 11pt;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 3pt;
+}
+
+p.date {
+  string-set: doc-date content();
+  font-size: 9.5pt;
+  color: var(--muted);
+}
+
+/* ── Table of Contents (--toc flag) ──────────────────────── */
+nav#TOC {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 14pt 18pt;
+  margin: 0 0 28pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+nav#TOC::before {
+  content: "Contents";
+  display: block;
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--heading);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 10pt;
+}
+
+nav#TOC ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav#TOC li {
+  margin: 3pt 0;
+  font-size: 9.5pt;
+}
+
+nav#TOC a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+nav#TOC a::after { content: none; }  /* suppress URL display in TOC */
+
+/* Indent nested TOC levels */
+nav#TOC ul ul         { margin-left: 14pt; }
+nav#TOC ul ul ul      { margin-left: 28pt; }
+nav#TOC ul ul ul ul   { margin-left: 42pt; }
+
+/* ── Headings ────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  color: var(--heading);
+  font-weight: 700;
+  line-height: 1.25;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 {
+  font-size: 21pt;
+  font-weight: 800;
+  margin: 36pt 0 12pt;
+  padding-bottom: 6pt;
+  border-bottom: 2px solid var(--accent);
+  counter-reset: h2counter;
+}
+
+h2 {
+  font-size: 15pt;
+  margin: 26pt 0 9pt;
+  padding-bottom: 4pt;
+  border-bottom: 1px solid var(--border);
+}
+
+h3 {
+  font-size: 12.5pt;
+  margin: 20pt 0 7pt;
+}
+
+h4 {
+  font-size: 10.5pt;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 16pt 0 5pt;
+}
+
+h5 {
+  font-size: 10.5pt;
+  font-weight: 600;
+  margin: 12pt 0 4pt;
+}
+
+h6 {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 10pt 0 4pt;
+}
+
+/* ── Paragraphs ──────────────────────────────────────────── */
+p {
+  margin-bottom: 10pt;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* ── Links ───────────────────────────────────────────────── */
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2pt;
+}
+
+/* Show full URL for external links in print */
+a[href^="http"]::after,
+a[href^="https"]::after {
+  content: " <" attr(href) ">";
+  font-size: 7.5pt;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+/* Suppress URL display for anchor and mailto links */
+a[href^="#"]::after,
+a[href^="mailto:"]::after {
+  content: none;
+}
+
+/* ── Inline Typography ───────────────────────────────────── */
+strong, b    { font-weight: 700; color: var(--heading); }
+em, i        { font-style: italic; }
+s, del       { text-decoration: line-through; color: var(--muted); }
+mark         { background: #fef08a; padding: 0 2pt; border-radius: 2px; }
+abbr         { text-decoration: underline dotted; cursor: help; }
+sub          { font-size: 7.5pt; vertical-align: sub; }
+sup          { font-size: 7.5pt; vertical-align: super; color: var(--accent); }
+
+/* ── Inline Code ─────────────────────────────────────────── */
+code {
+  font-family: var(--font-mono);
+  font-size: 8.8pt;
+  background: var(--inline-bg);
+  color: var(--inline-fg);
+  padding: 1pt 4pt;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* ── Code Blocks (Pandoc wraps in div.sourceCode > pre > code) ── */
+div.sourceCode {
+  margin: 14pt 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+pre.sourceCode,
+pre {
+  font-family: var(--font-mono);
+  font-size: 8.3pt;
+  line-height: 1.65;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 12pt 15pt;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin: 14pt 0;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  border: none;
+  font-size: inherit;
+  white-space: inherit;
+}
+
+/* ── Pandoc Syntax Highlighting Token Classes ────────────── */
+/* keyword */         code span.kw { color: #93c5fd; font-weight: 700; }
+/* data type */       code span.dt { color: #f9a8d4; }
+/* string */          code span.st { color: #86efac; }
+/* char */            code span.ch { color: #86efac; }
+/* comment */         code span.co { color: #64748b; font-style: italic; }
+/* number */          code span.dv { color: #fdba74; }
+/* float */           code span.fl { color: #fdba74; }
+/* preprocessor */    code span.pp { color: #c4b5fd; }
+/* operator */        code span.op { color: #e2e8f0; }
+/* function */        code span.fu { color: #67e8f9; }
+/* variable */        code span.va { color: #e2e8f0; }
+/* built-in */        code span.bu { color: #67e8f9; }
+/* attribute */       code span.at { color: #fde68a; }
+/* annotation */      code span.an { color: #64748b; font-style: italic; }
+/* documentation */   code span.do { color: #64748b; font-style: italic; }
+/* error */           code span.er { color: #fca5a5; }
+/* warning */         code span.wa { color: #fcd34d; }
+/* verbatim */        code span.vs { color: #86efac; }
+/* information */     code span.in { color: #64748b; font-style: italic; }
+/* special char */    code span.sc { color: #f9a8d4; }
+/* control flow */    code span.cf { color: #93c5fd; font-weight: 700; }
+/* import */          code span.im { color: #c4b5fd; }
+/* extension */       code span.ex { color: #67e8f9; }
+/* other */           code span.ot { color: #e2e8f0; }
+
+/* ── Blockquote ──────────────────────────────────────────── */
+blockquote {
+  margin: 14pt 0;
+  padding: 10pt 16pt;
+  background: var(--surface);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--muted);
+  font-style: italic;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+blockquote p            { margin-bottom: 0; text-align: left; }
+blockquote > p + p      { margin-top: 6pt; }
+blockquote cite         { display: block; margin-top: 6pt; font-size: 9pt; color: var(--muted); }
+
+/* ── Pandoc Custom Div Callouts ──────────────────────────── */
+/* Usage in .md:   ::: note\n...\n:::   */
+div.note, div.info {
+  background: var(--note-bg);
+  border-left: 4px solid var(--note-bdr);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 10pt 14pt;
+  margin: 14pt 0;
+  font-size: 9.5pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+div.warning, div.caution {
+  background: var(--warn-bg);
+  border-left: 4px solid var(--warn-bdr);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 10pt 14pt;
+  margin: 14pt 0;
+  font-size: 9.5pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+div.tip, div.success {
+  background: var(--tip-bg);
+  border-left: 4px solid var(--tip-bdr);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 10pt 14pt;
+  margin: 14pt 0;
+  font-size: 9.5pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ── Lists ───────────────────────────────────────────────── */
+ul, ol {
+  margin: 8pt 0 10pt 22pt;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 4pt;
+  text-align: left;
+}
+
+li > ul, li > ol {
+  margin-top: 4pt;
+  margin-bottom: 2pt;
+}
+
+/* Task list checkboxes (Pandoc GitHub-flavour MD) */
+ul.task-list            { list-style: none; margin-left: 0; }
+ul.task-list li         { padding-left: 18pt; position: relative; }
+input[type="checkbox"]  { position: absolute; left: 0; top: 2pt; }
+
+/* ── Definition Lists ────────────────────────────────────── */
+dl    { margin: 10pt 0; }
+dt    { font-weight: 700; color: var(--heading); }
+dd    { margin: 2pt 0 8pt 18pt; color: var(--muted); }
+
+/* ── Tables ──────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14pt 0;
+  font-size: 9.3pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+thead {
+  background: var(--surface);
+}
+
+thead th {
+  font-weight: 700;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  color: var(--heading);
+  padding: 6pt 10pt;
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--accent);
+}
+
+tbody tr:nth-child(even) td { background: var(--surface); }
+
+td {
+  padding: 6pt 10pt;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+
+/* Column alignment classes produced by Pandoc */
+td.left, th.left     { text-align: left; }
+td.right, th.right   { text-align: right; }
+td.center, th.center { text-align: center; }
+
+/* ── Figures & Images ────────────────────────────────────── */
+figure {
+  margin: 16pt 0;
+  text-align: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: var(--radius);
+}
+
+figcaption {
+  font-size: 8.5pt;
+  color: var(--muted);
+  margin-top: 5pt;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Horizontal Rule ─────────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 22pt 0;
+}
+
+/* ── Footnotes (Pandoc --footnotes) ──────────────────────── */
+section.footnotes {
+  margin-top: 28pt;
+  padding-top: 12pt;
+  border-top: 1px solid var(--border);
+}
+
+section.footnotes::before {
+  content: "Notes";
+  display: block;
+  font-size: 9pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 8pt;
+}
+
+section.footnotes ol {
+  font-size: 8.5pt;
+  color: var(--muted);
+  margin-left: 16pt;
+}
+
+section.footnotes p { margin-bottom: 3pt; text-align: left; }
+
+a.footnote-ref {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 7.5pt;
+  vertical-align: super;
+}
+
+a.footnote-ref::after,
+a.footnote-back::after { content: none; }
+
+/* ── Abstract (Pandoc --abstract-title) ─────────────────── */
+div#abstract {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12pt 16pt;
+  margin-bottom: 24pt;
+  font-size: 9.5pt;
+  color: var(--muted);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+div#abstract p.abstract-title {
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 6pt;
+  font-size: 10pt;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── Page Break Helpers ──────────────────────────────────── */
+/* Insert   <div class="page-break"></div>   in .md for explicit breaks */
+div.page-break {
+  page-break-after: always;
+  break-after: page;
+}
+
+h1 { page-break-before: auto; }
+
+/* Keep code/table/figure blocks together */
+pre, table, figure, blockquote {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
