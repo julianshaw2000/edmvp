@@ -46,6 +46,11 @@ export class BuyerApiService {
       `${this.apiUrl}/api/batches/${batchId}/dossier`, {});
   }
 
+  generateDpp(batchId: string): Observable<GeneratedDocumentResponse> {
+    return this.http.post<GeneratedDocumentResponse>(
+      `${this.apiUrl}/api/batches/${batchId}/dpp`, {});
+  }
+
   getGeneratedDocument(id: string): Observable<GeneratedDocumentResponse> {
     return this.http.get<GeneratedDocumentResponse>(
       `${this.apiUrl}/api/generated-documents/${id}`);

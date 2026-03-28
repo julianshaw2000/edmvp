@@ -144,6 +144,22 @@ import { ActivityFeedComponent } from '../supplier/ui/activity-feed.component';
                 <p class="text-xs text-slate-500 mt-0.5">Compliance audit package</p>
               </div>
             </button>
+
+            <button
+              (click)="onGenerateDpp(batch.id)"
+              [disabled]="facade.generating()"
+              class="flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 text-left group disabled:opacity-50"
+            >
+              <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-900 text-sm">Digital Product Passport</p>
+                <p class="text-xs text-slate-500 mt-0.5">EU DPP-aligned JSON-LD</p>
+              </div>
+            </button>
           </div>
 
           @if (facade.generating()) {
@@ -260,6 +276,10 @@ export class BuyerBatchDetailComponent implements OnInit {
 
   onGenerateDossier(batchId: string) {
     this.facade.generateDossier(batchId);
+  }
+
+  onGenerateDpp(batchId: string) {
+    this.facade.generateDpp(batchId);
   }
 
   onShare(docId: string) {

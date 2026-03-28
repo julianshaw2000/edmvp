@@ -127,6 +127,21 @@ export class BuyerStore {
     });
   }
 
+  generateDpp(batchId: string) {
+    this._generating.set(true);
+    this._generateError.set(null);
+    this.api.generateDpp(batchId).subscribe({
+      next: (doc) => {
+        this._generatedDoc.set(doc);
+        this._generating.set(false);
+      },
+      error: (err) => {
+        this._generateError.set(extractErrorMessage(err));
+        this._generating.set(false);
+      },
+    });
+  }
+
   shareDocument(docId: string) {
     this.api.shareDocument(docId).subscribe({
       next: (res) => {

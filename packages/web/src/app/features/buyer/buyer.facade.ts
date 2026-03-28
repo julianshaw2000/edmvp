@@ -32,5 +32,6 @@ export class BuyerFacade {
   loadBatchDetail(batchId: string) { this.store.loadBatchDetail(batchId); }
   generatePassport(batchId: string) { this.store.generatePassport(batchId); }
   generateDossier(batchId: string) { this.store.generateDossier(batchId); }
+  generateDpp(batchId: string) { this.store.generateDpp(batchId); }
   shareDocument(docId: string) { this.store.shareDocument(docId); }
 }

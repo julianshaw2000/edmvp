@@ -24,6 +24,14 @@ public static class DocumentGenerationEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequireBuyer);
 
+        app.MapPost("/api/batches/{batchId:guid}/dpp", async (Guid batchId, IMediator mediator) =>
+        {
+            var result = await mediator.Send(new GenerateDpp.Command(batchId));
+            return result.IsSuccess
+                ? Results.Created($"/api/generated-documents/{result.Value.Id}", result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireBuyer);
+
         app.MapGet("/api/generated-documents/{id:guid}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new GetGeneratedDocument.Query(id));
