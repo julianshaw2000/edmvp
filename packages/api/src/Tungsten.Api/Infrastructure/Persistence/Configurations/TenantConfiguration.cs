@@ -36,5 +36,7 @@ public class TenantConfiguration : IEntityTypeConfiguration<TenantEntity>
 
         builder.HasIndex(e => e.StripeCustomerId).IsUnique().HasFilter("\"StripeCustomerId\" IS NOT NULL").HasDatabaseName("ix_tenants_stripe_customer");
         builder.HasIndex(e => e.StripeSubscriptionId).IsUnique().HasFilter("\"StripeSubscriptionId\" IS NOT NULL").HasDatabaseName("ix_tenants_stripe_subscription");
+
+        builder.Property(t => t.Regulations).HasColumnType("text[]");
     }
 }

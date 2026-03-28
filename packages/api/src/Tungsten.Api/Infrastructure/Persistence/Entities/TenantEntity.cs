@@ -13,6 +13,7 @@ public class TenantEntity
     public DateTime? TrialEndsAt { get; set; }
     public int? MaxBatches { get; set; }
     public int? MaxUsers { get; set; }
+    public string[]? Regulations { get; set; }
     public ICollection<UserEntity> Users { get; set; } = [];
     public ICollection<BatchEntity> Batches { get; set; } = [];
 }
