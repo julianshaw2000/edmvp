@@ -15,7 +15,10 @@ public static class ListRmapSmelters
         string Country,
         string ConformanceStatus,
         DateOnly? LastAuditDate,
-        DateTime LoadedAt);
+        DateTime LoadedAt,
+        string? MineralType,
+        string? FacilityLocation,
+        string[]? SourcingCountries);
 
     public record Response(
         IReadOnlyList<SmelterItem> Smelters,
@@ -30,7 +33,8 @@ public static class ListRmapSmelters
                 .OrderBy(s => s.SmelterName)
                 .Select(s => new SmelterItem(
                     s.SmelterId, s.SmelterName, s.Country,
-                    s.ConformanceStatus, s.LastAuditDate, s.LoadedAt))
+                    s.ConformanceStatus, s.LastAuditDate, s.LoadedAt,
+                    s.MineralType, s.FacilityLocation, s.SourcingCountries))
                 .ToListAsync(ct);
 
             var lastLoadedAt = smelters.Count > 0

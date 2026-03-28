@@ -28,7 +28,7 @@ public static class UploadRmapList
             if (header is null)
                 return Result<Response>.Failure("Empty CSV file");
 
-            // Expect: SmelterId,SmelterName,Country,ConformanceStatus,LastAuditDate
+            // Expect: SmelterId,SmelterName,Country,ConformanceStatus,LastAuditDate,MineralType,FacilityLocation,SourcingCountries
             var imported = 0;
             var updated = 0;
 
@@ -46,6 +46,11 @@ public static class UploadRmapList
                 DateOnly? lastAuditDate = parts.Length > 4 && !string.IsNullOrWhiteSpace(parts[4])
                     ? DateOnly.Parse(parts[4].Trim(), CultureInfo.InvariantCulture)
                     : null;
+                var mineralType = parts.Length > 5 ? parts[5].Trim() : null;
+                var facilityLocation = parts.Length > 6 ? parts[6].Trim() : null;
+                var sourcingCountries = parts.Length > 7 && !string.IsNullOrWhiteSpace(parts[7])
+                    ? parts[7].Trim().Split('|').Select(c => c.Trim()).Where(c => c.Length > 0).ToArray()
+                    : null;
 
                 var existing = await db.RmapSmelters.FirstOrDefaultAsync(s => s.SmelterId == smelterId, ct);
                 if (existing is not null)
@@ -54,6 +59,9 @@ public static class UploadRmapList
                     existing.Country = country;
                     existing.ConformanceStatus = conformanceStatus;
                     existing.LastAuditDate = lastAuditDate;
+                    existing.MineralType = mineralType;
+                    existing.FacilityLocation = facilityLocation;
+                    if (sourcingCountries is not null) existing.SourcingCountries = sourcingCountries;
                     existing.LoadedAt = DateTime.UtcNow;
                     updated++;
                 }
@@ -66,6 +74,9 @@ public static class UploadRmapList
                         Country = country,
                         ConformanceStatus = conformanceStatus,
                         LastAuditDate = lastAuditDate,
+                        MineralType = mineralType,
+                        FacilityLocation = facilityLocation,
+                        SourcingCountries = sourcingCountries,
                         LoadedAt = DateTime.UtcNow,
                     });
                     imported++;

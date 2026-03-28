@@ -8,4 +8,7 @@ public class RmapSmelterEntity
     public required string ConformanceStatus { get; set; }
     public DateOnly? LastAuditDate { get; set; }
     public DateTime LoadedAt { get; set; }
+    public string? MineralType { get; set; }
+    public string? FacilityLocation { get; set; }
+    public string[]? SourcingCountries { get; set; }
 }

@@ -99,6 +99,28 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
                 await db.SaveChangesAsync(stoppingToken);
             }
 
+            // Enrich smelter sourcing data (idempotent)
+            await db.Database.ExecuteSqlRawAsync("""
+                UPDATE rmap_smelters SET "MineralType" = 'Tungsten', "SourcingCountries" = ARRAY['RW','CD','BO','CN','PT','ES']
+                WHERE "SmelterId" = 'CID001100' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Tungsten', "SourcingCountries" = ARRAY['RW','CD','BO','CN','BR']
+                WHERE "SmelterId" = 'CID002158' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Tungsten', "SourcingCountries" = ARRAY['CN','RW','CD','VN','MM']
+                WHERE "SmelterId" = 'CID002082' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Tin', "SourcingCountries" = ARRAY['MY','ID','BO','CD','RW']
+                WHERE "SmelterId" = 'CID001070' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Tin', "SourcingCountries" = ARRAY['ID','MY','BO']
+                WHERE "SmelterId" = 'CID000468' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Tantalum', "SourcingCountries" = ARRAY['AU','CD','RW','ET','BR']
+                WHERE "SmelterId" = 'CID000211' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Tantalum', "SourcingCountries" = ARRAY['US','CD','RW','MZ']
+                WHERE "SmelterId" = 'CID002544' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Gold', "SourcingCountries" = ARRAY['CH','ZA','AU','PE','US']
+                WHERE "SmelterId" = 'CID000058' AND "SourcingCountries" IS NULL;
+                UPDATE rmap_smelters SET "MineralType" = 'Gold', "SourcingCountries" = ARRAY['CH','ZA','AU','CA','US']
+                WHERE "SmelterId" = 'CID000694' AND "SourcingCountries" IS NULL;
+                """, stoppingToken);
+
             // Auto-confirm demo @auditraks.com accounts (emails not deliverable)
             var confirmed = await identityDb.Database.ExecuteSqlRawAsync("""
                 UPDATE identity."AspNetUsers"

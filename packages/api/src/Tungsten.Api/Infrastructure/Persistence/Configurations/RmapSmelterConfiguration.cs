@@ -30,5 +30,14 @@ public class RmapSmelterConfiguration : IEntityTypeConfiguration<RmapSmelterEnti
 
         builder.Property(r => r.LoadedAt)
             .HasDefaultValueSql("now()");
+
+        builder.Property(r => r.MineralType)
+            .HasMaxLength(50);
+
+        builder.Property(r => r.FacilityLocation)
+            .HasMaxLength(300);
+
+        builder.Property(r => r.SourcingCountries)
+            .HasColumnType("text[]");
     }
 }

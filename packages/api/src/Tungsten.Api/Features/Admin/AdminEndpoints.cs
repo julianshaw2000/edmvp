@@ -26,6 +26,15 @@ public static class AdminEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin);
 
+        // Smelter search — available to all authenticated users (for autocomplete)
+        app.MapGet("/api/smelters", async (string? q, string? mineral, int? page, int? pageSize, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SearchSmelters.Query(q, mineral, page ?? 1, pageSize ?? 20), ct);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization();
+
         app.MapGet("/api/admin/jobs", async (IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new ListJobs.Query(), ct);

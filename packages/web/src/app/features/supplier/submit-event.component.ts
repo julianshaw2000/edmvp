@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SupplierFacade } from './supplier.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { API_URL } from '../../core/http/api-url.token';
 
 const EVENT_TYPES = [
   { value: 'MINE_EXTRACTION', label: 'Mine Extraction', step: 1 },
@@ -39,7 +41,7 @@ const METADATA_FIELDS: Record<string, { key: string; label: string; type: string
     { key: 'assayCertificateRef', label: 'Certificate Ref', type: 'text' },
   ],
   PRIMARY_PROCESSING: [
-    { key: 'smelterId', label: 'Smelter ID (RMAP)', type: 'text' },
+    { key: 'smelterId', label: 'Smelter (RMAP)', type: 'smelter-search' },
     { key: 'processType', label: 'Process Type', type: 'text' },
     { key: 'inputWeightKg', label: 'Input Weight (kg)', type: 'number' },
     { key: 'outputWeightKg', label: 'Output Weight (kg)', type: 'number' },
@@ -51,6 +53,15 @@ const METADATA_FIELDS: Record<string, { key: string; label: string; type: string
     { key: 'exportPermitRef', label: 'Export Permit Ref', type: 'text' },
   ],
 };
+
+interface SmelterResult {
+  smelterId: string;
+  smelterName: string;
+  country: string;
+  conformanceStatus: string;
+  mineralType?: string;
+  sourcingCountries?: string[];
+}
 
 @Component({
   selector: 'app-submit-event',
@@ -169,6 +180,38 @@ const METADATA_FIELDS: Record<string, { key: string; label: string; type: string
                 @for (field of currentMetadataFields(); track field.key) {
                   <div>
                     <label class="block text-sm font-medium text-slate-600 mb-1.5">{{ field.label }}</label>
+                    @if (field.type === 'smelter-search') {
+                      <div class="relative">
+                        <input
+                          type="text"
+                          [(ngModel)]="smelterSearchQuery"
+                          (ngModelChange)="onSmelterSearch($event)"
+                          [name]="'meta_' + field.key"
+                          required
+                          placeholder="Search by name or ID..."
+                          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-400 transition-shadow"
+                        />
+                        @if (selectedSmelter()) {
+                          <div class="mt-1 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-700">
+                            {{ selectedSmelter()!.smelterName }} ({{ selectedSmelter()!.smelterId }}) — {{ selectedSmelter()!.conformanceStatus }}
+                          </div>
+                        }
+                        @if (smelterResults().length > 0 && !selectedSmelter()) {
+                          <div class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                            @for (s of smelterResults(); track s.smelterId) {
+                              <button type="button" (click)="selectSmelter(s)"
+                                class="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 border-b border-slate-100 last:border-0">
+                                <span class="font-medium">{{ s.smelterName }}</span>
+                                <span class="text-slate-400 ml-2">{{ s.smelterId }}</span>
+                                <span class="ml-2 text-xs" [class]="s.conformanceStatus === 'CONFORMANT' ? 'text-emerald-600' : s.conformanceStatus === 'ACTIVE_PARTICIPATING' ? 'text-amber-600' : 'text-rose-600'">
+                                  {{ s.conformanceStatus }}
+                                </span>
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    } @else {
                     <input
                       [type]="field.type"
                       [ngModel]="metadata()[field.key]"
@@ -177,6 +220,7 @@ const METADATA_FIELDS: Record<string, { key: string; label: string; type: string
                       required
                       class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-400 transition-shadow"
                     />
+                    }
                   </div>
                 }
               </div>
@@ -212,6 +256,8 @@ export class SubmitEventComponent {
   protected facade = inject(SupplierFacade);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private http = inject(HttpClient);
+  private apiUrl = inject(API_URL);
 
   eventTypes = EVENT_TYPES;
 
@@ -226,6 +272,12 @@ export class SubmitEventComponent {
 
   currentMetadataFields = signal<{ key: string; label: string; type: string }[]>([]);
 
+  // Smelter search
+  smelterSearchQuery = '';
+  smelterResults = signal<SmelterResult[]>([]);
+  selectedSmelter = signal<SmelterResult | null>(null);
+  private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
     const qp = this.route.snapshot.queryParams;
     if (qp['batchId']) {
@@ -237,6 +289,33 @@ export class SubmitEventComponent {
   onEventTypeChange() {
     this.currentMetadataFields.set(METADATA_FIELDS[this.eventType] ?? []);
     this.metadata.set({});
+    this.smelterSearchQuery = '';
+    this.smelterResults.set([]);
+    this.selectedSmelter.set(null);
+  }
+
+  onSmelterSearch(query: string) {
+    this.selectedSmelter.set(null);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    if (query.length < 2) {
+      this.smelterResults.set([]);
+      return;
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.http.get<{ items: SmelterResult[] }>(
+        `${this.apiUrl}/api/smelters?q=${encodeURIComponent(query)}&pageSize=10`
+      ).subscribe({
+        next: (res) => this.smelterResults.set(res.items),
+        error: () => this.smelterResults.set([]),
+      });
+    }, 300);
+  }
+
+  selectSmelter(s: SmelterResult) {
+    this.selectedSmelter.set(s);
+    this.smelterSearchQuery = `${s.smelterName} (${s.smelterId})`;
+    this.smelterResults.set([]);
+    this.setMetadata('smelterId', s.smelterId);
   }
 
   setMetadata(key: string, value: unknown) {
