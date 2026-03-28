@@ -7,18 +7,20 @@ public static class AiEndpoints
 {
     public static IEndpointRouteBuilder MapAiEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/ai")
-            .RequireAuthorization(AuthorizationPolicies.RequireAdmin);
-
-        group.MapPost("/compliance-report", async (GenerateComplianceReport.Command command, IMediator mediator, CancellationToken ct) =>
+        // Chat is available to all authenticated users
+        app.MapPost("/api/ai/chat", async (ChatAssistant.Command command, IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        });
+        }).RequireAuthorization();
 
-        group.MapPost("/chat", async (ChatAssistant.Command command, IMediator mediator, CancellationToken ct) =>
+        // Admin-only AI features
+        var group = app.MapGroup("/api/ai")
+            .RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+
+        group.MapPost("/compliance-report", async (GenerateComplianceReport.Command command, IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
