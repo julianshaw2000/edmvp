@@ -159,8 +159,14 @@ export class ChatWidgetComponent implements AfterViewChecked {
         this.messages.update(msgs => [...msgs, { role: 'assistant', content: res.reply }]);
         this.sending.set(false);
       },
-      error: () => {
-        this.messages.update(msgs => [...msgs, { role: 'assistant', content: 'Sorry, I had trouble connecting. Please try again.' }]);
+      error: (err) => {
+        const status = err?.status ?? 'unknown';
+        const detail = err?.error?.error ?? err?.message ?? 'Connection failed';
+        console.error('[Chat] Error:', status, detail, err);
+        const msg = status === 401
+          ? 'Session expired. Please refresh the page and try again.'
+          : `Sorry, I had trouble connecting (${status}). Please try again.`;
+        this.messages.update(msgs => [...msgs, { role: 'assistant', content: msg }]);
         this.sending.set(false);
       },
     });
