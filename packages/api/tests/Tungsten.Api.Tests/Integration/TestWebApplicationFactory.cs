@@ -38,7 +38,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncL
 
     public new async Task DisposeAsync()
     {
-        await _postgres.DisposeAsync();
         await base.DisposeAsync();
+        await _postgres.DisposeAsync();
     }
 }
