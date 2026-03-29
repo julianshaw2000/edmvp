@@ -91,9 +91,11 @@ public static class SignupEndpoints
             UserManager<AppIdentityUser> userManager,
             IJwtTokenService jwtTokenService,
             AppDbContext db,
+            IEmailService emailService,
+            IConfiguration config,
             HttpContext httpContext,
             CancellationToken ct) =>
-            await SetInitialPassword.Handle(request, userManager, jwtTokenService, db, httpContext, ct));
+            await SetInitialPassword.Handle(request, userManager, jwtTokenService, db, emailService, config, httpContext, ct));
 
         app.MapPost("/api/signup/resend-setup", async (
             ResendSetupEmail.Request request,

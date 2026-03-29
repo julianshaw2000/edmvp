@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Tungsten.Api.Common.Auth;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Identity;
 using Tungsten.Api.Infrastructure.Persistence;
 
@@ -30,6 +31,8 @@ public static class SetInitialPassword
         UserManager<AppIdentityUser> userManager,
         IJwtTokenService jwtTokenService,
         AppDbContext db,
+        IEmailService emailService,
+        IConfiguration config,
         HttpContext httpContext,
         CancellationToken ct)
     {
@@ -54,7 +57,7 @@ public static class SetInitialPassword
         if (string.IsNullOrEmpty(email))
             return TypedResults.Json(new { error = "No email found on session." }, statusCode: 400);
 
-        return await HandleCoreAsync(email, request.Password, db, userManager, jwtTokenService, httpContext, ct);
+        return await HandleCoreAsync(email, request.Password, db, userManager, jwtTokenService, emailService, config, httpContext, ct);
     }
 
     // Extracted for unit testing (bypasses Stripe API call)
@@ -64,6 +67,8 @@ public static class SetInitialPassword
         AppDbContext db,
         UserManager<AppIdentityUser> userManager,
         IJwtTokenService jwtTokenService,
+        IEmailService emailService,
+        IConfiguration config,
         HttpContext httpContext,
         CancellationToken ct)
     {
@@ -108,6 +113,21 @@ public static class SetInitialPassword
             Path = "/api/auth/refresh",
             MaxAge = TimeSpan.FromDays(14),
         });
+
+        // Send account ready confirmation email
+        try
+        {
+            var tenant = await db.Tenants.AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == appUser.TenantId, ct);
+            var baseUrl = config["App:BaseUrl"] ?? config["BaseUrl"] ?? "https://auditraks.com";
+            var (subject, htmlBody, textBody) = EmailTemplates.AccountReady(
+                appUser.DisplayName, tenant?.Name ?? "your organization", $"{baseUrl}/admin");
+            await emailService.SendAsync(email, subject, htmlBody, textBody, ct);
+        }
+        catch
+        {
+            // Non-critical — account is set up even if email fails
+        }
 
         return TypedResults.Ok(new { accessToken });
     }

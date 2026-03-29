@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Tungsten.Api.Common.Auth;
+using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.Signup;
 using Tungsten.Api.Infrastructure.Identity;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -28,10 +30,12 @@ public class SetInitialPasswordTests
         var userManager = CreateUserManager();
         userManager.FindByEmailAsync(Arg.Any<string>()).Returns((AppIdentityUser?)null);
         var jwtService = Substitute.For<IJwtTokenService>();
+        var emailService = Substitute.For<IEmailService>();
+        var config = new ConfigurationBuilder().Build();
         var httpContext = new DefaultHttpContext();
 
         var result = await SetInitialPassword.HandleCoreAsync(
-            "no-one@acme.com", "Password123!", db, userManager, jwtService, httpContext, CancellationToken.None);
+            "no-one@acme.com", "Password123!", db, userManager, jwtService, emailService, config, httpContext, CancellationToken.None);
 
         var statusResult = result as IStatusCodeHttpResult;
         Assert.NotNull(statusResult);
@@ -58,10 +62,12 @@ public class SetInitialPasswordTests
             .Returns(new AppIdentityUser { Email = "jane@acme.com" });
 
         var jwtService = Substitute.For<IJwtTokenService>();
+        var emailService = Substitute.For<IEmailService>();
+        var config = new ConfigurationBuilder().Build();
         var httpContext = new DefaultHttpContext();
 
         var result = await SetInitialPassword.HandleCoreAsync(
-            "jane@acme.com", "Password123!", db, userManager, jwtService, httpContext, CancellationToken.None);
+            "jane@acme.com", "Password123!", db, userManager, jwtService, emailService, config, httpContext, CancellationToken.None);
 
         var statusResult = result as IStatusCodeHttpResult;
         Assert.NotNull(statusResult);
