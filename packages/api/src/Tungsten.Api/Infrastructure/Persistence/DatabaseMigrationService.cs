@@ -131,6 +131,31 @@ public sealed class DatabaseMigrationService(IServiceProvider services, ILogger<
             if (confirmed > 0)
                 logger.LogInformation("Auto-confirmed {Count} demo @auditraks.com accounts", confirmed);
 
+            // Ensure Form SD filing cycle exists for active tenants (idempotent)
+            var activeTenants = await db.Tenants.AsNoTracking()
+                .Where(t => t.Status == "ACTIVE" || t.Status == "TRIAL")
+                .Select(t => t.Id).ToListAsync(stoppingToken);
+            var currentYear = DateTime.UtcNow.Year;
+            foreach (var tid in activeTenants)
+            {
+                if (!await db.FormSdFilingCycles.AnyAsync(
+                    c => c.TenantId == tid && c.ReportingYear == currentYear, stoppingToken))
+                {
+                    db.FormSdFilingCycles.Add(new Entities.FormSdFilingCycleEntity
+                    {
+                        Id = Guid.NewGuid(),
+                        TenantId = tid,
+                        ReportingYear = currentYear,
+                        DueDate = new DateTime(currentYear, 6, 30, 23, 59, 59, DateTimeKind.Utc),
+                        Status = "NOT_STARTED",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                    });
+                    logger.LogInformation("Created Form SD filing cycle {Year} for tenant {TenantId}", currentYear, tid);
+                }
+            }
+            await db.SaveChangesAsync(stoppingToken);
+
             try
             {
                 await SeedData.SeedDemoBatchesIfNeededAsync(db);
