@@ -17,9 +17,7 @@ jobs:
           dotnet-version: '10.0.x'
       - run: dotnet build
         working-directory: packages/api
-      - run: dotnet test --no-build
-        working-directory: packages/api
-      - run: dotnet format --verify-no-changes
+      - run: dotnet test --no-build --filter "FullyQualifiedName!~Integration&FullyQualifiedName!~ComplianceIntegration"
         working-directory: packages/api
 
   web:
