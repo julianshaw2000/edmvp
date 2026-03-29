@@ -8,8 +8,8 @@ import { switchMap, catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import { API_URL } from '../../core/http/api-url.token';
 
-const POLL_INTERVAL_MS = 2000;
-const POLL_TIMEOUT_MS = 30_000;
+const POLL_INTERVAL_MS = 3000;
+const POLL_TIMEOUT_MS = 90_000;
 
 type SetPasswordState = 'provisioning' | 'ready' | 'submitting' | 'timeout' | 'error';
 
@@ -31,14 +31,24 @@ type SetPasswordState = 'provisioning' | 'ready' | 'submitting' | 'timeout' | 'e
             <div class="flex flex-col items-center justify-center py-6 gap-4">
               <div class="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
               <p class="text-sm text-slate-600 text-center">Setting up your account…</p>
+              <p class="text-xs text-slate-400 text-center">This usually takes a few seconds. Please don't close this page.</p>
             </div>
           }
 
           @if (state() === 'timeout') {
-            <div class="text-center py-4">
+            <div class="text-center py-4 space-y-3">
               <p class="text-sm text-rose-700">
-                Something went wrong setting up your account. Please
-                <a href="mailto:support@accutrac.org" class="underline font-medium">contact support</a>.
+                Account setup is taking longer than expected. This can happen if the server is waking up.
+              </p>
+              <button
+                (click)="onRetry()"
+                class="bg-indigo-600 text-white py-2.5 px-6 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all"
+              >
+                Try again
+              </button>
+              <p class="text-xs text-slate-400">
+                If this keeps happening,
+                <a href="mailto:support@auditraks.com" class="underline">contact support</a>.
               </p>
             </div>
           }
@@ -162,6 +172,13 @@ export class SetPasswordComponent {
           this.state.set('timeout');
         }
       });
+  }
+
+  onRetry() {
+    this.state.set('provisioning');
+    this.startTime = Date.now();
+    // Re-trigger polling by reloading the page with the same session
+    window.location.reload();
   }
 
   onSubmit() {
