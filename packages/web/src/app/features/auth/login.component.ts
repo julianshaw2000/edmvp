@@ -3,6 +3,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
+import { API_URL } from '../../core/http/api-url.token';
 
 @Component({
   selector: 'app-login',
@@ -108,6 +109,7 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
+  private apiUrl = inject(API_URL);
 
   email = '';
   password = '';
@@ -158,7 +160,7 @@ export class LoginComponent {
   }
 
   resendSetupEmail() {
-    this.http.post('/api/signup/resend-setup', { email: this.email }).subscribe({
+    this.http.post(`${this.apiUrl}/api/signup/resend-setup`, { email: this.email }).subscribe({
       next: () => this.resendSuccess.set(true),
       error: () => this.resendSuccess.set(true), // always show success (privacy-safe)
     });

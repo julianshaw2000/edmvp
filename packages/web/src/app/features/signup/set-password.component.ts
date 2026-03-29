@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer, EMPTY } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
+import { API_URL } from '../../core/http/api-url.token';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_TIMEOUT_MS = 30_000;
@@ -114,6 +115,7 @@ export class SetPasswordComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
+  private apiUrl = inject(API_URL);
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
 
@@ -144,7 +146,7 @@ export class SetPasswordComponent {
         takeUntilDestroyed(this.destroyRef),
         switchMap(() =>
           this.http
-            .get<{ provisioned: boolean }>('/api/signup/session/' + this.sessionId)
+            .get<{ provisioned: boolean }>(`${this.apiUrl}/api/signup/session/${this.sessionId}`)
             .pipe(catchError(() => {
               if (Date.now() - this.startTime > POLL_TIMEOUT_MS) {
                 this.state.set('timeout');
@@ -179,10 +181,10 @@ export class SetPasswordComponent {
     this.state.set('submitting');
 
     this.http
-      .post<{ accessToken: string }>('/api/signup/set-password', {
+      .post<{ accessToken: string }>(`${this.apiUrl}/api/signup/set-password`, {
         sessionId: this.sessionId,
         password: pwd,
-      })
+      }, { withCredentials: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async res => {
