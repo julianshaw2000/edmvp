@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Identity;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -76,6 +77,29 @@ public static class SignupEndpoints
 
             return Results.Ok();
         }).DisableAntiforgery();
+
+        app.MapGet("/api/signup/session/{sessionId}", async (
+            string sessionId,
+            AppDbContext db,
+            CancellationToken ct) =>
+            await GetSignupSessionStatus.Handle(sessionId, db, ct));
+
+        app.MapPost("/api/signup/set-password", async (
+            SetInitialPassword.Request request,
+            UserManager<AppIdentityUser> userManager,
+            IJwtTokenService jwtTokenService,
+            AppDbContext db,
+            HttpContext httpContext,
+            CancellationToken ct) =>
+            await SetInitialPassword.Handle(request, userManager, jwtTokenService, db, httpContext, ct));
+
+        app.MapPost("/api/signup/resend-setup", async (
+            ResendSetupEmail.Request request,
+            AppDbContext db,
+            IEmailService emailService,
+            IConfiguration config,
+            CancellationToken ct) =>
+            await ResendSetupEmail.Handle(request, db, emailService, config, ct));
 
         return app;
     }
