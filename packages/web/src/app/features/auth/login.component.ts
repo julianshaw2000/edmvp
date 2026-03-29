@@ -1,5 +1,6 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 
@@ -18,6 +19,12 @@ import { AuthService } from '../../core/auth/auth.service';
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
           <h1 class="text-xl font-bold text-slate-900 text-center mb-6">Sign in</h1>
 
+          @if (alreadySetupBanner()) {
+            <div class="mb-5 bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p class="text-sm text-blue-700">Your account is already set up. Please sign in.</p>
+            </div>
+          }
+
           @if (emailConfirmed()) {
             <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
               <p class="text-sm text-emerald-700">Email confirmed! You can now sign in.</p>
@@ -30,6 +37,19 @@ import { AuthService } from '../../core/auth/auth.service';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p class="text-sm text-rose-700">{{ errorMessage() }}</p>
+            </div>
+          }
+
+          @if (incompleteSetup()) {
+            <div class="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-4">
+              @if (resendSuccess()) {
+                <p class="text-sm text-amber-700">Setup email sent. Check your inbox.</p>
+              } @else {
+                <p class="text-sm text-amber-700">
+                  Your account setup is incomplete. Check your email for a setup link, or
+                  <button (click)="resendSetupEmail()" class="underline font-medium">Resend setup email</button>.
+                </p>
+              }
             </div>
           }
 
@@ -87,17 +107,24 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private http = inject(HttpClient);
 
   email = '';
   password = '';
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
   readonly emailConfirmed = signal(false);
+  readonly alreadySetupBanner = signal(false);
+  readonly incompleteSetup = signal(false);
+  readonly resendSuccess = signal(false);
 
   constructor() {
     const params = this.route.snapshot.queryParamMap;
     if (params.get('emailConfirmed') === 'true') {
       this.emailConfirmed.set(true);
+    }
+    if (params.get('hint') === 'already-setup') {
+      this.alreadySetupBanner.set(true);
     }
   }
 
@@ -120,8 +147,20 @@ export class LoginComponent {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set(err?.error?.error || 'Sign in failed. Please try again.');
+        const errorCode = err?.error?.error;
+        if (errorCode === 'ACCOUNT_SETUP_INCOMPLETE') {
+          this.incompleteSetup.set(true);
+        } else {
+          this.errorMessage.set(errorCode || 'Sign in failed. Please try again.');
+        }
       },
+    });
+  }
+
+  resendSetupEmail() {
+    this.http.post('/api/signup/resend-setup', { email: this.email }).subscribe({
+      next: () => this.resendSuccess.set(true),
+      error: () => this.resendSuccess.set(true), // always show success (privacy-safe)
     });
   }
 
