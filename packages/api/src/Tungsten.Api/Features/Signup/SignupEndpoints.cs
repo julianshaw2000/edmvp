@@ -100,8 +100,9 @@ public static class SignupEndpoints
             AppDbContext db,
             IEmailService emailService,
             IConfiguration config,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
-            await ResendSetupEmail.Handle(request, db, emailService, config, ct));
+            await ResendSetupEmail.Handle(request, db, emailService, config, loggerFactory, ct));
 
         return app;
     }

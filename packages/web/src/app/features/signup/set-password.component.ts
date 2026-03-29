@@ -145,7 +145,12 @@ export class SetPasswordComponent {
         switchMap(() =>
           this.http
             .get<{ provisioned: boolean }>('/api/signup/session/' + this.sessionId)
-            .pipe(catchError(() => EMPTY)),
+            .pipe(catchError(() => {
+              if (Date.now() - this.startTime > POLL_TIMEOUT_MS) {
+                this.state.set('timeout');
+              }
+              return EMPTY;
+            })),
         ),
       )
       .subscribe(res => {
@@ -178,6 +183,7 @@ export class SetPasswordComponent {
         sessionId: this.sessionId,
         password: pwd,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async res => {
           this.authService.setAccessToken(res.accessToken);

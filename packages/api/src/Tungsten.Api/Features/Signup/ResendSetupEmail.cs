@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Persistence;
 
@@ -13,6 +14,7 @@ public static class ResendSetupEmail
         AppDbContext db,
         IEmailService emailService,
         IConfiguration config,
+        ILoggerFactory loggerFactory,
         CancellationToken ct)
     {
         var user = await db.Users.AsNoTracking()
@@ -27,8 +29,9 @@ public static class ResendSetupEmail
         var setupUrl = $"{baseUrl}/signup/set-password?session={Uri.EscapeDataString(user.StripeSessionId)}";
         var (subject, htmlBody, textBody) = EmailTemplates.AccountSetup(user.DisplayName, user.Tenant.Name, setupUrl);
 
+        var logger = loggerFactory.CreateLogger(nameof(ResendSetupEmail));
         try { await emailService.SendAsync(user.Email, subject, htmlBody, textBody, ct); }
-        catch { /* swallow — don't leak send failures */ }
+        catch (Exception ex) { logger.LogWarning(ex, "Failed to send setup email to {Email}", request.Email); }
 
         return TypedResults.Ok();
     }

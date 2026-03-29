@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Features.Signup;
@@ -22,7 +23,7 @@ public class ResendSetupEmailTests
         var config = new ConfigurationBuilder().Build();
 
         var request = new ResendSetupEmail.Request("nobody@nowhere.com");
-        var result = await ResendSetupEmail.Handle(request, db, emailService, config, CancellationToken.None);
+        var result = await ResendSetupEmail.Handle(request, db, emailService, config, NullLoggerFactory.Instance, CancellationToken.None);
 
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok>(result);
         await emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
@@ -49,7 +50,7 @@ public class ResendSetupEmailTests
             .Build();
 
         var request = new ResendSetupEmail.Request("jane@acme.com");
-        var result = await ResendSetupEmail.Handle(request, db, emailService, config, CancellationToken.None);
+        var result = await ResendSetupEmail.Handle(request, db, emailService, config, NullLoggerFactory.Instance, CancellationToken.None);
 
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok>(result);
         await emailService.Received(1).SendAsync(
