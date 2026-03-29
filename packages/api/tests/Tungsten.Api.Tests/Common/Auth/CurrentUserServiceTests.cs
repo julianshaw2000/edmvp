@@ -18,7 +18,7 @@ public class CurrentUserServiceTests
             .Options;
         var db = new AppDbContext(options);
 
-        var claims = new[] { new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", auth0Sub) };
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, auth0Sub) };
         var identity = new ClaimsIdentity(claims, "Test");
         var httpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
         var accessor = new HttpContextAccessor { HttpContext = httpContext };
@@ -80,7 +80,7 @@ public class CurrentUserServiceTests
         var oid = Guid.NewGuid().ToString();
         var claims = new[]
         {
-            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", oid),
+            new Claim(ClaimTypes.NameIdentifier, oid),
         };
         var identity = new ClaimsIdentity(claims, "test");
         var principal = new ClaimsPrincipal(identity);
