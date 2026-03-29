@@ -8,11 +8,13 @@ using Tungsten.Api.Infrastructure.Persistence.Entities;
 
 namespace Tungsten.Api.Features.Signup;
 
+#pragma warning disable CS9113 // userManager retained for future use (password reset, etc.)
 public class StripeWebhookHandler(AppDbContext db, UserManager<AppIdentityUser> userManager, ILogger<StripeWebhookHandler> logger, IEmailService emailService, IConfiguration config)
+#pragma warning restore CS9113
 {
     public async Task HandleCheckoutCompleted(
         string customerId, string subscriptionId,
-        string companyName, string adminName, string adminEmail, string plan = "PRO")
+        string companyName, string adminName, string adminEmail, string plan, string sessionId)
     {
         if (await db.Users.AnyAsync(u => u.Email == adminEmail))
         {
@@ -48,45 +50,29 @@ public class StripeWebhookHandler(AppDbContext db, UserManager<AppIdentityUser> 
         var adminUser = new UserEntity
         {
             Id = Guid.NewGuid(),
-            IdentityUserId = $"pending|{Guid.NewGuid()}", // Temporary — updated after Identity user created
+            IdentityUserId = $"pending|{Guid.NewGuid()}",
             Email = adminEmail,
             DisplayName = adminName,
             Role = "TENANT_ADMIN",
             TenantId = tenant.Id,
             IsActive = true,
+            StripeSessionId = sessionId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
 
         db.Tenants.Add(tenant);
         db.Users.Add(adminUser);
-
-        // Create Identity user
-        var identityUser = new AppIdentityUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            AppUserId = adminUser.Id,
-        };
-        var tempPassword = $"Tmp{Guid.NewGuid():N}!1";
-        var createResult = await userManager.CreateAsync(identityUser, tempPassword);
-        if (!createResult.Succeeded)
-        {
-            logger.LogError("Failed to create Identity user for {Email}: {Errors}",
-                adminEmail, string.Join(", ", createResult.Errors.Select(e => e.Description)));
-            return;
-        }
-        adminUser.IdentityUserId = identityUser.Id;
-
         await db.SaveChangesAsync();
 
         logger.LogInformation("Tenant '{Name}' provisioned via Stripe checkout for {Email}", companyName, adminEmail);
 
-        // Send welcome email with link to set password
+        // Send setup email with link to create password
         var baseUrl = config["BaseUrl"] ?? "https://auditraks.com";
-        var (subject, htmlBody, textBody) = EmailTemplates.Welcome(adminName, companyName, $"{baseUrl}/reset-password?email={Uri.EscapeDataString(adminEmail)}");
+        var setupUrl = $"{baseUrl}/signup/set-password?session={Uri.EscapeDataString(sessionId)}";
+        var (subject, htmlBody, textBody) = EmailTemplates.AccountSetup(adminName, companyName, setupUrl);
         try { await emailService.SendAsync(adminEmail, subject, htmlBody, textBody, CancellationToken.None); }
-        catch (Exception ex) { logger.LogWarning(ex, "Failed to send welcome email to {Email}", adminEmail); }
+        catch (Exception ex) { logger.LogWarning(ex, "Failed to send setup email to {Email}", adminEmail); }
     }
 
     public async Task HandleInvoicePaid(string subscriptionId)

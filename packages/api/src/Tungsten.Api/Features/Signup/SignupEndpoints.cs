@@ -48,7 +48,8 @@ public static class SignupEndpoints
                             session.Metadata.GetValueOrDefault("companyName", ""),
                             session.Metadata.GetValueOrDefault("adminName", ""),
                             session.Metadata.GetValueOrDefault("adminEmail", ""),
-                            session.Metadata.GetValueOrDefault("plan", "PRO"));
+                            session.Metadata.GetValueOrDefault("plan", "PRO"),
+                            session.Id);
                     }
                     break;
 

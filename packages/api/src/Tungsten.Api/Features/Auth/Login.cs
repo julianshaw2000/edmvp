@@ -19,6 +19,12 @@ public static class Login
         HttpContext httpContext,
         CancellationToken ct)
     {
+        // Check for incomplete account setup before Identity lookup
+        var pendingUser = await db.Users.AsNoTracking()
+            .AnyAsync(u => u.Email == request.Email && u.IdentityUserId.StartsWith("pending|"), ct);
+        if (pendingUser)
+            return TypedResults.Json(new { error = "ACCOUNT_SETUP_INCOMPLETE" }, statusCode: 400);
+
         var identityUser = await userManager.FindByEmailAsync(request.Email);
         if (identityUser is null)
             return TypedResults.Json(new { error = "Invalid email or password." }, statusCode: 401);

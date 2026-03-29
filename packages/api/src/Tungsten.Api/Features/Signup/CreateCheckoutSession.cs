@@ -59,7 +59,7 @@ public static class CreateCheckoutSession
                         ["plan"] = cmd.Plan,
                     }
                 },
-                SuccessUrl = $"{baseUrl}/signup/success",
+                SuccessUrl = $"{baseUrl}/signup/set-password?session={{CHECKOUT_SESSION_ID}}",
                 CancelUrl = $"{baseUrl}/signup",
                 Metadata = new Dictionary<string, string>
                 {

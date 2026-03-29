@@ -31,7 +31,7 @@ public class StripeWebhookTests
         var db = new AppDbContext(options);
 
         var handler = CreateHandler(db);
-        await handler.HandleCheckoutCompleted("cus_test123", "sub_test123", "Acme Mining", "John Smith", "john@acme.com", "PRO");
+        await handler.HandleCheckoutCompleted("cus_test123", "sub_test123", "Acme Mining", "John Smith", "john@acme.com", "PRO", "cs_test_session_123");
 
         var tenant = await db.Tenants.FirstOrDefaultAsync();
         Assert.NotNull(tenant);
@@ -64,7 +64,7 @@ public class StripeWebhookTests
         await db.SaveChangesAsync();
 
         var handler = CreateHandler(db);
-        await handler.HandleCheckoutCompleted("cus_456", "sub_456", "Acme Mining", "John Smith", "john@acme.com", "PRO");
+        await handler.HandleCheckoutCompleted("cus_456", "sub_456", "Acme Mining", "John Smith", "john@acme.com", "PRO", "cs_test_session_123");
 
         Assert.Equal(1, await db.Tenants.CountAsync());
     }
@@ -128,7 +128,7 @@ public class StripeWebhookTests
         var db = new AppDbContext(options);
 
         var handler = CreateHandler(db);
-        await handler.HandleCheckoutCompleted("cus_s", "sub_s", "Small Co", "Jane", "jane@small.com", "STARTER");
+        await handler.HandleCheckoutCompleted("cus_s", "sub_s", "Small Co", "Jane", "jane@small.com", "STARTER", "cs_test_session_123");
 
         var tenant = await db.Tenants.FirstOrDefaultAsync();
         Assert.NotNull(tenant);
