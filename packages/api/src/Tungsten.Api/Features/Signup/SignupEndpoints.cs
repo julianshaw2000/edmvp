@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
@@ -77,7 +78,7 @@ public static class SignupEndpoints
             }
 
             return Results.Ok();
-        }).DisableAntiforgery();
+        }).DisableAntiforgery().WithMetadata(new RequestSizeLimitAttribute(1_048_576));
 
         app.MapGet("/api/signup/session/{sessionId}", async (
             string sessionId,

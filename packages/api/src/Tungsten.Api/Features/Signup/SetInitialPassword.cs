@@ -58,7 +58,7 @@ public static class SetInitialPassword
     }
 
     // Extracted for unit testing (bypasses Stripe API call)
-    public static async Task<IResult> HandleCoreAsync(
+    internal static async Task<IResult> HandleCoreAsync(
         string email,
         string password,
         AppDbContext db,
