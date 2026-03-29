@@ -35,6 +35,14 @@ public static class PlatformEndpoints
                 : Results.BadRequest(new { error = result.Error });
         });
 
+        group.MapDelete("/{id:guid}", async (Guid id, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteTenant.Command(id), ct);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.NotFound(new { error = result.Error });
+        });
+
         return app;
     }
 }

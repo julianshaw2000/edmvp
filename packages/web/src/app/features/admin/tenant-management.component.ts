@@ -128,17 +128,24 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
                 <td class="px-6 py-4 text-slate-600">{{ tenant.batchCount }}</td>
                 <td class="px-6 py-4 text-slate-500">{{ tenant.createdAt | date:'mediumDate' }}</td>
                 <td class="px-6 py-4">
-                  @if (tenant.status === 'ACTIVE') {
+                  <div class="flex gap-2">
+                    @if (tenant.status === 'ACTIVE') {
+                      <button
+                        (click)="onToggleStatus(tenant)"
+                        class="px-3 py-1.5 text-xs font-semibold text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-all duration-150"
+                      >Suspend</button>
+                    } @else {
+                      <button
+                        (click)="onToggleStatus(tenant)"
+                        class="px-3 py-1.5 text-xs font-semibold text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-all duration-150"
+                      >Reactivate</button>
+                    }
                     <button
-                      (click)="onToggleStatus(tenant)"
-                      class="px-3 py-1.5 text-xs font-semibold text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-all duration-150"
-                    >Suspend</button>
-                  } @else {
-                    <button
-                      (click)="onToggleStatus(tenant)"
-                      class="px-3 py-1.5 text-xs font-semibold text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-all duration-150"
-                    >Reactivate</button>
-                  }
+                      (click)="onDeleteTenant(tenant)"
+                      [disabled]="deleting()"
+                      class="px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-300 rounded-lg hover:bg-rose-100 transition-all duration-150 disabled:opacity-50"
+                    >Delete</button>
+                  </div>
                 </td>
               </tr>
             } @empty {
@@ -157,6 +164,7 @@ export class TenantManagementComponent {
 
   protected showCreateForm = signal(false);
   protected creating = signal(false);
+  protected deleting = signal(false);
   protected createError = signal<string | null>(null);
   protected loadError = signal<string | null>(null);
   protected newName = '';
@@ -215,6 +223,22 @@ export class TenantManagementComponent {
     this.api.updateTenantStatus(tenant.id, newStatus).subscribe({
       next: () => this.reload$.next(),
       error: (err) => alert(err?.error?.title ?? 'Failed to update tenant status.'),
+    });
+  }
+
+  onDeleteTenant(tenant: TenantDto) {
+    if (!confirm(`Permanently delete tenant "${tenant.name}" and all its data? This cannot be undone.`)) return;
+    if (!confirm(`Are you sure? This will remove ${tenant.userCount} user(s), all batches, events, and documents.`)) return;
+    this.deleting.set(true);
+    this.api.deleteTenant(tenant.id).subscribe({
+      next: (res) => {
+        this.deleting.set(false);
+        this.reload$.next();
+      },
+      error: (err) => {
+        this.deleting.set(false);
+        alert(err?.error?.error ?? 'Failed to delete tenant.');
+      },
     });
   }
 }

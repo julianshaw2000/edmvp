@@ -72,6 +72,10 @@ export class AdminApiService {
     return this.http.patch<TenantDto>(`${this.apiUrl}/api/platform/tenants/${id}/status`, { status });
   }
 
+  deleteTenant(id: string): Observable<{ tenantName: string; usersRemoved: number }> {
+    return this.http.delete<{ tenantName: string; usersRemoved: number }>(`${this.apiUrl}/api/platform/tenants/${id}`);
+  }
+
   // Billing
   createBillingPortalSession() {
     return this.http.post<{ portalUrl: string }>(`${this.apiUrl}/api/billing/portal`, {});
