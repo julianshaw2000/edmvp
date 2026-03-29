@@ -22,6 +22,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<WebhookEndpointEntity> WebhookEndpoints => Set<WebhookEndpointEntity>();
     public DbSet<ApiKeyEntity> ApiKeys => Set<ApiKeyEntity>();
     public DbSet<RefreshTokenEntity> RefreshTokens => Set<RefreshTokenEntity>();
+    public DbSet<FormSdAssessmentEntity> FormSdAssessments => Set<FormSdAssessmentEntity>();
+    public DbSet<FormSdFilingCycleEntity> FormSdFilingCycles => Set<FormSdFilingCycleEntity>();
+    public DbSet<FormSdPackageEntity> FormSdPackages => Set<FormSdPackageEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

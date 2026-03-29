@@ -12,8 +12,9 @@ public class GetSignupSessionStatusTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
     [Fact]
-    public async Task Returns_Provisioned_False_WhenUserHasPendingPrefix()
+    public async Task Returns_Provisioned_True_WhenUserExistsWithPendingPrefix()
     {
+        // Provisioned = webhook fired and created user entity (even if still pending password setup)
         var db = CreateDb();
         var tenantId = Guid.NewGuid();
         db.Tenants.Add(new TenantEntity { Id = tenantId, Name = "Acme", SchemaPrefix = "acme", Status = "TRIAL", CreatedAt = DateTime.UtcNow });
@@ -28,6 +29,14 @@ public class GetSignupSessionStatusTests
 
         var result = await GetSignupSessionStatus.CheckProvisionedAsync(db, "jane@acme.com", CancellationToken.None);
 
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task Returns_Provisioned_False_WhenNoUserExists()
+    {
+        var db = CreateDb();
+        var result = await GetSignupSessionStatus.CheckProvisionedAsync(db, "nobody@acme.com", CancellationToken.None);
         Assert.False(result);
     }
 

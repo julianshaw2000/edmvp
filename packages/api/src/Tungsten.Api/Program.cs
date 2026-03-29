@@ -37,6 +37,7 @@ using Tungsten.Api.Features.Webhooks;
 using Tungsten.Api.Features.Analytics;
 using Tungsten.Api.Features.ApiKeys;
 using Tungsten.Api.Features.AI;
+using Tungsten.Api.Features.FormSd;
 using Tungsten.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +58,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Run migrations in background so Kestrel starts accepting requests immediately
 builder.Services.AddHostedService<DatabaseMigrationService>();
+builder.Services.AddHostedService<FormSdFilingCycleService>();
 
 // Identity
 builder.Services.AddDbContext<IdentityDbContext>(options =>
@@ -287,6 +289,7 @@ app.MapWebhookEndpoints();
 app.MapAnalyticsEndpoints();
 app.MapApiKeyEndpoints();
 app.MapAiEndpoints();
+app.MapFormSdEndpoints();
 
 app.Run();
 
