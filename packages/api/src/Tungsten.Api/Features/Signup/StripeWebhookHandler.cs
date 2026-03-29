@@ -8,13 +8,16 @@ using Tungsten.Api.Infrastructure.Persistence.Entities;
 
 namespace Tungsten.Api.Features.Signup;
 
+#pragma warning disable CS9113 // userManager retained for future use (password reset, etc.)
 public class StripeWebhookHandler(AppDbContext db, UserManager<AppIdentityUser> userManager, ILogger<StripeWebhookHandler> logger, IEmailService emailService, IConfiguration config)
+#pragma warning restore CS9113
 {
     public async Task HandleCheckoutCompleted(
         string customerId, string subscriptionId,
-        string companyName, string adminName, string adminEmail, string plan = "PRO")
+        string companyName, string adminName, string adminEmail, string plan, string sessionId,
+        CancellationToken ct = default)
     {
-        if (await db.Users.AnyAsync(u => u.Email == adminEmail))
+        if (await db.Users.AnyAsync(u => u.Email == adminEmail, ct))
         {
             logger.LogWarning("Checkout completed but email {Email} already exists, skipping", adminEmail);
             return;
@@ -23,7 +26,7 @@ public class StripeWebhookHandler(AppDbContext db, UserManager<AppIdentityUser> 
         var basePrefix = GenerateSchemaPrefix(companyName);
         var prefix = basePrefix;
         var suffix = 2;
-        while (await db.Tenants.AnyAsync(t => t.SchemaPrefix == prefix))
+        while (await db.Tenants.AnyAsync(t => t.SchemaPrefix == prefix, ct))
         {
             prefix = $"{basePrefix}_{suffix}";
             suffix++;
@@ -48,50 +51,34 @@ public class StripeWebhookHandler(AppDbContext db, UserManager<AppIdentityUser> 
         var adminUser = new UserEntity
         {
             Id = Guid.NewGuid(),
-            IdentityUserId = $"pending|{Guid.NewGuid()}", // Temporary — updated after Identity user created
+            IdentityUserId = $"pending|{Guid.NewGuid()}",
             Email = adminEmail,
             DisplayName = adminName,
             Role = "TENANT_ADMIN",
             TenantId = tenant.Id,
             IsActive = true,
+            StripeSessionId = sessionId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
 
         db.Tenants.Add(tenant);
         db.Users.Add(adminUser);
-
-        // Create Identity user
-        var identityUser = new AppIdentityUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            AppUserId = adminUser.Id,
-        };
-        var tempPassword = $"Tmp{Guid.NewGuid():N}!1";
-        var createResult = await userManager.CreateAsync(identityUser, tempPassword);
-        if (!createResult.Succeeded)
-        {
-            logger.LogError("Failed to create Identity user for {Email}: {Errors}",
-                adminEmail, string.Join(", ", createResult.Errors.Select(e => e.Description)));
-            return;
-        }
-        adminUser.IdentityUserId = identityUser.Id;
-
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
 
         logger.LogInformation("Tenant '{Name}' provisioned via Stripe checkout for {Email}", companyName, adminEmail);
 
-        // Send welcome email with link to set password
+        // Send setup email with link to create password
         var baseUrl = config["BaseUrl"] ?? "https://auditraks.com";
-        var (subject, htmlBody, textBody) = EmailTemplates.Welcome(adminName, companyName, $"{baseUrl}/reset-password?email={Uri.EscapeDataString(adminEmail)}");
-        try { await emailService.SendAsync(adminEmail, subject, htmlBody, textBody, CancellationToken.None); }
-        catch (Exception ex) { logger.LogWarning(ex, "Failed to send welcome email to {Email}", adminEmail); }
+        var setupUrl = $"{baseUrl}/signup/set-password?session={Uri.EscapeDataString(sessionId)}";
+        var (subject, htmlBody, textBody) = EmailTemplates.AccountSetup(adminName, companyName, setupUrl);
+        try { await emailService.SendAsync(adminEmail, subject, htmlBody, textBody, ct); }
+        catch (Exception ex) { logger.LogWarning(ex, "Failed to send setup email to {Email}", adminEmail); }
     }
 
-    public async Task HandleInvoicePaid(string subscriptionId)
+    public async Task HandleInvoicePaid(string subscriptionId, CancellationToken ct = default)
     {
-        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.StripeSubscriptionId == subscriptionId);
+        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.StripeSubscriptionId == subscriptionId, ct);
         if (tenant is null)
         {
             logger.LogWarning("invoice.paid: no tenant found for subscription {SubscriptionId}", subscriptionId);
@@ -100,42 +87,42 @@ public class StripeWebhookHandler(AppDbContext db, UserManager<AppIdentityUser> 
         if (tenant.Status is "TRIAL" or "SUSPENDED")
         {
             tenant.Status = "ACTIVE";
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync(ct);
             logger.LogInformation("Tenant '{Name}' activated via invoice.paid", tenant.Name);
         }
     }
 
-    public async Task HandlePaymentFailed(string subscriptionId)
+    public async Task HandlePaymentFailed(string subscriptionId, CancellationToken ct = default)
     {
-        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.StripeSubscriptionId == subscriptionId);
+        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.StripeSubscriptionId == subscriptionId, ct);
         if (tenant is null)
         {
             logger.LogWarning("invoice.payment_failed: no tenant found for subscription {SubscriptionId}", subscriptionId);
             return;
         }
         tenant.Status = "SUSPENDED";
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
         logger.LogWarning("Tenant '{Name}' suspended due to payment failure", tenant.Name);
 
-        var admin = await db.Users.FirstOrDefaultAsync(u => u.TenantId == tenant.Id && u.Role == "TENANT_ADMIN");
+        var admin = await db.Users.FirstOrDefaultAsync(u => u.TenantId == tenant.Id && u.Role == "TENANT_ADMIN", ct);
         if (admin is not null)
         {
             var (subject, htmlBody, textBody) = EmailTemplates.PaymentFailed(admin.DisplayName, tenant.Name);
-            try { await emailService.SendAsync(admin.Email, subject, htmlBody, textBody, CancellationToken.None); }
+            try { await emailService.SendAsync(admin.Email, subject, htmlBody, textBody, ct); }
             catch (Exception ex) { logger.LogWarning(ex, "Failed to send payment failed email"); }
         }
     }
 
-    public async Task HandleSubscriptionDeleted(string subscriptionId)
+    public async Task HandleSubscriptionDeleted(string subscriptionId, CancellationToken ct = default)
     {
-        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.StripeSubscriptionId == subscriptionId);
+        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.StripeSubscriptionId == subscriptionId, ct);
         if (tenant is null)
         {
             logger.LogWarning("customer.subscription.deleted: no tenant found for subscription {SubscriptionId}", subscriptionId);
             return;
         }
         tenant.Status = "CANCELLED";
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
         logger.LogWarning("Tenant '{Name}' cancelled via subscription deletion", tenant.Name);
     }
 

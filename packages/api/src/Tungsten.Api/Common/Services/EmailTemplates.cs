@@ -2,9 +2,9 @@ namespace Tungsten.Api.Common.Services;
 
 public static class EmailTemplates
 {
-    public static (string subject, string htmlBody, string textBody) Welcome(string adminName, string companyName, string loginUrl)
+    public static (string subject, string htmlBody, string textBody) AccountSetup(string adminName, string companyName, string setupUrl)
     {
-        var subject = $"Welcome to auditraks, {adminName}!";
+        var subject = $"Complete your auditraks account setup";
         var htmlBody = $"""
             <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
                 <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 8px;">Welcome to auditraks</h1>
@@ -16,10 +16,10 @@ public static class EmailTemplates
                     You have a <strong>60-day free trial</strong> to explore the platform.
                 </p>
                 <p style="color: #334155; font-size: 16px; line-height: 1.6;">
-                    Sign in with Google to get started:
+                    Set up your password to get started:
                 </p>
-                <a href="{loginUrl}" style="display: inline-block; background: #4f46e5; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 16px 0;">
-                    Sign In to auditraks
+                <a href="{setupUrl}" style="display: inline-block; background: #4f46e5; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 16px 0;">
+                    Set up your password
                 </a>
                 <p style="color: #64748b; font-size: 14px; margin-top: 32px;">
                     As your organization's admin, you can invite team members from the Admin Dashboard.
@@ -30,7 +30,7 @@ public static class EmailTemplates
                 </p>
             </div>
             """;
-        var textBody = $"Welcome to auditraks, {adminName}!\n\nYour organization {companyName} has been set up on auditraks. You have a 60-day free trial to explore the platform.\n\nSign in to get started: {loginUrl}\n\nAs your organization's admin, you can invite team members from the Admin Dashboard.\n\n© 2026 auditraks.";
+        var textBody = $"Welcome to auditraks, {adminName}!\n\nYour organization {companyName} has been set up on auditraks. You have a 60-day free trial to explore the platform.\n\nSet up your password to get started: {setupUrl}\n\nAs your organization's admin, you can invite team members from the Admin Dashboard.\n\n© 2026 auditraks.";
         return (subject, htmlBody, textBody);
     }
 

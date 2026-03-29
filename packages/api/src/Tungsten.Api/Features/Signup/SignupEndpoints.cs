@@ -1,5 +1,7 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Tungsten.Api.Common.Auth;
 using Tungsten.Api.Common.Services;
 using Tungsten.Api.Infrastructure.Identity;
 using Tungsten.Api.Infrastructure.Persistence;
@@ -18,10 +20,10 @@ public static class SignupEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }); // Rate limiting temporarily disabled for testing
 
-        app.MapPost("/api/stripe/webhook", async (HttpContext httpContext, AppDbContext db, UserManager<AppIdentityUser> userManager, IConfiguration config, ILogger<StripeWebhookHandler> logger, IEmailService emailService) =>
+        app.MapPost("/api/stripe/webhook", async (HttpContext httpContext, AppDbContext db, UserManager<AppIdentityUser> userManager, IConfiguration config, ILogger<StripeWebhookHandler> logger, IEmailService emailService, CancellationToken ct) =>
         {
             var json = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
-            var webhookSecret = config["Stripe:WebhookSecret"];
+            var webhookSecret = config["Stripe:WebhookSecret"] ?? throw new InvalidOperationException("Stripe:WebhookSecret is not configured");
 
             Stripe.Event stripeEvent;
             try
@@ -48,7 +50,9 @@ public static class SignupEndpoints
                             session.Metadata.GetValueOrDefault("companyName", ""),
                             session.Metadata.GetValueOrDefault("adminName", ""),
                             session.Metadata.GetValueOrDefault("adminEmail", ""),
-                            session.Metadata.GetValueOrDefault("plan", "PRO"));
+                            session.Metadata.GetValueOrDefault("plan", "PRO"),
+                            session.Id,
+                            ct);
                     }
                     break;
 
@@ -56,25 +60,49 @@ public static class SignupEndpoints
                     var paidInvoice = stripeEvent.Data.Object as Stripe.Invoice;
                     var paidSubId = paidInvoice?.Parent?.SubscriptionDetails?.SubscriptionId;
                     if (paidSubId != null)
-                        await handler.HandleInvoicePaid(paidSubId);
+                        await handler.HandleInvoicePaid(paidSubId, ct);
                     break;
 
                 case Stripe.EventTypes.InvoicePaymentFailed:
                     var failedInvoice = stripeEvent.Data.Object as Stripe.Invoice;
                     var failedSubId = failedInvoice?.Parent?.SubscriptionDetails?.SubscriptionId;
                     if (failedSubId != null)
-                        await handler.HandlePaymentFailed(failedSubId);
+                        await handler.HandlePaymentFailed(failedSubId, ct);
                     break;
 
                 case Stripe.EventTypes.CustomerSubscriptionDeleted:
                     var subscription = stripeEvent.Data.Object as Stripe.Subscription;
                     if (subscription?.Id != null)
-                        await handler.HandleSubscriptionDeleted(subscription.Id);
+                        await handler.HandleSubscriptionDeleted(subscription.Id, ct);
                     break;
             }
 
             return Results.Ok();
-        }).DisableAntiforgery();
+        }).DisableAntiforgery().WithMetadata(new RequestSizeLimitAttribute(1_048_576));
+
+        app.MapGet("/api/signup/session/{sessionId}", async (
+            string sessionId,
+            AppDbContext db,
+            CancellationToken ct) =>
+            await GetSignupSessionStatus.Handle(sessionId, db, ct));
+
+        app.MapPost("/api/signup/set-password", async (
+            SetInitialPassword.Request request,
+            UserManager<AppIdentityUser> userManager,
+            IJwtTokenService jwtTokenService,
+            AppDbContext db,
+            HttpContext httpContext,
+            CancellationToken ct) =>
+            await SetInitialPassword.Handle(request, userManager, jwtTokenService, db, httpContext, ct));
+
+        app.MapPost("/api/signup/resend-setup", async (
+            ResendSetupEmail.Request request,
+            AppDbContext db,
+            IEmailService emailService,
+            IConfiguration config,
+            ILoggerFactory loggerFactory,
+            CancellationToken ct) =>
+            await ResendSetupEmail.Handle(request, db, emailService, config, loggerFactory, ct));
 
         return app;
     }

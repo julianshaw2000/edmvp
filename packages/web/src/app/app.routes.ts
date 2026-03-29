@@ -64,12 +64,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/shared/shared-document.component').then(m => m.SharedDocumentComponent),
   },
   {
-    path: 'signup',
-    loadComponent: () => import('./features/signup/signup.component').then(m => m.SignupComponent),
+    path: 'signup/set-password',
+    loadComponent: () => import('./features/signup/set-password.component').then(m => m.SetPasswordComponent),
   },
   {
-    path: 'signup/success',
-    loadComponent: () => import('./features/signup/signup-success.component').then(m => m.SignupSuccessComponent),
+    path: 'signup',
+    loadComponent: () => import('./features/signup/signup.component').then(m => m.SignupComponent),
   },
   { path: '**', loadComponent: () => import('./features/not-found.component').then(m => m.NotFoundComponent) },
 ];

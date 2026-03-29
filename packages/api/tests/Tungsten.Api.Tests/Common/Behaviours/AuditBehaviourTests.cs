@@ -60,7 +60,7 @@ public class AuditBehaviourTests
         db.Users.Add(new UserEntity { Id = userId, IdentityUserId = auth0Sub, Email = "t@t.com", DisplayName = "T", Role = "SUPPLIER", TenantId = tenantId, IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow });
         db.SaveChanges();
 
-        var claims = new[] { new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", auth0Sub) };
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, auth0Sub) };
         var identity = new ClaimsIdentity(claims, "Test");
         var httpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
         httpContext.Connection.RemoteIpAddress = System.Net.IPAddress.Loopback;

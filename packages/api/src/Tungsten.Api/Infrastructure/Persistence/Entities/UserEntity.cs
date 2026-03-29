@@ -11,5 +11,6 @@ public class UserEntity
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public string? StripeSessionId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;
 }
