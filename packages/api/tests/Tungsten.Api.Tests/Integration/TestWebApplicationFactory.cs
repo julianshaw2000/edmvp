@@ -31,8 +31,12 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncL
     {
         await _postgres.StartAsync();
 
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        // Use a standalone DbContext to avoid disposing the root ILoggerFactory
+        // (ScopedLoggerFactory(dispose:true) in scoped DbContextOptions would do so)
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseNpgsql(_postgres.GetConnectionString())
+            .Options;
+        await using var db = new AppDbContext(options);
         await db.Database.MigrateAsync();
     }
 
