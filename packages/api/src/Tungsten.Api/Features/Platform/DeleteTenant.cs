@@ -48,6 +48,11 @@ public static class DeleteTenant
                 }
             }
 
+            // Delete refresh tokens for tenant users
+            var userIds = users.Select(u => u.IdentityUserId).ToList();
+            if (userIds.Count > 0)
+                await db.RefreshTokens.Where(r => userIds.Contains(r.IdentityUserId)).ExecuteDeleteAsync(ct);
+
             // Delete all tenant data in order (respecting FK constraints)
             await db.Notifications.Where(n => n.TenantId == cmd.TenantId).ExecuteDeleteAsync(ct);
             await db.AuditLogs.Where(a => a.TenantId == cmd.TenantId).ExecuteDeleteAsync(ct);
@@ -60,9 +65,7 @@ public static class DeleteTenant
             await db.Jobs.Where(j => j.TenantId == cmd.TenantId).ExecuteDeleteAsync(ct);
             await db.Batches.Where(b => b.TenantId == cmd.TenantId).ExecuteDeleteAsync(ct);
             await db.Users.Where(u => u.TenantId == cmd.TenantId).ExecuteDeleteAsync(ct);
-            db.Tenants.Remove(tenant);
-
-            await db.SaveChangesAsync(ct);
+            await db.Tenants.Where(t => t.Id == cmd.TenantId).ExecuteDeleteAsync(ct);
 
             return Result<Response>.Success(new Response(tenant.Name, users.Count));
         }
