@@ -38,9 +38,9 @@ public static class GetSignupSessionStatus
     // Extracted for unit testing (bypasses Stripe API call)
     public static async Task<bool> CheckProvisionedAsync(AppDbContext db, string email, CancellationToken ct)
     {
-        var user = await db.Users.AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Email == email, ct);
-        if (user is null) return false;
-        return !user.IdentityUserId.StartsWith("pending|");
+        // Provisioned = UserEntity exists (webhook fired and created tenant + user).
+        // The user still has pending| prefix — that's expected until they set a password.
+        return await db.Users.AsNoTracking()
+            .AnyAsync(u => u.Email == email, ct);
     }
 }

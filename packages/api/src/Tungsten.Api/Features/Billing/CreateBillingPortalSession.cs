@@ -24,7 +24,7 @@ public static class CreateBillingPortalSession
             if (tenant?.StripeCustomerId is null)
                 return Result<Response>.Failure("No billing account found for this organization");
 
-            var baseUrl = config["BaseUrl"] ?? "https://accutrac-web.onrender.com";
+            var baseUrl = config["BaseUrl"] ?? "https://auditraks.com";
 
             var options = new SessionCreateOptions
             {

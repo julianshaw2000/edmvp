@@ -70,7 +70,7 @@ public static class CreateUser
             db.Users.Add(newUser);
             await db.SaveChangesAsync(ct);
 
-            var loginUrl = configuration["App:BaseUrl"] ?? "https://accutrac-web.onrender.com";
+            var loginUrl = configuration["App:BaseUrl"] ?? "https://auditraks.com";
             await emailService.SendAsync(
                 cmd.Email,
                 "You've been invited to auditraks",

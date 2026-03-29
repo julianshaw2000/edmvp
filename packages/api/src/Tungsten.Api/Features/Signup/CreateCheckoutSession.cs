@@ -34,7 +34,7 @@ public static class CreateCheckoutSession
                 return Result<Response>.Failure($"Email '{cmd.Email}' is already in use");
 
             var priceId = PlanConfiguration.GetPriceId(cmd.Plan, config);
-            var baseUrl = config["App:BaseUrl"] ?? config["BaseUrl"] ?? "https://accutrac-web.onrender.com";
+            var baseUrl = config["App:BaseUrl"] ?? config["BaseUrl"] ?? "https://auditraks.com";
 
             var options = new SessionCreateOptions
             {
