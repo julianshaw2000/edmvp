@@ -121,6 +121,41 @@ public class StripeWebhookTests
     }
 
     [Fact]
+    public async Task HandleCheckoutCompleted_StoresStripeSessionId()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var db = new AppDbContext(options);
+
+        var handler = CreateHandler(db);
+        await handler.HandleCheckoutCompleted("cus_123", "sub_123", "Acme Mining", "John Smith", "john@acme.com", "PRO", "cs_test_abc123");
+
+        var user = await db.Users.FirstOrDefaultAsync();
+        Assert.NotNull(user);
+        Assert.Equal("cs_test_abc123", user.StripeSessionId);
+    }
+
+    [Fact]
+    public async Task HandleCheckoutCompleted_DoesNotCreateIdentityUser()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var db = new AppDbContext(options);
+
+        var userManager = Substitute.For<UserManager<AppIdentityUser>>(
+            Substitute.For<IUserStore<AppIdentityUser>>(), null!, null!, null!, null!, null!, null!, null!, null!);
+
+        var handler = new StripeWebhookHandler(db, userManager,
+            Substitute.For<ILogger<StripeWebhookHandler>>(),
+            Substitute.For<IEmailService>(),
+            new ConfigurationBuilder().Build());
+
+        await handler.HandleCheckoutCompleted("cus_123", "sub_123", "Acme Mining", "John Smith", "john@acme.com", "PRO", "cs_test_abc");
+
+        await userManager.DidNotReceive().CreateAsync(Arg.Any<AppIdentityUser>(), Arg.Any<string>());
+    }
+
+    [Fact]
     public async Task HandleCheckoutCompleted_StarterPlan_SetsLimits()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
