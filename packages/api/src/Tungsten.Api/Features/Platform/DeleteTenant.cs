@@ -34,6 +34,9 @@ public static class DeleteTenant
                 .Where(u => u.TenantId == cmd.TenantId)
                 .ToListAsync(ct);
 
+            if (users.Count > 1)
+                return Result<Response>.Failure($"Cannot delete tenant with {users.Count} users. Remove other users first.");
+
             // Delete Identity accounts for each user
             foreach (var user in users)
             {
