@@ -19,10 +19,10 @@ public static class SignupEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }); // Rate limiting temporarily disabled for testing
 
-        app.MapPost("/api/stripe/webhook", async (HttpContext httpContext, AppDbContext db, UserManager<AppIdentityUser> userManager, IConfiguration config, ILogger<StripeWebhookHandler> logger, IEmailService emailService) =>
+        app.MapPost("/api/stripe/webhook", async (HttpContext httpContext, AppDbContext db, UserManager<AppIdentityUser> userManager, IConfiguration config, ILogger<StripeWebhookHandler> logger, IEmailService emailService, CancellationToken ct) =>
         {
             var json = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
-            var webhookSecret = config["Stripe:WebhookSecret"];
+            var webhookSecret = config["Stripe:WebhookSecret"] ?? throw new InvalidOperationException("Stripe:WebhookSecret is not configured");
 
             Stripe.Event stripeEvent;
             try
@@ -50,7 +50,8 @@ public static class SignupEndpoints
                             session.Metadata.GetValueOrDefault("adminName", ""),
                             session.Metadata.GetValueOrDefault("adminEmail", ""),
                             session.Metadata.GetValueOrDefault("plan", "PRO"),
-                            session.Id);
+                            session.Id,
+                            ct);
                     }
                     break;
 
@@ -58,20 +59,20 @@ public static class SignupEndpoints
                     var paidInvoice = stripeEvent.Data.Object as Stripe.Invoice;
                     var paidSubId = paidInvoice?.Parent?.SubscriptionDetails?.SubscriptionId;
                     if (paidSubId != null)
-                        await handler.HandleInvoicePaid(paidSubId);
+                        await handler.HandleInvoicePaid(paidSubId, ct);
                     break;
 
                 case Stripe.EventTypes.InvoicePaymentFailed:
                     var failedInvoice = stripeEvent.Data.Object as Stripe.Invoice;
                     var failedSubId = failedInvoice?.Parent?.SubscriptionDetails?.SubscriptionId;
                     if (failedSubId != null)
-                        await handler.HandlePaymentFailed(failedSubId);
+                        await handler.HandlePaymentFailed(failedSubId, ct);
                     break;
 
                 case Stripe.EventTypes.CustomerSubscriptionDeleted:
                     var subscription = stripeEvent.Data.Object as Stripe.Subscription;
                     if (subscription?.Id != null)
-                        await handler.HandleSubscriptionDeleted(subscription.Id);
+                        await handler.HandleSubscriptionDeleted(subscription.Id, ct);
                     break;
             }
 

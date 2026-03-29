@@ -92,6 +92,7 @@ public static class SetInitialPassword
                 statusCode: 400);
 
         appUser.IdentityUserId = identityUser.Id;
+        appUser.StripeSessionId = null;
         appUser.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync(ct);
 
