@@ -52,7 +52,7 @@ public static class FormSdEndpoints
             return result.IsSuccess
                 ? Results.Created($"/api/form-sd/packages/{result.Value.Id}", result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
+        }).RequireAuthorization();
 
         return app;
     }
