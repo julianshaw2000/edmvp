@@ -11,6 +11,8 @@ public sealed class ResendEmailService(
     {
         var fromEmail = configuration["Resend:FromEmail"] ?? "noreply@auditraks.com";
 
+        var replyTo = configuration["Resend:ReplyToEmail"] ?? "support@auditraks.com";
+
         var message = new EmailMessage
         {
             From = fromEmail,
@@ -19,6 +21,7 @@ public sealed class ResendEmailService(
             TextBody = textBody,
         };
         message.To.Add(to);
+        message.ReplyToList.Add(replyTo);
 
         await resend.EmailSendAsync(message, ct);
 
