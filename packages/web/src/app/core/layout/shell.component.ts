@@ -13,14 +13,14 @@ import { ChatWidgetComponent } from '../../shared/ui/chat-widget.component';
       <!-- Mobile overlay -->
       @if (sidebarOpen()) {
         <div
-          class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+          class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
           (click)="sidebarOpen.set(false)"
         ></div>
       }
 
       <!-- Sidebar -->
       <div
-        class="fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out lg:transform-none"
+        class="fixed md:static inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out md:transform-none"
         [class.-translate-x-full]="!sidebarOpen()"
         [class.translate-x-0]="sidebarOpen()"
       >
@@ -32,7 +32,7 @@ import { ChatWidgetComponent } from '../../shared/ui/chat-widget.component';
         <!-- Mobile menu button -->
         <button
           (click)="sidebarOpen.set(true)"
-          class="lg:hidden fixed bottom-5 left-5 z-30 bg-indigo-600 text-white p-3.5 rounded-full shadow-lg shadow-indigo-600/30 hover:bg-indigo-700 transition-all duration-150"
+          class="md:hidden fixed bottom-5 left-5 z-30 bg-indigo-600 text-white p-3.5 rounded-full shadow-lg shadow-indigo-600/30 hover:bg-indigo-700 transition-all duration-150"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
