@@ -9,7 +9,7 @@ import { ChatWidgetComponent } from '../../shared/ui/chat-widget.component';
   standalone: true,
   imports: [RouterOutlet, SidebarComponent, TopbarComponent, ChatWidgetComponent],
   template: `
-    <div class="flex min-h-screen bg-slate-50">
+    <div class="min-h-screen bg-slate-50">
       <!-- Mobile overlay -->
       @if (sidebarOpen()) {
         <div
@@ -18,16 +18,18 @@ import { ChatWidgetComponent } from '../../shared/ui/chat-widget.component';
         ></div>
       }
 
-      <!-- Sidebar -->
+      <!-- Sidebar (fixed on all screens, overlays on mobile, persistent on lg+) -->
       <div
-        class="fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out lg:transform-none"
+        class="fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out"
         [class.-translate-x-full]="!sidebarOpen()"
         [class.translate-x-0]="sidebarOpen()"
+        [class.lg:translate-x-0]="true"
       >
         <app-sidebar />
       </div>
 
-      <div class="flex-1 flex flex-col min-w-0">
+      <!-- Content area — offset by sidebar width on lg+ -->
+      <div class="flex flex-col min-h-screen lg:ml-64">
         <app-topbar />
         <!-- Mobile menu button -->
         <button
