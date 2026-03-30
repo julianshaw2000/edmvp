@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SupplierFacade } from './supplier.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { API_URL } from '../../core/http/api-url.token';
+import { BatchResponse } from '../../shared/models/batch.models';
 
 const EVENT_TYPES = [
   { value: 'MINE_EXTRACTION', label: 'Mine Extraction', step: 1 },
@@ -109,17 +110,51 @@ interface SmelterResult {
 
       <form (ngSubmit)="onSubmit()" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6 sm:p-8 space-y-6">
-          <!-- Batch ID -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Batch ID</label>
+          <!-- Batch ID (typeahead) -->
+          <div class="relative">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Batch</label>
             <input
               type="text"
-              [(ngModel)]="batchId"
+              [(ngModel)]="batchSearchQuery"
+              (ngModelChange)="onBatchSearch($event)"
+              (focus)="batchDropdownOpen.set(true)"
               name="batchId"
               required
-              class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-400 transition-shadow"
-              placeholder="Batch UUID"
+              [class]="'w-full px-4 py-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-400 transition-shadow ' + (selectedBatch() ? 'border-emerald-300 bg-emerald-50/30' : 'border-slate-300')"
+              placeholder="Search by batch number, mineral, or country..."
+              autocomplete="off"
             />
+            @if (selectedBatch(); as batch) {
+              <div class="mt-1.5 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-700 flex items-center justify-between">
+                <span>{{ batch.batchNumber }} — {{ batch.mineralType }} · {{ batch.originCountry }} · {{ batch.weightKg }}kg</span>
+                <button type="button" (click)="clearBatchSelection()" class="text-emerald-500 hover:text-emerald-700 ml-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            }
+            @if (batchDropdownOpen() && filteredBatches().length > 0 && !selectedBatch()) {
+              <div class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                @for (b of filteredBatches(); track b.id) {
+                  <button type="button" (click)="selectBatch(b)"
+                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 border-b border-slate-100 last:border-0">
+                    <span class="font-medium text-slate-900">{{ b.batchNumber }}</span>
+                    <span class="text-slate-400 ml-2">{{ b.mineralType }}</span>
+                    <span class="text-slate-400 ml-1">· {{ b.originCountry }}</span>
+                    <span class="text-slate-400 ml-1">· {{ b.weightKg }}kg</span>
+                    <span class="ml-2 text-xs" [class]="b.complianceStatus === 'COMPLIANT' ? 'text-emerald-600' : b.complianceStatus === 'FLAGGED' ? 'text-amber-600' : 'text-slate-400'">
+                      {{ b.complianceStatus }}
+                    </span>
+                  </button>
+                }
+              </div>
+            }
+            @if (batchDropdownOpen() && filteredBatches().length === 0 && batchSearchQuery.length > 0 && !selectedBatch()) {
+              <div class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm text-slate-500">
+                No matching batches found
+              </div>
+            }
           </div>
 
           <!-- Event Type -->
@@ -252,7 +287,7 @@ interface SmelterResult {
     </div>
   `,
 })
-export class SubmitEventComponent {
+export class SubmitEventComponent implements OnInit {
   protected facade = inject(SupplierFacade);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -272,6 +307,22 @@ export class SubmitEventComponent {
 
   currentMetadataFields = signal<{ key: string; label: string; type: string }[]>([]);
 
+  // Batch typeahead
+  batchSearchQuery = '';
+  private allBatches = signal<BatchResponse[]>([]);
+  selectedBatch = signal<BatchResponse | null>(null);
+  batchDropdownOpen = signal(false);
+  filteredBatches = computed(() => {
+    const q = this.batchSearchQuery.toLowerCase().trim();
+    if (!q) return this.allBatches();
+    return this.allBatches().filter(b =>
+      b.batchNumber.toLowerCase().includes(q) ||
+      b.mineralType.toLowerCase().includes(q) ||
+      b.originCountry.toLowerCase().includes(q) ||
+      b.id.toLowerCase().includes(q)
+    );
+  });
+
   // Smelter search
   smelterSearchQuery = '';
   smelterResults = signal<SmelterResult[]>([]);
@@ -284,6 +335,41 @@ export class SubmitEventComponent {
       this.batchId = qp['batchId'];
       this.backBatchId = qp['batchId'];
     }
+  }
+
+  private batchSyncEffect = effect(() => {
+    const batches = this.facade.batches();
+    this.allBatches.set(batches as unknown as BatchResponse[]);
+    if (this.batchId && !this.selectedBatch()) {
+      const match = batches.find(b => b.id === this.batchId);
+      if (match) {
+        this.selectedBatch.set(match as unknown as BatchResponse);
+        this.batchSearchQuery = match.batchNumber;
+      }
+    }
+  });
+
+  ngOnInit() {
+    this.facade.loadBatches();
+  }
+
+  onBatchSearch(_query: string) {
+    this.selectedBatch.set(null);
+    this.batchDropdownOpen.set(true);
+  }
+
+  selectBatch(batch: BatchResponse) {
+    this.selectedBatch.set(batch);
+    this.batchId = batch.id;
+    this.batchSearchQuery = batch.batchNumber;
+    this.batchDropdownOpen.set(false);
+  }
+
+  clearBatchSelection() {
+    this.selectedBatch.set(null);
+    this.batchId = '';
+    this.batchSearchQuery = '';
+    this.batchDropdownOpen.set(true);
   }
 
   onEventTypeChange() {
