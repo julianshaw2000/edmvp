@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BuyerFacade } from './buyer.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
@@ -8,12 +8,31 @@ import { BatchTableComponent } from './ui/batch-table.component';
 @Component({
   selector: 'app-buyer-dashboard',
   standalone: true,
-  imports: [PageHeaderComponent, LoadingSpinnerComponent, BatchTableComponent],
+  imports: [RouterLink, PageHeaderComponent, LoadingSpinnerComponent, BatchTableComponent],
   template: `
     <app-page-header
       title="Buyer Dashboard"
       subtitle="All batches across the supply chain"
     />
+
+    <!-- Quick Actions -->
+    <div class="mb-6">
+      <a routerLink="/buyer/form-sd"
+        class="inline-flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-5 py-3 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all group">
+        <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-900">Form SD Compliance</p>
+          <p class="text-xs text-slate-500">Dodd-Frank §1502 filing & support packages</p>
+        </div>
+        <svg class="w-4 h-4 text-slate-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
 
     <!-- Compliance Overview -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
