@@ -31,6 +31,7 @@ else
 builder.Services.AddHostedService<JobProcessorService>();
 builder.Services.AddHostedService<EmailRetryService>();
 builder.Services.AddHostedService<EscalationService>();
+builder.Services.AddHostedService<SupplierReminderService>();
 
 var host = builder.Build();
 host.Run();
