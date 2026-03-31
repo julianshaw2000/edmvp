@@ -73,6 +73,23 @@ Demonstrates the compliance flagging system:
 - Manage tenants across the platform
 - View platform-wide analytics
 
+#### Supplier Onboarding Checklist
+
+- Log in as a new supplier (or clear localStorage to reset)
+- The "Getting Started" checklist appears at the top of the supplier dashboard
+- Steps track: create batch, submit event, review compliance
+- Progress bar fills as steps are completed
+- Dismiss with the X button
+
+#### Buyer Engagement & CMRT Import
+
+- Log in as Klaus Steinberger (Buyer)
+- Supplier Engagement panel shows on the dashboard with Total/Active/Stale/Flagged metrics
+- Expand to see supplier list with status badges
+- Use the "Remind" button to send a nudge email to a stale supplier
+- Navigate to CMRT Import in the sidebar
+- Upload a CMRT v6.x .xlsx file to see the preview/confirm flow
+
 ## Reference Data (Pre-Seeded)
 
 ### RMAP Smelters (10)

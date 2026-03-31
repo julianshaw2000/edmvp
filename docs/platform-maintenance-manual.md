@@ -34,7 +34,7 @@ Check that all three services show a green "Live" status:
 
 - `accutrac-api` — Web Service (ASP.NET Core API)
 - `accutrac-web` — Static Site (Angular SPA)
-- Background Worker — compliance checks and email retry
+- Background Worker — compliance checks, email retry, and SupplierReminderService
 
 If any service shows "Failed" or "Crashed", check its log output immediately. The most common causes are a failed startup (EF migration error or missing env var) or a Neon cold-start timeout.
 
@@ -104,6 +104,21 @@ Check the Emails tab for delivery failures. The three email types the platform s
 | Payment failed | `invoice.payment_failed` webhook from Stripe |
 
 A healthy delivery dashboard shows no bounces and a delivery rate near 100%.
+
+### Supplier Reminder Worker
+
+The `SupplierReminderService` runs daily as a background worker in the Render worker service. It performs two checks:
+
+1. **Inactivity reminders** — finds batches with no custody events in 30+ days (excluding COMPLIANT batches) and sends a reminder email to the supplier. Each batch is only reminded once per 30-day period via the `LastReminderSentAt` column.
+
+2. **Stale warnings** — finds suppliers with no activity in 60+ days and creates in-app notifications for tenant admins, alerting them that a supplier is going stale. Deduplicates via existing notification checks.
+
+**Monitoring:** Check the worker logs in Render for `SupplierReminderService` entries. Errors are logged at Warning level for individual batch failures and Error level for service-wide failures.
+
+**Troubleshooting:** If reminders are not being sent, verify:
+- The worker service is running on Render
+- The Resend API key is configured in the worker environment
+- The `LastReminderSentAt` column is not stuck (check via database query)
 
 **Common email issues:**
 

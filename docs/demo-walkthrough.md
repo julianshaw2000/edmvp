@@ -68,6 +68,22 @@
 
 ---
 
+### Act 6: Buyer Engagement Tools (2 min)
+
+> Switch to the **buyer browser window** (Klaus Steinberger)
+
+1. On the Buyer Dashboard, scroll to the **Supplier Engagement** panel
+2. Point out the metric cards: Total suppliers, Active, Stale, Flagged
+3. Click **View suppliers** to expand the supplier list
+4. Show the status badges and the **Remind** button on stale/flagged suppliers
+5. Navigate to **CMRT Import** in the sidebar
+6. Show the upload dropzone and explain the two-step flow: "Upload a CMRT spreadsheet, preview matched smelters against our RMAP database, then confirm to import"
+7. Show the import history section
+
+**Key message:** "Unlike competitors that only show batch compliance, auditraks gives buyers visibility into supplier engagement health and lets them proactively nudge inactive suppliers."
+
+---
+
 ## Key Talking Points
 
 - **Problem:** Manual spreadsheets, email chains, weeks of auditing for mineral compliance
