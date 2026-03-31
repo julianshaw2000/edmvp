@@ -18,6 +18,14 @@ public static class BuyerEndpoints
                 : Results.BadRequest(new { error = result.Error });
         });
 
+        group.MapPost("/nudge-supplier", async (NudgeSupplier.Command command, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new { message = "Reminder sent" })
+                : Results.BadRequest(new { error = result.Error });
+        });
+
         return app;
     }
 }
