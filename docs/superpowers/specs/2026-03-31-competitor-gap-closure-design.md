@@ -15,9 +15,9 @@ This spec defines the design for closing 5 competitive workflow gaps between Aud
 | Phase | Gap | Effort | Backend Changes | Why This Order |
 |-------|-----|--------|-----------------|----------------|
 | A | GAP-5: Supplier Onboarding Checklist | Low | None | Quick win, immediate UX improvement |
-| A | GAP-2: Material Passport Sharing UI | Low-Med | 1 endpoint + 1 email template | Backend exists, needs frontend + email send |
+| A | GAP-2: Material Passport Sharing UI | Low-Med | 1 endpoint + 1 email template + auth policy change | Backend exists, needs frontend + auth fix + email send |
 | B | GAP-3: Supplier Engagement Metrics | Medium | 1 endpoint (derived query) | Buyer intelligence, prerequisite for GAP-4 |
-| C | GAP-4: Automated Supplier Reminders | Medium | Worker service + 1 endpoint + 1 column + 2 templates | Requires GAP-3 data to be meaningful |
+| C | GAP-4: Automated Supplier Reminders | Medium | Worker service + 1 endpoint + 2 columns + 2 templates | Nudge button UI depends on GAP-3 engagement panel; automated reminders are independent |
 | D | GAP-1: CMRT v6.x Import | High | Parser service + endpoint + entity + buyer UI page | Heaviest lift, deferred but critical for adoption |
 
 ---
@@ -30,14 +30,14 @@ This spec defines the design for closing 5 competitive workflow gaps between Aud
 
 **Solution:** A dismissable checklist card at the top of the supplier dashboard guiding suppliers through 3 first actions.
 
-**Checklist steps:**
+**Checklist steps** (reduced from the 5 in the competitor analysis to 3 actionable steps that match existing UI routes; company profile and document upload are deferred):
 1. **Create your first batch** — links to `/supplier/batches/new`. Complete when `batches().length > 0`.
 2. **Submit a custody event** — links to `/supplier/submit`. Complete when any batch has `eventCount > 0`.
 3. **Review compliance status** — links to first batch detail. Complete when supplier clicks through.
 
 **Implementation:**
 - New `SupplierOnboardingComponent` rendered at top of `supplier-dashboard.component.ts`
-- Progress derived reactively from `SupplierFacade.batches()` signal — no API calls needed
+- Progress derived reactively from `BatchFacade.batches()` signal (use `BatchFacade` directly, not the deprecated `SupplierFacade`) — no API calls needed
 - Step 3 tracked via localStorage key `auditraks_supplier_viewed_compliance`
 - Entire checklist dismissable via localStorage key `auditraks_supplier_onboarding_dismissed`
 - Shows on every login until dismissed or all 3 steps complete
@@ -57,33 +57,37 @@ This spec defines the design for closing 5 competitive workflow gaps between Aud
 
 **Solution:** A prominent "Material Passport" card on the supplier batch detail page when a batch is COMPLIANT, with download, copy-link, and email-to-customer actions.
 
+**Authorization fix required:** The existing passport generation (`POST /api/batches/{id}/passport`) and share (`POST /api/generated-documents/{id}/share`) endpoints are gated with `RequireBuyer` policy in `DocumentGenerationEndpoints.cs`. These must be updated to allow suppliers (e.g., new `RequireSupplierOrBuyer` policy) so suppliers can generate and share their own passports.
+
 **Supplier batch detail UI (when complianceStatus === 'COMPLIANT'):**
 - Card with headline: "Your Material Passport is ready — share with your customers"
 - **Download PDF** button — calls existing `POST /api/batches/{id}/passport`
-- **Copy Share Link** button — calls existing `POST /api/documents/{id}/share`, copies URL to clipboard, shows "Copied!" toast
+- **Copy Share Link** button — calls existing `POST /api/generated-documents/{id}/share`, copies URL to clipboard, shows "Copied!" toast
 - **Email to Customer** button — expands inline form with:
   - Recipient email (required)
   - Optional message text
   - Send button → calls new endpoint
+  - Sender context (display name, company) pulled from `ICurrentUserService` and tenant entity
 
 **Supplier dashboard enhancement:**
 - Batches with COMPLIANT status show a small document icon badge in the batch table, indicating a passport is available
 
-**New API endpoint:** `POST /api/documents/{id}/share-email`
+**New API endpoint:** `POST /api/generated-documents/{id}/share-email`
 - Request: `{ recipientEmail: string, message?: string }`
 - Validates document belongs to user's tenant
 - Calls `ShareDocument` to get/create the share token if one doesn't exist
-- Sends branded email via `IEmailService` with share link and optional message
+- Sends branded email via `IEmailService` with share link, sender name/company, and optional message
 - Returns `{ success: true, shareUrl: string }`
 
 **New email template** in `EmailTemplates.cs`: `PassportShared`
 - Subject: "Material Passport shared with you — {batchNumber}"
-- Body: Branded email with passport link, batch summary, optional sender message
+- Body: Branded email with passport link, batch summary, sender name/company, optional sender message
 - Footer: "This link expires in 30 days"
 
 **Backend changes:**
 - New: `Features/DocumentGeneration/ShareDocumentEmail.cs` (MediatR handler)
 - Modified: `Common/Services/EmailTemplates.cs` (add PassportShared template)
+- Modified: `Features/DocumentGeneration/DocumentGenerationEndpoints.cs` (change auth policy on passport + share endpoints to allow suppliers)
 
 **Frontend changes:**
 - New: `packages/web/src/app/features/supplier/ui/passport-share-card.component.ts`
@@ -126,6 +130,8 @@ Response shape:
 - `stale` — has batches but no events in 90+ days
 - `flagged` — at least one batch with complianceStatus FLAGGED
 - `new` — has user account but no batches yet
+
+**Tenant model assumption:** Suppliers invited by a buyer are created within the buyer's tenant. The query filters by the requesting user's `tenantId`, so it only returns suppliers within the same tenant. This matches the existing multi-tenant model where all users in a tenant share the same `tenantId`.
 
 **Query:** Joins `Users` (role=SUPPLIER, tenantId=buyer's tenant) → `Batches` (createdBy) → `CustodyEvents` (latest eventDate). No new tables — pure derived aggregation.
 
@@ -186,7 +192,8 @@ Response shape:
 
 ### Database changes
 
-- New column: `BatchEntity.LastReminderSentAt` (nullable DateTime)
+- New column: `BatchEntity.LastReminderSentAt` (nullable DateTime) — for automated reminder dedup
+- New column: `UserEntity.LastNudgedAt` (nullable DateTime) — for manual nudge rate limiting (one per supplier per 7 days)
 - Migration required
 
 ### New email templates (2)
@@ -232,7 +239,7 @@ From **Declaration tab:**
 From **Smelter List tab:**
 - Smelter name, smelter ID (RMAP ID if available), metal type
 - Smelter country, sourcing status
-- Matched against existing `SmelterEntity` records by ID or name+country
+- Matched against existing `RmapSmelterEntity` records by `SmelterId` (RMAP CID) as primary key, with `SmelterName + Country` as fallback
 
 From **Product List tab:**
 - 3TG presence declarations per product
@@ -261,7 +268,8 @@ From **Product List tab:**
 - New: `Features/Buyer/ImportCmrt.cs` (MediatR handler, two-phase: preview + confirm)
 - New: `Common/Services/CmrtParserService.cs` (ClosedXML-based parser)
 - New: `Infrastructure/Persistence/Entities/CmrtImportEntity.cs` — tracks import history (filename, importDate, rowsParsed, rowsMatched, errors, importedBy)
-- New migration for `CmrtImports` table
+- New: `Infrastructure/Persistence/Entities/TenantSmelterAssociationEntity.cs` — links `TenantId` to `RmapSmelterId` with source (e.g., "CMRT_IMPORT"), importId reference, and status (verified/unverified)
+- New migration for `CmrtImports` and `TenantSmelterAssociations` tables
 - NuGet: `ClosedXML` package
 
 ### Buyer portal UI
@@ -290,6 +298,7 @@ Per the competitor analysis document:
 - No AI-driven CMRT analysis (deterministic rule evaluation only)
 - No multilingual UI (US-only pilot market)
 - No configurable reminder thresholds (fixed rules for pilot)
+- No certificate expiry reminders (competitor doc mentions this but expiry tracking is not in the current data model; deferred)
 - No CMRT v5.x support (v6.x only)
 
 ---
@@ -302,3 +311,5 @@ Per the competitor analysis document:
 - Background jobs via existing worker infrastructure (`BackgroundService`)
 - Excel parsing via ClosedXML (new dependency, Phase D only)
 - No new external services required
+- All new handlers must pass `CancellationToken` through to `IEmailService.SendAsync` and all EF Core queries, per project convention
+- New components should use `computed()` for derived state, not plain methods
