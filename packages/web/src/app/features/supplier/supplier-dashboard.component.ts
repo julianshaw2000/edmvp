@@ -5,11 +5,12 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { BatchCardComponent } from './ui/batch-card.component';
+import { SupplierOnboardingComponent } from './ui/supplier-onboarding.component';
 
 @Component({
   selector: 'app-supplier-dashboard',
   standalone: true,
-  imports: [PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent, BatchCardComponent],
+  imports: [PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent, BatchCardComponent, SupplierOnboardingComponent],
   template: `
     <app-page-header
       title="Supplier Dashboard"
@@ -17,6 +18,8 @@ import { BatchCardComponent } from './ui/batch-card.component';
       actionLabel="New Batch"
       (actionClicked)="onNewBatch()"
     />
+
+    <app-supplier-onboarding />
 
     <!-- Stat Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
