@@ -13,7 +13,7 @@
 
 ## 1. Supplier Onboarding Checklist (GAP-5)
 
-**Login as:** A supplier account (e.g., Maria Uwimana — `maria@pilottenant.com`)
+**Login as:** `supplier@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
@@ -65,7 +65,7 @@
 
 ## 2. Material Passport Sharing — Supplier Side (GAP-2)
 
-**Login as:** A supplier with a COMPLIANT batch (or use the platform admin to mark a batch compliant)
+**Login as:** `supplier@auditraks.com` / `Demo1234!` (batch W-2026-041 is COMPLIANT)
 
 ### Test Steps
 
@@ -112,7 +112,7 @@
 
 ## 3. Supplier Engagement Metrics — Buyer Dashboard (GAP-3)
 
-**Login as:** A buyer account (e.g., Klaus Steinberger — `klaus@pilottenant.com`)
+**Login as:** `buyer@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
@@ -143,7 +143,7 @@
 
 ## 4. Manual Supplier Nudge (GAP-4)
 
-**Login as:** A buyer account
+**Login as:** `buyer@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
@@ -205,7 +205,7 @@
 
 ## 6. CMRT v6.x Import (GAP-1)
 
-**Login as:** A buyer account
+**Login as:** `buyer@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
@@ -257,7 +257,7 @@
 
 ## 7. TENANT_ADMIN Sidebar Fix
 
-**Login as:** A tenant admin account
+**Login as:** `admin@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
@@ -272,7 +272,7 @@
 
 ## 8. Batch ID Typeahead (Submit Event)
 
-**Login as:** A supplier account
+**Login as:** `supplier@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
@@ -302,7 +302,7 @@
 
 ## 9. Country Typeahead (Create Batch)
 
-**Login as:** A supplier account
+**Login as:** `supplier@auditraks.com` / `Demo1234!`
 
 ### Test Steps
 
