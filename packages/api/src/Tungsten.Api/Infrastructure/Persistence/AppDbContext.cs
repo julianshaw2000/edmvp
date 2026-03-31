@@ -25,6 +25,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<FormSdAssessmentEntity> FormSdAssessments => Set<FormSdAssessmentEntity>();
     public DbSet<FormSdFilingCycleEntity> FormSdFilingCycles => Set<FormSdFilingCycleEntity>();
     public DbSet<FormSdPackageEntity> FormSdPackages => Set<FormSdPackageEntity>();
+    public DbSet<CmrtImportEntity> CmrtImports => Set<CmrtImportEntity>();
+    public DbSet<TenantSmelterAssociationEntity> TenantSmelterAssociations => Set<TenantSmelterAssociationEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
