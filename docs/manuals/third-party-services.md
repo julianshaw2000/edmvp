@@ -14,7 +14,7 @@ Every external service the auditraks platform depends on is listed below. Servic
 |---|---|---|---|---|
 | 1 | Render | Hosting (API, frontend, worker) | [render.com](https://render.com) | Critical |
 | 2 | Neon | Managed PostgreSQL database | [console.neon.tech](https://console.neon.tech) | Critical |
-| 3 | Auth0 | Authentication & JWT issuance | [manage.auth0.com](https://manage.auth0.com) | Critical |
+| 3 | ASP.NET Core Identity | Authentication & JWT issuance (self-hosted) | N/A (built-in) | Critical |
 | 4 | Stripe | Subscription billing | [dashboard.stripe.com](https://dashboard.stripe.com) | Critical |
 | 5 | Cloudflare | DNS + R2 object storage | [dash.cloudflare.com](https://dash.cloudflare.com) | Critical |
 | 6 | Resend | Transactional email delivery | [resend.com/emails](https://resend.com/emails) | Important |
@@ -71,7 +71,7 @@ Deploy hook URLs are stored as GitHub Actions secrets (`RENDER_API_DEPLOY_HOOK`,
 
 All secrets are injected as environment variables on the Render service — nothing is committed to source. Full variable reference is in `docs/admin-system-manual.md` § 2. Key groups:
 
-- `Auth0__Domain`, `Auth0__Audience`
+- `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
 - `ConnectionStrings__DefaultConnection`
 - `R2__AccountId`, `R2__AccessKeyId`, `R2__SecretAccessKey`, `R2__BucketName`
 - `Stripe__SecretKey`, `Stripe__WebhookSecret`, `Stripe__PriceId`, `Stripe__StarterPriceId`
@@ -132,63 +132,47 @@ EF Core migrations live in `packages/api/src/Tungsten.Api/Infrastructure/Persist
 
 ---
 
-## 3. Auth0 (Authentication)
+## 3. ASP.NET Core Identity (Authentication)
 
-**Dashboard:** https://manage.auth0.com
+**Dashboard:** N/A (self-hosted, no external dashboard)
 **Criticality:** Critical
 
 ### What it does
 
-Auth0 issues RS256-signed JWT access tokens. The API validates the JWT on every request (issuer + audience + lifetime). User roles and tenant membership are resolved from the auditraks database, never from JWT claims alone.
+Authentication is handled by ASP.NET Core Identity, running within the API itself. The API issues self-signed JWT access tokens (15-minute expiry) and HttpOnly refresh token cookies (14-day expiry). No external authentication provider is required.
 
-### Tenant and Application
+### Authentication Flow
 
-| Setting | Value |
-|---|---|
-| Tenant | `dev-htzakhlu.us.auth0.com` |
-| Application name | Tungsten Web (SPA) |
-| Client ID | `4tuGZeyEKnK3VzI9fJNb8qFqBrhQIQZ6` |
-| API name | auditraks API |
-| API audience | `https://api.accutrac.org` |
-| Signing algorithm | RS256 |
+1. User signs in via `POST /api/auth/login` with email and password
+2. API validates credentials against the Identity database
+3. API issues a JWT access token and sets an HttpOnly refresh token cookie
+4. Frontend includes the JWT in the `Authorization: Bearer` header on every request
+5. When the JWT expires, the frontend calls `POST /api/auth/refresh` to get a new one
+6. User roles and tenant membership are resolved from the auditraks database via the `/api/me` endpoint, not from JWT claims alone
 
-Full credentials are in `docs/auth0.secrets`.
+### Sign-In Methods
 
-### SPA Application Settings
-
-| Setting | Value |
-|---|---|
-| Allowed Callback URLs | `https://auditraks.com, http://localhost:4200` |
-| Allowed Logout URLs | `https://auditraks.com, http://localhost:4200` |
-| Allowed Web Origins | `https://auditraks.com, http://localhost:4200` |
-| ID Token Expiration | `28800` (8 hours) |
-| Refresh Token grant | **Disabled** |
-
-### Connections
-
-- **Username-Password-Authentication** — email and password sign-up/sign-in
-- **Google OAuth2** (`google-oauth2`) — social login via Google
-
-### Post Login Action
-
-A Post Login Action must be deployed to the Login flow. It adds `email` and `name` as both standard claims and namespaced custom claims (`https://auditraks.com/email`, `https://auditraks.com/name`) to the ID token and access token. Without this Action, `/api/me` cannot resolve the user's email from the JWT, and login will fail.
-
-The Action code is documented in `docs/admin-system-manual.md` § 4.
+- **Email and password** — managed by ASP.NET Core Identity
+- **Password reset** — via email link sent through Resend
 
 ### Token Configuration
 
-- No refresh tokens (grant type disabled)
-- 8-hour ID token expiry (28800 seconds)
-- RS256 signing — the API fetches the public key from the Auth0 JWKS endpoint automatically
+| Setting | Value |
+|---|---|
+| Access token expiry | 15 minutes |
+| Refresh token expiry | 14 days |
+| Signing | Self-issued symmetric key (`Jwt__Key` environment variable) |
+| Algorithm | HS256 |
 
 ### API Environment Variables
 
-| Variable | Value |
+| Variable | Description |
 |---|---|
-| `Auth0__Domain` | `dev-htzakhlu.us.auth0.com` |
-| `Auth0__Audience` | `https://api.accutrac.org` |
+| `Jwt__Key` | Symmetric signing key for JWT tokens. Must be at least 32 characters. |
+| `Jwt__Issuer` | Token issuer (e.g., `https://accutrac-api.onrender.com`) |
+| `Jwt__Audience` | Token audience (e.g., `https://auditraks.com`) |
 
-**Warning:** If `Auth0__Domain` is absent, the API starts in dev mode with no token validation. Never deploy to production without this variable set.
+**Warning:** If `Jwt__Key` is not set, the API will fail to start. Use a strong, random key of at least 256 bits (32+ characters).
 
 ---
 
@@ -372,7 +356,7 @@ Sentry is integrated via `builder.WebHost.UseSentry()` in `Program.cs`. It is on
 | Setting | Value |
 |---|---|
 | Traces sample rate | `0.2` (20% of requests) |
-| User context | Auth0 `sub` identifier only — no email or name (no PII) |
+| User context | Identity user ID only — no email or name (no PII) |
 
 ### API Environment Variable
 
@@ -425,23 +409,19 @@ Set these in **GitHub > Repository > Settings > Secrets and variables > Actions*
 ```
 Browser
   │
-  ├── Auth0 (JWT issuance, Google OAuth, user sign-in)
-  │
   ├── Cloudflare DNS
   │         │
   │         ▼
   │   Render Static Site (Angular SPA)
-  │         │
-  │         └── Auth0 SDK (token validation client-side)
   │
   └── Cloudflare DNS
             │
             ▼
       Render Web Service (ASP.NET Core API)
             │
-            ├── Neon PostgreSQL (all application data)
+            ├── ASP.NET Core Identity (authentication, JWT issuance)
             │
-            ├── Auth0 (JWT validation — JWKS endpoint)
+            ├── Neon PostgreSQL (all application data + identity tables)
             │
             ├── Cloudflare R2 (document storage)
             │
@@ -463,7 +443,6 @@ All credential files are in `docs/` and are gitignored. Do not commit them.
 
 | File | Service | Contents |
 |---|---|---|
-| `docs/auth0.secrets` | Auth0 | Domain, Client ID, Audience |
 | `docs/neon.secrets` | Neon | PostgreSQL connection string |
 | `docs/cloudfare.secrets` | Cloudflare R2 | Bucket endpoint URL (includes Account ID) |
 | `docs/stripe.secrets` | Stripe | Publishable key, secret key, restricted key, product/price IDs, webhook ID and secret |
@@ -473,8 +452,9 @@ All credential files are in `docs/` and are gitignored. Do not commit them.
 
 | Render Variable | Source Secret | Service |
 |---|---|---|
-| `Auth0__Domain` | `docs/auth0.secrets` → Domain | Auth0 |
-| `Auth0__Audience` | `docs/auth0.secrets` → Audience | Auth0 |
+| `Jwt__Key` | Random 256-bit signing key | Identity |
+| `Jwt__Issuer` | API base URL | Identity |
+| `Jwt__Audience` | Frontend URL | Identity |
 | `ConnectionStrings__DefaultConnection` | `docs/neon.secrets` | Neon |
 | `R2__AccountId` | `docs/cloudfare.secrets` (from URL) | Cloudflare R2 |
 | `R2__AccessKeyId` | Cloudflare dashboard — R2 API token | Cloudflare R2 |
@@ -501,7 +481,7 @@ Estimated monthly costs at different scales. All figures are approximate and in 
 | Render API | Free (spins down) | $0 |
 | Render Static Site | Free | $0 |
 | Neon | Free tier (0.5 GB, scale-to-zero) | $0 |
-| Auth0 | Free tier (7,500 MAU) | $0 |
+| ASP.NET Core Identity | Built-in (no external cost) | $0 |
 | Stripe | No monthly fee; 2.9% + 30¢ per transaction | $0 + transaction fees |
 | Cloudflare R2 | Free tier (10 GB storage, 1M requests) | $0 |
 | Resend | Free tier (3,000 emails/month) | $0 |
@@ -517,7 +497,7 @@ Estimated monthly costs at different scales. All figures are approximate and in 
 | Render Background Worker | Starter instance | ~$7 |
 | Render Static Site | Free | $0 |
 | Neon | Launch plan (~$19/month, 10 GB) | ~$19 |
-| Auth0 | Free tier likely sufficient at low MAU | $0–23 |
+| ASP.NET Core Identity | Built-in (no external cost) | $0 |
 | Stripe | 2.9% + 30¢ on ~$1,490–3,490/month revenue | ~$50–110 |
 | Cloudflare R2 | Free tier sufficient at low document volume | $0 |
 | Resend | Pro plan ($20/month, 50,000 emails) | ~$20 |
@@ -532,7 +512,7 @@ Estimated monthly costs at different scales. All figures are approximate and in 
 | Render Background Worker | Standard instance | ~$25 |
 | Render Static Site | Free | $0 |
 | Neon | Scale plan (~$69/month, autoscale) | ~$69 |
-| Auth0 | Essential plan ($240/month for 1,000 MAU) | ~$240 |
+| ASP.NET Core Identity | Built-in (no external cost) | $0 |
 | Stripe | 2.9% + 30¢ on ~$15K–35K/month revenue | ~$450–1,050 |
 | Cloudflare R2 | ~$0.015/GB stored + $0.36/million requests | ~$5–15 |
 | Resend | Business plan (~$89/month, 250,000 emails) | ~$89 |
@@ -549,7 +529,7 @@ Notes on migration difficulty if a service needs to be replaced.
 |---|---|---|
 | **Render** | Low | A `Dockerfile` exists. Any Docker-capable host (Railway, Fly.io, AWS ECS, Azure App Service) works without code changes. |
 | **Neon** | Low | Standard PostgreSQL. Any hosted PostgreSQL (Supabase, RDS, Azure Database) works with a connection string change. EF Core migrations are provider-agnostic. |
-| **Auth0** | Medium | The platform uses standard OIDC / JWT bearer — any OIDC provider (Clerk, Supabase Auth, Azure AD B2C, Keycloak) can replace Auth0. The Post Login Action logic (injecting custom claims) must be reproduced in the new provider. |
+| **ASP.NET Core Identity** | N/A | Authentication is self-hosted within the API. No external provider to replace. To migrate to an external provider (Auth0, Clerk, Azure AD B2C), implement a new authentication middleware and migrate user credentials from the Identity tables. |
 | **Stripe** | High | Stripe is deeply integrated: checkout sessions, webhook event processing, Customer Portal, subscription lifecycle (TRIAL → ACTIVE → SUSPENDED → CANCELLED), and `StripeCustomerId` stored on `TenantEntity`. Replacing Stripe requires rewriting the `Billing` and `Webhooks` feature modules and re-provisioning all active subscriptions. |
 | **Cloudflare R2** | Low | R2 is S3-compatible. The `R2FileStorageService` uses the AWS SDK. Any S3-compatible store (AWS S3, MinIO, Backblaze B2) works with environment variable changes only. |
 | **Resend** | Low | The `IEmailService` interface abstracts all email sending. Replacing Resend requires implementing `IEmailService` for the new provider (SendGrid, Postmark, AWS SES) and registering the new implementation in `Program.cs`. No other code changes required. |
