@@ -146,6 +146,16 @@ The Supplier Dashboard shows all batches associated with your organization. Each
 
 Use the search bar to find a batch by number, and use the filter controls to narrow by compliance status.
 
+### Getting Started Checklist
+
+When you first log in as a supplier, a **Getting Started** checklist appears at the top of your dashboard. It guides you through your first actions on the platform:
+
+1. **Create your first batch** — register a mineral batch
+2. **Submit a custody event** — record the first event in the batch lifecycle
+3. **Review compliance status** — view your batch's compliance results
+
+Each step is marked complete as you perform it. A progress bar shows your overall progress. You can dismiss the checklist at any time by clicking the X button — it will not reappear once dismissed.
+
 ### Creating a Batch
 
 A batch represents a discrete, trackable quantity of mineral material.
@@ -159,7 +169,7 @@ A batch represents a discrete, trackable quantity of mineral material.
 |---|---|
 | **Batch Number** | A unique identifier. Example: `W-2026-050`. Must be unique on the platform. |
 | **Mineral Type** | Select from the supported minerals (see list below). |
-| **Origin Country** | Two- or three-letter ISO country code. Example: `RW` for Rwanda. |
+| **Origin Country** | Start typing a country name or ISO code to search. Select from the dropdown. Example: Rwanda (RW). |
 | **Mine Site** | Name of the extraction site or mine. |
 | **Initial Weight (kg)** | Weight of material at creation. |
 
@@ -341,6 +351,18 @@ Open the batch detail and click **Mark Active** or **Mark Completed**. Status tr
 
 Compliance status is recalculated automatically after each event submission.
 
+### Material Passport Sharing (Suppliers)
+
+When a batch reaches **COMPLIANT** status, a "Material Passport Ready" card appears on the batch detail page. This is your key deliverable — a marketable asset you can share with your customers to demonstrate responsible sourcing.
+
+**Available actions:**
+
+- **Download PDF** — generates and downloads the Material Passport as a PDF document
+- **Copy Link** — creates a 30-day shareable URL and copies it to your clipboard
+- **Email to Customer** — opens an inline form where you enter a recipient email and optional message. The platform sends a branded email with the passport link on your behalf from `support@auditraks.com`
+
+> The Material Passport is only available for COMPLIANT batches. Resolve any compliance flags first.
+
 ---
 
 ## 4. Buyer Portal
@@ -436,6 +458,42 @@ The link resolves to `/shared/{token}` and can be opened in any browser. After 3
 ### Viewing the Activity Feed
 
 Just as in the Supplier Portal, each batch detail page in the Buyer Portal includes an activity feed showing a chronological log of all actions taken on the batch.
+
+### Supplier Engagement
+
+The **Supplier Engagement** panel appears on the Buyer Dashboard between the compliance overview and the batch table. It shows how actively your suppliers are participating:
+
+**Metric cards:**
+- **Total** — all suppliers in your organization
+- **Active** (green) — suppliers with at least one custody event in the last 90 days
+- **Stale** (amber) — suppliers with batches but no events in 90+ days
+- **Flagged** (red) — suppliers with at least one flagged batch
+
+Click **View suppliers** to expand the full supplier list, showing each supplier's name, last activity date, batch count, flagged batch count, and status badge.
+
+**Sending reminders:**
+
+For stale or flagged suppliers, a **Remind** button appears in the Action column. Clicking it sends a branded email to the supplier requesting an update on their supply chain data and creates an in-app notification. Reminders are rate-limited to one per supplier per 7 days.
+
+### CMRT Import
+
+The **CMRT Import** page is accessible from the buyer sidebar at `/buyer/cmrt-import`. It allows you to import smelter data from a Conflict Minerals Reporting Template (CMRT v6.x format).
+
+**How to import a CMRT file:**
+
+1. Navigate to **CMRT Import** in the sidebar.
+2. Drag and drop a `.xlsx` file onto the upload area, or click to browse.
+3. The platform parses the file and displays a **preview**:
+   - **Declaration summary** — company name, reporting year, scope
+   - **Match statistics** — total smelters, matched (found in RMAP database), unmatched
+   - **Smelter table** — each row shows metal type, smelter name, ID, country, and match status (green = matched with conformance status, amber = unmatched)
+   - **Parsing errors** — any rows that could not be read
+4. Review the preview. Click **Confirm Import** to create the smelter associations, or **Cancel** to discard.
+5. On confirmation, matched smelters are saved as "verified" associations and unmatched smelters with IDs are saved as "unverified" for later resolution.
+
+**Import history** appears below the upload area, showing past imports with file name, company, match/unmatch counts, and date.
+
+> Only `.xlsx` files are supported. The parser reads the CMRT v6.x template format (Declaration, Smelter List, and Product List tabs).
 
 ---
 
