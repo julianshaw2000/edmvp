@@ -4,11 +4,12 @@ import { BuyerFacade } from './buyer.facade';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.component';
 import { BatchTableComponent } from './ui/batch-table.component';
+import { SupplierEngagementPanelComponent } from './ui/supplier-engagement-panel.component';
 
 @Component({
   selector: 'app-buyer-dashboard',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, LoadingSpinnerComponent, BatchTableComponent],
+  imports: [RouterLink, PageHeaderComponent, LoadingSpinnerComponent, BatchTableComponent, SupplierEngagementPanelComponent],
   template: `
     <app-page-header
       title="Buyer Dashboard"
@@ -108,6 +109,9 @@ import { BatchTableComponent } from './ui/batch-table.component';
       </div>
     </div>
 
+    <!-- Supplier Engagement -->
+    <app-supplier-engagement-panel [engagement]="facade.engagement()" />
+
     @if (facade.batchesLoading()) {
       <app-loading-spinner />
     } @else {
@@ -134,6 +138,7 @@ export class BuyerDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.facade.loadBatches();
+    this.facade.loadEngagement();
   }
 
   compliantPct(): number {
