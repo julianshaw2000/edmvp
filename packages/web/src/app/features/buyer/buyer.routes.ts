@@ -13,4 +13,8 @@ export const BUYER_ROUTES: Routes = [
     path: 'form-sd',
     loadComponent: () => import('./form-sd-dashboard.component').then(m => m.FormSdDashboardComponent),
   },
+  {
+    path: 'cmrt-import',
+    loadComponent: () => import('./cmrt-import.component').then(m => m.CmrtImportComponent),
+  },
 ];
