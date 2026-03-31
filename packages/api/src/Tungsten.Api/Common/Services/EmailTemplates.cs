@@ -154,4 +154,56 @@ public static class EmailTemplates
             """;
         return (subject, htmlBody, textBody);
     }
+
+    public static (string subject, string htmlBody, string textBody) BatchInactivityReminder(
+        string supplierName, string batchNumber, int daysSinceLastEvent)
+    {
+        var subject = $"Your batch {batchNumber} needs attention";
+        var htmlBody = $"""
+            <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 8px;">Batch Update Needed</h1>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">Hi {supplierName}, your batch <strong>{batchNumber}</strong> has had no custody events for <strong>{daysSinceLastEvent} days</strong>.</p>
+                <p style="color: #334155; font-size: 14px; margin-bottom: 24px;">To maintain compliance and keep your supply chain data current, please log in and submit your next custody event.</p>
+                <a href="https://auditraks.com/supplier" style="display: inline-block; background: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;">Go to Supplier Portal</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                <p style="color: #94a3b8; font-size: 12px;">&copy; 2026 auditraks. Tungsten supply chain compliance, automated.</p>
+            </div>
+            """;
+        var textBody = $"""
+            Batch Update Needed
+
+            Hi {supplierName}, your batch {batchNumber} has had no custody events for {daysSinceLastEvent} days.
+
+            To maintain compliance, please log in and submit your next custody event.
+
+            Go to Supplier Portal: https://auditraks.com/supplier
+            """;
+        return (subject, htmlBody, textBody);
+    }
+
+    public static (string subject, string htmlBody, string textBody) BuyerNudge(
+        string supplierName, string buyerCompanyName)
+    {
+        var subject = $"{buyerCompanyName} is requesting an update on your supply chain data";
+        var htmlBody = $"""
+            <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 8px;">Update Requested</h1>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">Hi {supplierName}, <strong>{buyerCompanyName}</strong> is requesting an update on your supply chain compliance data.</p>
+                <p style="color: #334155; font-size: 14px; margin-bottom: 24px;">Please log in to review your batches, submit any pending custody events, and ensure your compliance status is current.</p>
+                <a href="https://auditraks.com/supplier" style="display: inline-block; background: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;">Go to Supplier Portal</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                <p style="color: #94a3b8; font-size: 12px;">&copy; 2026 auditraks. Tungsten supply chain compliance, automated.</p>
+            </div>
+            """;
+        var textBody = $"""
+            Update Requested
+
+            Hi {supplierName}, {buyerCompanyName} is requesting an update on your supply chain compliance data.
+
+            Please log in to review your batches and submit any pending custody events.
+
+            Go to Supplier Portal: https://auditraks.com/supplier
+            """;
+        return (subject, htmlBody, textBody);
+    }
 }
