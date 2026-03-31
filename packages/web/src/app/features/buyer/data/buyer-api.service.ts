@@ -68,6 +68,10 @@ export class BuyerApiService {
   getSupplierEngagement(): Observable<SupplierEngagement> {
     return this.http.get<SupplierEngagement>(`${this.apiUrl}/api/buyer/supplier-engagement`);
   }
+
+  nudgeSupplier(supplierId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/api/buyer/nudge-supplier`, { supplierId });
+  }
 }
 
 export interface SupplierEngagement {

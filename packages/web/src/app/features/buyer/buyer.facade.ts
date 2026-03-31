@@ -25,6 +25,7 @@ export class BuyerFacade {
   // Engagement
   readonly engagement = this.store.engagement;
   readonly engagementLoading = this.store.engagementLoading;
+  readonly nudgingSupplier = this.store.nudgingSupplier;
 
   // Generation
   readonly generating = this.store.generating;
@@ -39,4 +40,5 @@ export class BuyerFacade {
   generateDpp(batchId: string) { this.store.generateDpp(batchId); }
   shareDocument(docId: string) { this.store.shareDocument(docId); }
   loadEngagement() { this.store.loadEngagement(); }
+  nudgeSupplier(supplierId: string) { this.store.nudgeSupplier(supplierId); }
 }

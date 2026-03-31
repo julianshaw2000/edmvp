@@ -57,9 +57,11 @@ export class BuyerStore {
   // Supplier engagement
   private _engagement = signal<SupplierEngagement | null>(null);
   private _engagementLoading = signal(false);
+  private _nudgingSupplier = signal<string | null>(null);
 
   readonly engagement = this._engagement.asReadonly();
   readonly engagementLoading = this._engagementLoading.asReadonly();
+  readonly nudgingSupplier = this._nudgingSupplier.asReadonly();
 
   loadBatches(page = 1) {
     this._batchesLoading.set(true);
@@ -158,6 +160,19 @@ export class BuyerStore {
       },
       error: () => {
         this._engagementLoading.set(false);
+      },
+    });
+  }
+
+  nudgeSupplier(supplierId: string) {
+    this._nudgingSupplier.set(supplierId);
+    this.api.nudgeSupplier(supplierId).subscribe({
+      next: () => {
+        this._nudgingSupplier.set(null);
+        this.loadEngagement();
+      },
+      error: () => {
+        this._nudgingSupplier.set(null);
       },
     });
   }
