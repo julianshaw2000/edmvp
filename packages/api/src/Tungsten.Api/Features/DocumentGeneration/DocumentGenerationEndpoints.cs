@@ -56,6 +56,17 @@ public static class DocumentGenerationEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrBuyer);
 
+        app.MapPost("/api/generated-documents/{id:guid}/share-email", async (
+            Guid id,
+            ShareDocumentEmail.Command command,
+            IMediator mediator) =>
+        {
+            var result = await mediator.Send(command with { DocumentId = id });
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrBuyer);
+
         return app;
     }
 }
