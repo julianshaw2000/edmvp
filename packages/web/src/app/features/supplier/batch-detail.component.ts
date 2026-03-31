@@ -13,6 +13,7 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
 import { EventTimelineComponent } from './ui/event-timeline.component';
 import { DocumentListComponent } from './ui/document-list.component';
 import { ActivityFeedComponent } from './ui/activity-feed.component';
+import { PassportShareCardComponent } from './ui/passport-share-card.component';
 import { BatchActivity } from '../admin/data/audit-log.models';
 
 @Component({
@@ -21,7 +22,7 @@ import { BatchActivity } from '../admin/data/audit-log.models';
   imports: [
     FormsModule, DatePipe, RouterLink,
     PageHeaderComponent, StatusBadgeComponent, LoadingSpinnerComponent,
-    EventTimelineComponent, DocumentListComponent, ActivityFeedComponent,
+    EventTimelineComponent, DocumentListComponent, ActivityFeedComponent, PassportShareCardComponent,
   ],
   template: `
     @if (facade.detailLoading()) {
@@ -87,6 +88,10 @@ import { BatchActivity } from '../admin/data/audit-log.models';
             <app-event-timeline [events]="facade.events()" />
           </div>
         </div>
+
+        @if (facade.selectedBatch()?.complianceStatus === 'COMPLIANT') {
+          <app-passport-share-card [batchId]="id()" />
+        }
       }
 
       <!-- Tab: Events -->
