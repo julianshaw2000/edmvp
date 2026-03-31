@@ -64,4 +64,25 @@ export class BuyerApiService {
     return this.http.post<ShareResponse>(
       `${this.apiUrl}/api/generated-documents/${id}/share`, {});
   }
+
+  getSupplierEngagement(): Observable<SupplierEngagement> {
+    return this.http.get<SupplierEngagement>(`${this.apiUrl}/api/buyer/supplier-engagement`);
+  }
+}
+
+export interface SupplierEngagement {
+  totalSuppliers: number;
+  activeSuppliers: number;
+  staleSuppliers: number;
+  flaggedSuppliers: number;
+  suppliers: SupplierEngagementItem[];
+}
+
+export interface SupplierEngagementItem {
+  id: string;
+  displayName: string;
+  lastEventDate: string | null;
+  batchCount: number;
+  flaggedBatchCount: number;
+  status: 'active' | 'stale' | 'flagged' | 'new';
 }

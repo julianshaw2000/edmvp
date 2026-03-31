@@ -22,6 +22,10 @@ export class BuyerFacade {
   readonly compliance = this.store.compliance;
   readonly detailLoading = this.store.detailLoading;
 
+  // Engagement
+  readonly engagement = this.store.engagement;
+  readonly engagementLoading = this.store.engagementLoading;
+
   // Generation
   readonly generating = this.store.generating;
   readonly generatedDoc = this.store.generatedDoc;
@@ -34,4 +38,5 @@ export class BuyerFacade {
   generateDossier(batchId: string) { this.store.generateDossier(batchId); }
   generateDpp(batchId: string) { this.store.generateDpp(batchId); }
   shareDocument(docId: string) { this.store.shareDocument(docId); }
+  loadEngagement() { this.store.loadEngagement(); }
 }

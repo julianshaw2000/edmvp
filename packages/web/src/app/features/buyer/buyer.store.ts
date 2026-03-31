@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { BuyerApiService } from './data/buyer-api.service';
+import { BuyerApiService, SupplierEngagement } from './data/buyer-api.service';
 import {
   BatchResponse, CustodyEventResponse, DocumentResponse,
   ComplianceSummary, GeneratedDocumentResponse
@@ -53,6 +53,13 @@ export class BuyerStore {
   readonly generatedDoc = this._generatedDoc.asReadonly();
   readonly generateError = this._generateError.asReadonly();
   readonly shareUrl = this._shareUrl.asReadonly();
+
+  // Supplier engagement
+  private _engagement = signal<SupplierEngagement | null>(null);
+  private _engagementLoading = signal(false);
+
+  readonly engagement = this._engagement.asReadonly();
+  readonly engagementLoading = this._engagementLoading.asReadonly();
 
   loadBatches(page = 1) {
     this._batchesLoading.set(true);
@@ -138,6 +145,19 @@ export class BuyerStore {
       error: (err) => {
         this._generateError.set(extractErrorMessage(err));
         this._generating.set(false);
+      },
+    });
+  }
+
+  loadEngagement() {
+    this._engagementLoading.set(true);
+    this.api.getSupplierEngagement().subscribe({
+      next: (res) => {
+        this._engagement.set(res);
+        this._engagementLoading.set(false);
+      },
+      error: () => {
+        this._engagementLoading.set(false);
       },
     });
   }
