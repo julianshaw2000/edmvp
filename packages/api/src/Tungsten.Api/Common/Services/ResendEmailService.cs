@@ -21,7 +21,8 @@ public sealed class ResendEmailService(
             TextBody = textBody,
         };
         message.To.Add(to);
-        message.ReplyToList.Add(replyTo);
+        message.ReplyTo ??= [];
+        message.ReplyTo.Add(replyTo);
 
         await resend.EmailSendAsync(message, ct);
 
