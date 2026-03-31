@@ -15,10 +15,11 @@
 5. [Analytics Dashboard](#5-analytics-dashboard)
 6. [API Keys](#6-api-keys)
 7. [Webhook Notifications](#7-webhook-notifications)
-8. [Managing Your Subscription](#8-managing-your-subscription)
-9. [Compliance Reporting](#9-compliance-reporting)
-10. [AI Features](#10-ai-features)
-11. [FAQ](#11-faq)
+8. [Automated Notifications & Supplier Reminders](#8-automated-notifications--supplier-reminders)
+9. [Managing Your Subscription](#9-managing-your-subscription)
+10. [Compliance Reporting](#10-compliance-reporting)
+11. [AI Features](#11-ai-features)
+12. [FAQ](#12-faq)
 
 ---
 
@@ -628,7 +629,39 @@ Call `verify_signature(raw_request_body, request_header['X-Webhook-Signature'], 
 
 ---
 
-## 8. Managing Your Subscription
+## 8. Automated Notifications & Supplier Reminders
+
+### Platform Notifications
+
+auditraks sends automated notifications to users both in-app and via email. These are triggered by platform events and do not require any configuration.
+
+**Notification types:**
+
+| Type | Recipient | Trigger |
+|---|---|---|
+| Compliance flag | Supplier, Admins | A compliance check fails or flags a batch |
+| Escalation | Platform Admin | A compliance flag remains unresolved for 48+ hours |
+| Inactivity reminder | Supplier | A non-compliant batch has no custody events for 30+ days |
+| Stale supplier warning | Tenant Admin, Platform Admin | A supplier has had no activity for 60+ days |
+| Buyer nudge | Supplier | A buyer manually sends a reminder from the engagement panel |
+
+### Automated Supplier Reminders
+
+The platform runs a daily background check for supplier inactivity:
+
+1. **30-day inactivity** — if a batch has not had a custody event in 30+ days and is not yet COMPLIANT, the supplier who created it receives an email reminder and an in-app notification. Each batch is only reminded once per 30-day period.
+
+2. **60-day stale warning** — if a supplier has had no activity across any of their batches for 60+ days, tenant admins and platform admins receive an in-app notification alerting them that the supplier is going stale.
+
+These reminders run automatically and require no configuration. They use the fixed thresholds listed above.
+
+### Manual Supplier Nudge (Buyers)
+
+Buyers can manually send a reminder to a specific supplier from the **Supplier Engagement** panel on their dashboard. This sends a branded email and in-app notification to the supplier. Nudges are rate-limited to one per supplier per 7 days to prevent overuse.
+
+---
+
+## 9. Managing Your Subscription
 
 ### Viewing Your Plan
 
@@ -671,7 +704,7 @@ If you wish to reactivate an account after cancellation, contact auditraks suppo
 
 ---
 
-## 9. Compliance Reporting
+## 10. Compliance Reporting
 
 ### Understanding Compliance Statuses
 
@@ -722,7 +755,7 @@ To generate either document, a Buyer user navigates to the batch detail view and
 
 ---
 
-## 10. AI Features
+## 11. AI Features
 
 auditraks includes AI-powered features available to all Tenant Admin users. These features use OpenAI GPT-4o-mini and require no setup on your part — they are active as long as the platform is running.
 
@@ -804,7 +837,7 @@ The report is displayed on screen and can be copied into your compliance documen
 
 ---
 
-## 11. FAQ
+## 12. FAQ
 
 **How do I add more users?**
 Navigate to Admin Dashboard > Manage Users > Invite User. Enter their email, name, and role (Supplier or Buyer) and click Send Invitation. They will receive an email with an activation link valid for 7 days. If you are on the Starter plan and have reached your 5-user limit, you will need to upgrade to Pro before inviting more users.
