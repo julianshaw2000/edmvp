@@ -14,7 +14,7 @@ public static class DocumentGenerationEndpoints
             return result.IsSuccess
                 ? Results.Created($"/api/generated-documents/{result.Value.Id}", result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireBuyer);
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrBuyer);
 
         app.MapPost("/api/batches/{batchId:guid}/dossier", async (Guid batchId, IMediator mediator) =>
         {
@@ -54,7 +54,7 @@ public static class DocumentGenerationEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(new { error = result.Error });
-        }).RequireAuthorization(AuthorizationPolicies.RequireBuyer);
+        }).RequireAuthorization(AuthorizationPolicies.RequireSupplierOrBuyer);
 
         return app;
     }

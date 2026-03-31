@@ -9,6 +9,7 @@ public static class AuthorizationPolicies
     public const string RequireBuyer = "RequireBuyer";
     public const string RequireAdmin = "RequireAdmin";
     public const string RequirePlatformAdmin = "RequirePlatformAdmin";
+    public const string RequireSupplierOrBuyer = "RequireSupplierOrBuyer";
     public const string RequireTenantAccess = "RequireTenantAccess";
 
     public static void AddTungstenPolicies(this AuthorizationOptions options)
@@ -27,6 +28,9 @@ public static class AuthorizationPolicies
 
         options.AddPolicy(RequirePlatformAdmin, policy =>
             policy.AddRequirements(new RoleRequirement(Roles.Admin)));
+
+        options.AddPolicy(RequireSupplierOrBuyer, policy =>
+            policy.Requirements.Add(new RoleRequirement(Roles.Supplier, Roles.Buyer)));
 
         options.AddPolicy(RequireTenantAccess, policy =>
             policy.Requirements.Add(new TenantAccessRequirement()));
