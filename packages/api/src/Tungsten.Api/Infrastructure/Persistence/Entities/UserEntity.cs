@@ -12,5 +12,6 @@ public class UserEntity
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public string? StripeSessionId { get; set; }
+    public DateTime? LastNudgedAt { get; set; }
     public TenantEntity Tenant { get; set; } = null!;
 }

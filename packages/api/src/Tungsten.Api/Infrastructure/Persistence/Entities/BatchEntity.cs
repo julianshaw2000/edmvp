@@ -15,6 +15,7 @@ public class BatchEntity
     public Guid CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public DateTime? LastReminderSentAt { get; set; }
     public TenantEntity Tenant { get; set; } = null!;
     public UserEntity Creator { get; set; } = null!;
     public BatchEntity? ParentBatch { get; set; }
