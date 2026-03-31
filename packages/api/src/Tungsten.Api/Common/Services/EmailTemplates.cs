@@ -123,4 +123,35 @@ public static class EmailTemplates
         var textBody = $"Hi {adminName},\n\nWe were unable to process the payment for {companyName}'s auditraks subscription. Your account has been temporarily suspended.\n\nPlease update your payment method from the Admin Dashboard to restore access.\n\n© 2026 auditraks.";
         return (subject, htmlBody, textBody);
     }
+
+    public static (string subject, string htmlBody, string textBody) PassportShared(
+        string batchNumber, string senderName, string shareUrl, string? message)
+    {
+        var subject = $"Material Passport shared with you — {batchNumber}";
+        var messageBlock = string.IsNullOrWhiteSpace(message)
+            ? ""
+            : $"""<div style="background: #f8fafc; border-left: 3px solid #4f46e5; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0; font-size: 14px; color: #334155;">{message}</p></div>""";
+        var htmlBody = $"""
+            <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 8px;">Material Passport</h1>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">{senderName} has shared a Material Passport with you for batch <strong>{batchNumber}</strong>.</p>
+                {messageBlock}
+                <a href="{shareUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; margin: 16px 0;">View Material Passport</a>
+                <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">This link expires in 30 days.</p>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                <p style="color: #94a3b8; font-size: 12px;">&copy; 2026 auditraks. Tungsten supply chain compliance, automated.</p>
+            </div>
+            """;
+        var textBody = $"""
+            Material Passport — {batchNumber}
+
+            {senderName} has shared a Material Passport with you for batch {batchNumber}.
+
+            {(string.IsNullOrWhiteSpace(message) ? "" : $"Message: {message}\n")}
+            View it here: {shareUrl}
+
+            This link expires in 30 days.
+            """;
+        return (subject, htmlBody, textBody);
+    }
 }
