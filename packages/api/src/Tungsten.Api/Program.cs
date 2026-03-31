@@ -37,6 +37,7 @@ using Tungsten.Api.Features.Webhooks;
 using Tungsten.Api.Features.Analytics;
 using Tungsten.Api.Features.ApiKeys;
 using Tungsten.Api.Features.AI;
+using Tungsten.Api.Features.Buyer;
 using Tungsten.Api.Features.FormSd;
 using Tungsten.Api.Infrastructure.Persistence;
 
@@ -290,6 +291,7 @@ app.MapAnalyticsEndpoints();
 app.MapApiKeyEndpoints();
 app.MapAiEndpoints();
 app.MapFormSdEndpoints();
+app.MapBuyerEndpoints();
 
 app.Run();
 
