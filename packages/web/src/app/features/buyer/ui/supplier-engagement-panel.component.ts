@@ -1,4 +1,4 @@
-import { Component, input, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, signal, output, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { SupplierEngagement } from '../data/buyer-api.service';
 
@@ -79,6 +79,7 @@ import { SupplierEngagement } from '../data/buyer-api.service';
                   <th class="text-center px-4 py-3 font-semibold text-slate-600">Batches</th>
                   <th class="text-center px-4 py-3 font-semibold text-slate-600">Flagged</th>
                   <th class="text-left px-4 py-3 font-semibold text-slate-600">Status</th>
+                  <th class="text-center px-4 py-3 font-semibold text-slate-600">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,11 +107,23 @@ import { SupplierEngagement } from '../data/buyer-api.service';
                         {{ s.status === 'new' ? 'New' : s.status === 'active' ? 'Active' : s.status === 'stale' ? 'Stale' : 'Flagged' }}
                       </span>
                     </td>
+                    <td class="px-4 py-3 text-center">
+                      @if (s.status === 'stale' || s.status === 'flagged') {
+                        <button (click)="nudgeClicked.emit(s.id); $event.stopPropagation()"
+                          [disabled]="nudgingSupplier() === s.id"
+                          class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-medium hover:bg-indigo-100 disabled:opacity-50 transition-colors">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                          </svg>
+                          {{ nudgingSupplier() === s.id ? 'Sending...' : 'Remind' }}
+                        </button>
+                      }
+                    </td>
                   </tr>
                 }
                 @if (data.suppliers.length === 0) {
                   <tr>
-                    <td colspan="5" class="px-4 py-8 text-center text-slate-400">No suppliers in this tenant</td>
+                    <td colspan="6" class="px-4 py-8 text-center text-slate-400">No suppliers in this tenant</td>
                   </tr>
                 }
               </tbody>
@@ -123,5 +136,7 @@ import { SupplierEngagement } from '../data/buyer-api.service';
 })
 export class SupplierEngagementPanelComponent {
   engagement = input.required<SupplierEngagement | null>();
+  nudgingSupplier = input<string | null>(null);
+  nudgeClicked = output<string>();
   expanded = signal(false);
 }

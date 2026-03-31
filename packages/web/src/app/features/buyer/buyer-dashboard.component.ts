@@ -110,7 +110,11 @@ import { SupplierEngagementPanelComponent } from './ui/supplier-engagement-panel
     </div>
 
     <!-- Supplier Engagement -->
-    <app-supplier-engagement-panel [engagement]="facade.engagement()" />
+    <app-supplier-engagement-panel
+      [engagement]="facade.engagement()"
+      [nudgingSupplier]="facade.nudgingSupplier()"
+      (nudgeClicked)="facade.nudgeSupplier($event)"
+    />
 
     @if (facade.batchesLoading()) {
       <app-loading-spinner />
