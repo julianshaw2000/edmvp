@@ -2,10 +2,14 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { BatchApiService } from '../services/batch-api.service';
 import { BatchResponse, CustodyEventResponse, DocumentResponse, ComplianceSummary, CreateBatchRequest, CreateEventRequest } from '../models/batch.models';
 import { extractErrorMessage } from '../utils/error.utils';
+import { OfflineDbService } from '../../core/offline/offline-db.service';
+import { ConnectivityService } from '../../core/offline/connectivity.service';
 
 @Injectable({ providedIn: 'root' })
 export class BatchStore {
   private api = inject(BatchApiService);
+  private offlineDb = inject(OfflineDbService);
+  private connectivity = inject(ConnectivityService);
 
   // Batch list
   private _batches = signal<BatchResponse[]>([]);
@@ -46,10 +50,42 @@ export class BatchStore {
       next: (res) => {
         this._batches.set(res.items);
         this._totalBatches.set(res.totalCount);
+        // Cache batches for offline access
+        this.offlineDb.cacheBatches(res.items.map(b => ({
+          id: b.id,
+          batchNumber: b.batchNumber,
+          mineralType: b.mineralType,
+          originCountry: b.originCountry,
+          originMine: b.originMine,
+          weightKg: b.weightKg,
+          status: b.status,
+          complianceStatus: b.complianceStatus,
+          eventCount: b.eventCount,
+          cachedAt: new Date().toISOString(),
+        })));
         this._batchesLoading.set(false);
       },
       error: (err) => {
         this._batchesError.set(extractErrorMessage(err));
+        // Fallback to cached batches when offline
+        if (!this.connectivity.isOnline()) {
+          this.offlineDb.getCachedBatches().then(cached => {
+            if (cached.length > 0) {
+              this._batches.set(cached.map(c => ({
+                id: c.id,
+                batchNumber: c.batchNumber,
+                mineralType: c.mineralType,
+                originCountry: c.originCountry,
+                originMine: c.originMine,
+                weightKg: c.weightKg,
+                status: c.status,
+                complianceStatus: c.complianceStatus,
+                createdAt: c.cachedAt,
+                eventCount: c.eventCount,
+              })));
+            }
+          });
+        }
         this._batchesLoading.set(false);
       },
     });
