@@ -6,12 +6,14 @@ import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner.compone
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { BatchCardComponent } from './ui/batch-card.component';
 import { SupplierOnboardingComponent } from './ui/supplier-onboarding.component';
+import { OfflineBannerComponent } from '../../shared/ui/offline-banner.component';
 
 @Component({
   selector: 'app-supplier-dashboard',
   standalone: true,
-  imports: [PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent, BatchCardComponent, SupplierOnboardingComponent],
+  imports: [PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent, BatchCardComponent, SupplierOnboardingComponent, OfflineBannerComponent],
   template: `
+    <app-offline-banner />
     <app-page-header
       title="Supplier Dashboard"
       subtitle="Manage your batches and custody events"
