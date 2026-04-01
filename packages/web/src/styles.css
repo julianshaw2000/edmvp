@@ -58,3 +58,18 @@ a, button, input, select, textarea {
 .table-zebra tbody tr:nth-child(even) {
   background-color: #F8FAFC;
 }
+
+/* Leaflet numbered marker tooltips */
+.map-number-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.map-number-tooltip::before {
+  display: none !important;
+}
