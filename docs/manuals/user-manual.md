@@ -16,7 +16,8 @@
 6. [Public Features](#6-public-features)
 7. [API Access](#7-api-access)
 8. [Compliance Framework](#8-compliance-framework)
-9. [FAQ](#9-faq)
+9. [Glossary — Terms, Acronyms & Definitions](#9-glossary--terms-acronyms--definitions)
+10. [FAQ](#10-faq)
 
 ---
 
@@ -809,7 +810,67 @@ Status is recalculated after every event submission. Relevant users are notified
 
 ---
 
-## 9. FAQ
+## 9. Glossary — Terms, Acronyms & Definitions
+
+### Acronyms
+
+| Acronym | Full Name | Description |
+|---------|-----------|-------------|
+| **3TG** | Tin, Tantalum, Tungsten, Gold | The four "conflict minerals" regulated under Dodd-Frank §1502 and the EU Conflict Minerals Regulation |
+| **APT** | Ammonium Paratungstate | An intermediate tungsten product produced during smelting/processing |
+| **CAHRA** | Conflict-Affected and High-Risk Areas | Geographic regions identified by the OECD as having armed conflict, weak governance, or widespread human rights abuses. Sourcing from CAHRA countries triggers enhanced due diligence |
+| **CID** | Company Identification Number | The unique identifier assigned to each smelter/refiner in the RMAP programme (e.g., CID001100) |
+| **CMRT** | Conflict Minerals Reporting Template | A standardised Excel workbook (published by RMI) used by companies to declare their 3TG sourcing. Version 6.x is the current standard |
+| **DDG** | Due Diligence Guidance | The OECD's framework for responsible supply chain management of minerals from conflict-affected areas |
+| **DPP** | Digital Product Passport | A structured JSON-LD document containing product traceability data, aligned to EU regulatory schemas |
+| **OECD** | Organisation for Economic Co-operation and Development | International body that publishes the DDG framework for conflict mineral due diligence |
+| **RMAP** | Responsible Minerals Assurance Process | An audit programme managed by RMI that assesses smelter/refiner compliance with responsible sourcing standards |
+| **RMI** | Responsible Minerals Initiative | The industry body that manages RMAP and publishes the CMRT template |
+| **SEC** | Securities and Exchange Commission | US federal agency that administers Form SD filing requirements under Dodd-Frank |
+| **SHA-256** | Secure Hash Algorithm 256-bit | A cryptographic hash function used by auditraks to create tamper-evident event chains |
+
+### Compliance & Regulatory Terms
+
+| Term | Definition |
+|------|-----------|
+| **Compliance status** | The overall result of all compliance checks on a batch: COMPLIANT (all pass), FLAGGED (one or more checks failed), INSUFFICIENT_DATA (not enough information to evaluate), or PENDING (no checks run yet) |
+| **Compliance check** | An individual automated assessment run against a batch — RMAP conformance, OECD DDG, sanctions screening, mass balance, or sequence integrity |
+| **Conformant smelter** | A smelter that has passed an independent RMAP audit and is listed on the RMI conformant smelter list |
+| **Dodd-Frank §1502** | Section 1502 of the US Dodd-Frank Wall Street Reform Act, which requires SEC-reporting companies to disclose their use of conflict minerals |
+| **Form SD** | Specialized Disclosure form filed with the SEC by companies reporting on conflict mineral sourcing under Dodd-Frank §1502 |
+| **Mass balance** | A compliance check that verifies whether the weight of material out of a process step is consistent with the weight in, within a defined tolerance (5%) |
+| **Sanctions screening** | A check that compares actors in the custody chain against UN and EU sanctions lists |
+| **Sequence integrity** | A check that verifies custody events are in correct chronological order and that the SHA-256 hash chain linking them is unbroken |
+
+### Platform Terms
+
+| Term | Definition |
+|------|-----------|
+| **Batch** | A discrete, trackable quantity of mineral material that moves through the supply chain. Each batch has a unique number (e.g., W-2026-041), a mineral type, origin, weight, and compliance status |
+| **Custody event** | A recorded action in the lifecycle of a batch — extraction, assay, concentration, trading, smelting, or export. Events are append-only and cryptographically chained |
+| **Event type** | One of 6 stages in the custody chain: Mine Extraction, Laboratory Assay, Concentration, Trading/Transfer, Primary Processing (Smelting), Export/Shipment |
+| **Hash chain** | A sequence of SHA-256 hashes where each event's hash includes the previous event's hash, creating a tamper-evident chain. If any event is altered, all subsequent hashes become invalid |
+| **Material Passport** | A PDF document summarising a batch's verified custody chain, compliance status, and a QR code for public verification. Designed to be shared with customers and auditors |
+| **Audit Dossier** | A comprehensive PDF for formal audits containing the complete event log, all compliance check details, document references with file hashes, and hash chain verification |
+| **Tenant** | An organisation (company) on the auditraks platform. Each tenant has isolated data, separate users, and its own subscription |
+| **Custody chain** | The complete sequence of custody events from mine to refinery, forming a chronological record of who handled the material, when, and where |
+| **Idempotency key** | A unique identifier sent with each event to prevent duplicate submissions. If the same key is submitted twice, the second is rejected |
+| **Correction** | A special custody event that amends a previous event. Both the original and correction remain visible in the timeline for audit transparency |
+| **Pending event** | An event created on the mobile PWA while offline, stored locally in IndexedDB, waiting to be synced to the server when connectivity returns |
+| **Share token** | A cryptographically random URL-safe string that grants time-limited (30-day) public access to a Material Passport or Audit Dossier without requiring login |
+
+### Roles
+
+| Role | Description |
+|------|-----------|
+| **Supplier** | Creates batches and logs custody events. Sees only their own batches. Can generate and share Material Passports for compliant batches |
+| **Buyer** | Reviews all batches in the tenant. Monitors supplier engagement. Generates Form SD support packages. Imports CMRT data |
+| **Tenant Admin** | Manages users, reviews compliance, views audit logs, manages billing for their organisation |
+| **Platform Admin** | Full access across all tenants. Manages RMAP smelter data, tenant lifecycle, platform analytics, and background jobs |
+
+---
+
+## 10. FAQ
 
 **How do I fix an event I submitted with wrong information?**
 Events cannot be edited or deleted after submission — this is by design to maintain data integrity. Submit a Correction event referencing the original event's ID. Enter the corrected values and a written explanation. Both the original event and the correction remain visible in the timeline. Compliance checks are re-run after a correction.
