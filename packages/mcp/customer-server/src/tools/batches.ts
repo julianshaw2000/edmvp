@@ -1,0 +1,45 @@
+import { z } from 'zod';
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { AuditraksApiClient, BatchResponse, PagedResponse } from '../../../shared/src/index.js';
+
+export function registerBatchTools(server: McpServer, api: AuditraksApiClient) {
+  server.tool('list_batches', 'List mineral batches with pagination', {
+    page: z.number().optional().default(1).describe('Page number'),
+    pageSize: z.number().optional().default(20).describe('Items per page'),
+  }, async ({ page, pageSize }) => {
+    const data = await api.get<PagedResponse<BatchResponse>>(`/api/batches?page=${page}&pageSize=${pageSize}`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('get_batch', 'Get batch details by ID', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get<BatchResponse>(`/api/batches/${batchId}`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('create_batch', 'Create a new mineral batch', {
+    batchNumber: z.string().describe('Unique batch number (e.g. W-2026-050)'),
+    mineralType: z.string().describe('Mineral type (e.g. Tungsten (Wolframite))'),
+    originCountry: z.string().describe('Origin country ISO code (e.g. RW)'),
+    originMine: z.string().describe('Mine site name'),
+    weightKg: z.number().describe('Weight in kilograms'),
+  }, async (params) => {
+    const data = await api.post<BatchResponse>('/api/batches', params);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('get_batch_activity', 'Get activity log for a batch', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/batches/${batchId}/activity`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('verify_batch_integrity', 'Verify SHA-256 hash chain integrity of a batch', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/batches/${batchId}/verify-integrity`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+}
