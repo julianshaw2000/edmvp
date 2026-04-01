@@ -82,6 +82,7 @@ export interface PendingEvent {
   batchId: string;
   eventType: string;
   actor: string;
+  location: string;
   latitude: number;
   longitude: number;
   timestamp: string;
@@ -390,15 +391,16 @@ export class SyncService {
         try {
           await this.offlineDb.updateEventStatus(event.id, 'syncing');
 
+          const metadata = { ...(event.metadata ?? {}), gpsCoordinates: `${event.latitude},${event.longitude}` };
           await firstValueFrom(this.http.post(
             `${this.apiUrl}/api/batches/${event.batchId}/events`,
             {
               eventType: event.eventType,
               eventDate: event.timestamp,
-              location: `${event.latitude},${event.longitude}`,
+              location: event.location,
               actorName: event.actor,
               description: event.description ?? '',
-              metadata: event.metadata ?? {},
+              metadata,
             }
           ));
 
@@ -676,18 +678,26 @@ const EVENT_TYPES = [
           </div>
         </div>
 
-        <!-- GPS -->
-        <div class="bg-white rounded-xl border border-slate-200 p-4">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-semibold text-slate-700">GPS Coordinates</label>
-            <button (click)="captureGps()" [disabled]="capturingGps()"
-              class="text-xs text-indigo-600 font-medium">
-              {{ capturingGps() ? 'Locating...' : 'Refresh' }}
-            </button>
-          </div>
-          <div class="flex gap-4 text-sm text-slate-600">
-            <span>Lat: {{ latitude.toFixed(4) }}</span>
-            <span>Lng: {{ longitude.toFixed(4) }}</span>
+        <!-- Location -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Location</label>
+          <input type="text" [(ngModel)]="location" name="location"
+            placeholder="e.g. Nyungwe Mine, Rwanda"
+            class="w-full px-4 py-3 border border-slate-300 rounded-xl text-base focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+          <div class="mt-1.5 flex items-center gap-2 text-xs text-slate-400">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            @if (capturingGps()) {
+              <span>Capturing GPS...</span>
+            } @else if (latitude !== 0 || longitude !== 0) {
+              <span>GPS: {{ latitude.toFixed(4) }}, {{ longitude.toFixed(4) }}</span>
+              <button (click)="captureGps()" class="text-indigo-500 hover:text-indigo-600">Refresh</button>
+            } @else {
+              <span>GPS unavailable</span>
+              <button (click)="captureGps()" class="text-indigo-500 hover:text-indigo-600">Retry</button>
+            }
           </div>
         </div>
 
@@ -739,7 +749,7 @@ const EVENT_TYPES = [
 
       <!-- Fixed Submit Button -->
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-3 safe-area-bottom">
-        <button (click)="submit()" [disabled]="submitting() || !batchId || !eventType || !actor"
+        <button (click)="submit()" [disabled]="submitting() || !batchId || !eventType || !actor || !location"
           class="w-full bg-indigo-600 text-white py-3.5 rounded-xl text-base font-semibold hover:bg-indigo-700 disabled:opacity-50 shadow-lg transition-all">
           {{ submitting() ? 'Queuing...' : 'Submit Event' }}
         </button>
@@ -760,6 +770,7 @@ export class MobileEventLoggerComponent {
   batchId = '';
   eventType = '';
   actor = '';
+  location = '';
   description = '';
   latitude = 0;
   longitude = 0;
@@ -797,7 +808,7 @@ export class MobileEventLoggerComponent {
   }
 
   async submit() {
-    if (!this.batchId || !this.eventType || !this.actor) return;
+    if (!this.batchId || !this.eventType || !this.actor || !this.location) return;
     this.submitting.set(true);
     this.error.set(null);
     this.submitted.set(false);
@@ -821,6 +832,7 @@ export class MobileEventLoggerComponent {
         batchId: this.batchId,
         eventType: this.eventType,
         actor: this.actor,
+        location: this.location,
         latitude: this.latitude,
         longitude: this.longitude,
         timestamp,
@@ -839,6 +851,7 @@ export class MobileEventLoggerComponent {
       // Reset form
       this.eventType = '';
       this.actor = '';
+      this.location = '';
       this.description = '';
 
       // Try to sync immediately if online
