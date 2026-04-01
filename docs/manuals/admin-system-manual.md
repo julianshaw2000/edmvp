@@ -888,6 +888,45 @@ WHERE "Id" = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
 3. The caller must generate a new key via the API Keys UI.
 
+### MCP Admin Server
+
+The auditraks admin MCP server provides AI assistants with platform administration capabilities.
+
+**Authentication:** Email and password (Platform Admin account). The server authenticates via `POST /api/auth/login` and auto-refreshes JWT tokens.
+
+**Available tools (15):**
+
+| Category | Tools |
+|----------|-------|
+| Tenant management | List tenants, create tenant, update status, delete tenant |
+| User management | List users, create/invite user, update user, delete user |
+| Analytics | Platform-wide analytics (optional tenant filter) |
+| Audit logs | Search with filters (action, entity type, user, date) |
+| RMAP data | List all smelters, search by name/ID |
+| Batches | List batches (cross-tenant), get details, compliance status |
+
+**Configuration:**
+
+Add to your Claude Desktop or Claude Code MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "auditraks-admin": {
+      "command": "node",
+      "args": ["packages/mcp/admin-server/dist/admin-server/src/index.js"],
+      "env": {
+        "AUDITRAKS_EMAIL": "your_admin@email.com",
+        "AUDITRAKS_PASSWORD": "your_password",
+        "AUDITRAKS_API_URL": "https://accutrac-api.onrender.com"
+      }
+    }
+  }
+}
+```
+
+**Security note:** The admin MCP server has full platform access. Only configure it on trusted machines. Never share the configuration file containing your credentials.
+
 ### Rotating Stripe Webhook Secret
 
 If the webhook secret is rotated in the Stripe dashboard:

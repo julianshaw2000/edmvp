@@ -722,6 +722,32 @@ The auditraks API is a REST API. Common operations include:
 
 For the full API reference, contact your auditraks administrator or refer to the API documentation provided with your subscription.
 
+### MCP Server Access (AI Assistants)
+
+auditraks provides an MCP (Model Context Protocol) server that allows AI assistants (such as Claude) to interact with the platform on your behalf.
+
+**Requirements:**
+- An active API key (generate one from Admin Dashboard → API Keys)
+- An MCP-compatible AI assistant (Claude Desktop, Claude Code, or other MCP clients)
+
+**What AI assistants can do via MCP:**
+- Query batches and custody events
+- Check compliance status
+- Search the RMAP smelter database
+- Generate and share Material Passports
+- View supplier engagement metrics (buyer role)
+- Send supplier reminders (buyer role)
+- View Form SD filing cycles
+
+**What AI assistants cannot do via MCP:**
+- Upload files (documents, CMRT imports)
+- Manage users or billing
+- Access data outside your tenant
+
+The tools available to the AI assistant depend on your role. A supplier's API key gives access to supplier tools; a buyer's API key gives access to buyer tools. The API enforces role-based access server-side.
+
+See `packages/mcp/README.md` for configuration instructions.
+
 ---
 
 ## 8. Compliance Framework

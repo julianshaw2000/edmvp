@@ -554,6 +554,62 @@ Buyers can manually remind suppliers from the engagement panel (one per supplier
 | Job Monitor | — | — | — | Yes |
 | Analytics | — | — | — | Yes |
 
+### MCP Server Access (AI Assistants)
+
+auditraks provides two MCP (Model Context Protocol) servers that allow AI assistants like Claude to interact with the platform programmatically.
+
+**Customer MCP (`auditraks-mcp`)** — for customers connecting AI assistants to their tenant data via API key.
+
+Configuration:
+```json
+{
+  "mcpServers": {
+    "auditraks": {
+      "command": "node",
+      "args": ["packages/mcp/customer-server/dist/customer-server/src/index.js"],
+      "env": {
+        "AUDITRAKS_API_KEY": "at_your_api_key",
+        "AUDITRAKS_API_URL": "https://accutrac-api.onrender.com"
+      }
+    }
+  }
+}
+```
+
+**Tool access by role:**
+
+| Tool Category | Supplier | Buyer | Tenant Admin |
+|--------------|:--------:|:-----:|:------------:|
+| List/view batches | Own only | All | All |
+| Create batches | Yes | — | Yes |
+| Create custody events | Yes | — | — |
+| Compliance status | Yes | Yes | Yes |
+| Generate/share passport | Yes | Yes | — |
+| Search smelters | Yes | Yes | Yes |
+| Supplier engagement & nudge | — | Yes | — |
+| Form SD filing cycles | Yes | Yes | Yes |
+
+**Admin MCP (`auditraks-mcp-admin`)** — for platform administrators only.
+
+Configuration:
+```json
+{
+  "mcpServers": {
+    "auditraks-admin": {
+      "command": "node",
+      "args": ["packages/mcp/admin-server/dist/admin-server/src/index.js"],
+      "env": {
+        "AUDITRAKS_EMAIL": "admin@example.com",
+        "AUDITRAKS_PASSWORD": "your_password",
+        "AUDITRAKS_API_URL": "https://accutrac-api.onrender.com"
+      }
+    }
+  }
+}
+```
+
+15 tools: tenant management (4), user management (4), analytics (1), audit logs (1), RMAP smelters (2), batches (3). All require Platform Admin role.
+
 ---
 
 ## 10. Glossary — Terms, Acronyms & Definitions
