@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, input, signal } from '@angular/core';
+import { Component, inject, OnInit, input, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap, of } from 'rxjs';
@@ -11,6 +11,7 @@ import { EventTimelineComponent } from '../../shared/ui/event-timeline.component
 import { DocumentListComponent } from '../../shared/ui/document-list.component';
 import { ComplianceSummaryComponent } from './ui/compliance-summary.component';
 import { ActivityFeedComponent } from '../supplier/ui/activity-feed.component';
+import { EventMapComponent, MapEvent } from '../../shared/ui/event-map.component';
 
 @Component({
   selector: 'app-buyer-batch-detail',
@@ -19,7 +20,7 @@ import { ActivityFeedComponent } from '../supplier/ui/activity-feed.component';
     RouterLink,
     PageHeaderComponent, StatusBadgeComponent, LoadingSpinnerComponent,
     EventTimelineComponent, DocumentListComponent, ComplianceSummaryComponent,
-    ActivityFeedComponent,
+    ActivityFeedComponent, EventMapComponent,
   ],
   template: `
     @if (facade.detailLoading()) {
@@ -105,6 +106,11 @@ import { ActivityFeedComponent } from '../supplier/ui/activity-feed.component';
           <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Batch Activity</h3>
           <app-activity-feed [activities]="batchActivity()" />
         </div>
+      }
+
+      <!-- Tab: Map -->
+      @if (activeTab() === 'map') {
+        <app-event-map [events]="mapEvents()" />
       }
 
       <!-- Tab: Generate & Share -->
@@ -262,9 +268,20 @@ export class BuyerBatchDetailComponent implements OnInit {
     { id: 'events', label: 'Events' },
     { id: 'documents', label: 'Documents' },
     { id: 'activity', label: 'Activity' },
+    { id: 'map', label: 'Map' },
     { id: 'generate', label: 'Generate & Share' },
   ];
   activeTab = signal('overview');
+
+  mapEvents = computed<MapEvent[]>(() =>
+    this.facade.events().map(e => ({
+      eventType: e.eventType,
+      location: e.location ?? '',
+      actorName: e.actorName,
+      eventDate: e.eventDate,
+      gpsCoordinates: (e as any).metadata?.gpsCoordinates as string | undefined,
+    }))
+  );
 
   ngOnInit() {
     this.facade.loadBatchDetail(this.id());
