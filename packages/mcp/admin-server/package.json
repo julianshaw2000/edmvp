@@ -1,0 +1,17 @@
+{
+  "name": "auditraks-mcp-admin",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "auditraks-mcp-admin": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  }
+}
