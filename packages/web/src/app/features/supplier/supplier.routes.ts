@@ -18,4 +18,16 @@ export const SUPPLIER_ROUTES: Routes = [
     path: 'batch/:id',
     loadComponent: () => import('./batch-detail.component').then(m => m.BatchDetailComponent),
   },
+  {
+    path: 'log-event',
+    loadComponent: () => import('./mobile-event-logger.component').then(m => m.MobileEventLoggerComponent),
+  },
+  {
+    path: 'sync',
+    loadComponent: () => import('./sync-status.component').then(m => m.SyncStatusComponent),
+  },
+  {
+    path: 'scan',
+    loadComponent: () => import('./qr-scanner.component').then(m => m.QrScannerComponent),
+  },
 ];
