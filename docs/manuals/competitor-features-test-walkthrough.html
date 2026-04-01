@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>competitor-features-test-walkthrough.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="competitor-gap-closure--test-walkthrough">Competitor Gap Closure — Test Walkthrough</h1>
+<p><strong>Purpose:</strong> Step-by-step manual for testing all features added in the competitor gap closure implementation (GAP-1 through GAP-5).</p>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>Platform deployed and running (API + frontend + worker)</li>
+<li>At least one tenant with demo users seeded (see <code>docs/manuals/demo-accounts.md</code>)</li>
+<li>Access to supplier, buyer, and admin accounts</li>
+</ul>
+<p><strong>Estimated time:</strong> 20–30 minutes</p>
+<hr>
+<h2 id="1-supplier-onboarding-checklist-gap-5">1. Supplier Onboarding Checklist (GAP-5)</h2>
+<p><strong>Login as:</strong> <code>supplier@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p><strong>Clear previous state</strong> — Open browser dev tools → Application → Local Storage → delete keys starting with <code>auditraks_supplier_</code></p>
+</li>
+<li>
+<p><strong>Refresh the page</strong> — navigate to <code>/supplier</code></p>
+</li>
+<li>
+<p><strong>Verify checklist appears</strong> at the top of the dashboard:</p>
+<ul>
+<li><input type="checkbox" id="checkbox0"><label for="checkbox0">&quot;Getting Started&quot; card is visible with &quot;0/3 steps complete&quot;</label></li>
+<li><input type="checkbox" id="checkbox1"><label for="checkbox1">Progress bar is at 0%</label></li>
+<li><input type="checkbox" id="checkbox2"><label for="checkbox2">Three steps listed: Create batch, Submit event, Review compliance</label></li>
+<li><input type="checkbox" id="checkbox3"><label for="checkbox3">Each step shows an empty circle (not checked)</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test Step 1 — Create a batch:</strong></p>
+<ul>
+<li>Click &quot;Create your first batch&quot; in the checklist</li>
+<li><input type="checkbox" id="checkbox4"><label for="checkbox4">Navigates to </label><code>/supplier/batches/new</code></li>
+<li>Fill in: Batch Number <code>TEST-GAP5-001</code>, Mineral Type <code>Tungsten (Wolframite)</code>, Origin Country (start typing <code>Rwanda</code> — should show dropdown), Mine Site <code>Test Mine</code>, Weight <code>100</code></li>
+<li><input type="checkbox" id="checkbox5"><label for="checkbox5">Country typeahead works — shows filtered country list as you type</label></li>
+<li><input type="checkbox" id="checkbox6"><label for="checkbox6">Selecting a country fills the field with </label><code>Rwanda (RW)</code> format</li>
+<li>Click &quot;Create Batch&quot;</li>
+<li>Navigate back to <code>/supplier</code></li>
+<li><input type="checkbox" id="checkbox7"><label for="checkbox7">Checklist now shows &quot;1/3 steps complete&quot;</label></li>
+<li><input type="checkbox" id="checkbox8"><label for="checkbox8">Step 1 has a green checkmark and strikethrough text</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test Step 2 — Submit an event:</strong></p>
+<ul>
+<li>Click &quot;Submit a custody event&quot; in the checklist</li>
+<li><input type="checkbox" id="checkbox9"><label for="checkbox9">Navigates to </label><code>/supplier/submit</code></li>
+<li><input type="checkbox" id="checkbox10"><label for="checkbox10">Batch field is a typeahead — start typing </label><code>TEST-GAP5</code> and see your batch appear</li>
+<li>Select the batch, fill in event type (Mine Extraction), date, location, actor, description</li>
+<li>Submit the event</li>
+<li>Navigate back to <code>/supplier</code></li>
+<li><input type="checkbox" id="checkbox11"><label for="checkbox11">Checklist now shows &quot;2/3 steps complete&quot;</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test Step 3 — Review compliance:</strong></p>
+<ul>
+<li>Click &quot;Review compliance status&quot; in the checklist</li>
+<li><input type="checkbox" id="checkbox12"><label for="checkbox12">Navigates to the batch detail page</label></li>
+<li><input type="checkbox" id="checkbox13"><label for="checkbox13">Checklist now shows &quot;3/3 steps complete&quot;</label></li>
+<li>Navigate back to <code>/supplier</code></li>
+<li><input type="checkbox" id="checkbox14"><label for="checkbox14">Checklist auto-hides (all steps complete)</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test dismiss:</strong></p>
+<ul>
+<li>Clear localStorage again and refresh</li>
+<li>Click the X button on the checklist</li>
+<li><input type="checkbox" id="checkbox15"><label for="checkbox15">Checklist disappears</label></li>
+<li>Refresh the page</li>
+<li><input type="checkbox" id="checkbox16"><label for="checkbox16">Checklist stays hidden (dismissed state persisted)</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="2-material-passport-sharing--supplier-side-gap-2">2. Material Passport Sharing — Supplier Side (GAP-2)</h2>
+<p><strong>Login as:</strong> <code>supplier@auditraks.com</code> / <code>Demo1234!</code> (batch W-2026-041 is COMPLIANT)</p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p><strong>Navigate to a COMPLIANT batch</strong> on the supplier dashboard</p>
+<ul>
+<li>Open the batch detail page</li>
+<li><input type="checkbox" id="checkbox17"><label for="checkbox17">&quot;Material Passport Ready&quot; card appears with indigo gradient</label></li>
+<li><input type="checkbox" id="checkbox18"><label for="checkbox18">Three buttons visible: Download PDF, Copy Link, Email to Customer</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test Download PDF:</strong></p>
+<ul>
+<li>Click &quot;Download PDF&quot;</li>
+<li><input type="checkbox" id="checkbox19"><label for="checkbox19">Button shows &quot;Generating...&quot; while loading</label></li>
+<li><input type="checkbox" id="checkbox20"><label for="checkbox20">PDF opens in a new tab or downloads</label></li>
+<li><input type="checkbox" id="checkbox21"><label for="checkbox21">PDF contains batch info, custody chain, compliance summary, QR code</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test Copy Link:</strong></p>
+<ul>
+<li>Click &quot;Copy Link&quot;</li>
+<li><input type="checkbox" id="checkbox22"><label for="checkbox22">Button shows &quot;Creating...&quot; briefly, then &quot;Copied!&quot;</label></li>
+<li><input type="checkbox" id="checkbox23"><label for="checkbox23">After ~2 seconds, button reverts to &quot;Copy Link&quot;</label></li>
+<li>Paste from clipboard into a browser</li>
+<li><input type="checkbox" id="checkbox24"><label for="checkbox24">Shared passport page loads without requiring login</label></li>
+<li><input type="checkbox" id="checkbox25"><label for="checkbox25">Link shows passport content</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test Email to Customer:</strong></p>
+<ul>
+<li>Click &quot;Email to Customer&quot;</li>
+<li><input type="checkbox" id="checkbox26"><label for="checkbox26">Inline form expands with email and message fields</label></li>
+<li>Enter a test email address (your own email)</li>
+<li>Enter optional message: &quot;Please review our compliance documentation&quot;</li>
+<li>Click &quot;Send Passport&quot;</li>
+<li><input type="checkbox" id="checkbox27"><label for="checkbox27">Button shows &quot;Sending...&quot;</label></li>
+<li><input type="checkbox" id="checkbox28"><label for="checkbox28">Success message: &quot;Passport sent successfully!&quot;</label></li>
+<li><input type="checkbox" id="checkbox29"><label for="checkbox29">Check your email inbox — branded email received from </label><code>support@auditraks.com</code></li>
+<li><input type="checkbox" id="checkbox30"><label for="checkbox30">Email contains passport link, sender name, batch number, your message</label></li>
+<li><input type="checkbox" id="checkbox31"><label for="checkbox31">Email footer says &quot;This link expires in 30 days&quot;</label></li>
+<li>Click the link in the email</li>
+<li><input type="checkbox" id="checkbox32"><label for="checkbox32">Passport loads in browser</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test non-COMPLIANT batch:</strong></p>
+<ul>
+<li>Navigate to a batch that is FLAGGED or PENDING</li>
+<li><input type="checkbox" id="checkbox33"><label for="checkbox33">Passport share card does NOT appear</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="3-supplier-engagement-metrics--buyer-dashboard-gap-3">3. Supplier Engagement Metrics — Buyer Dashboard (GAP-3)</h2>
+<p><strong>Login as:</strong> <code>buyer@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p><strong>Navigate to Buyer Dashboard</strong> (<code>/buyer</code>)</p>
+<ul>
+<li><input type="checkbox" id="checkbox34"><label for="checkbox34">&quot;Supplier Engagement&quot; panel visible between compliance overview and batch table</label></li>
+<li><input type="checkbox" id="checkbox35"><label for="checkbox35">Four metric cards: Total, Active, Stale, Flagged</label></li>
+<li><input type="checkbox" id="checkbox36"><label for="checkbox36">Numbers correspond to actual supplier state in the tenant</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test expand/collapse:</strong></p>
+<ul>
+<li>Click &quot;View suppliers&quot;</li>
+<li><input type="checkbox" id="checkbox37"><label for="checkbox37">Supplier table expands below the metric cards</label></li>
+<li><input type="checkbox" id="checkbox38"><label for="checkbox38">Table shows columns: Supplier, Last Activity, Batches, Flagged, Status, Action</label></li>
+<li><input type="checkbox" id="checkbox39"><label for="checkbox39">Suppliers sorted by status: flagged first, then stale, then new, then active</label></li>
+<li><input type="checkbox" id="checkbox40"><label for="checkbox40">Status badges are color-coded (green=Active, amber=Stale, red=Flagged, grey=New)</label></li>
+<li><input type="checkbox" id="checkbox41"><label for="checkbox41">Stale/flagged rows have a colored left border</label></li>
+<li>Click &quot;Collapse&quot;</li>
+<li><input type="checkbox" id="checkbox42"><label for="checkbox42">Table hides, only metric cards remain</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Verify metric accuracy:</strong></p>
+<ul>
+<li><input type="checkbox" id="checkbox43"><label for="checkbox43">Total = number of SUPPLIER role users in this tenant</label></li>
+<li><input type="checkbox" id="checkbox44"><label for="checkbox44">Active = suppliers with events in last 90 days</label></li>
+<li><input type="checkbox" id="checkbox45"><label for="checkbox45">Stale = suppliers with batches but no events in 90+ days</label></li>
+<li><input type="checkbox" id="checkbox46"><label for="checkbox46">Flagged = suppliers with at least one FLAGGED batch</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="4-manual-supplier-nudge-gap-4">4. Manual Supplier Nudge (GAP-4)</h2>
+<p><strong>Login as:</strong> <code>buyer@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p><strong>Expand the supplier engagement panel</strong> on the buyer dashboard</p>
+</li>
+<li>
+<p><strong>Find a stale or flagged supplier</strong> in the list</p>
+<ul>
+<li><input type="checkbox" id="checkbox47"><label for="checkbox47">&quot;Remind&quot; button visible in the Action column</label></li>
+<li>Active or new suppliers should NOT have the button</li>
+</ul>
+</li>
+<li>
+<p><strong>Send a nudge:</strong></p>
+<ul>
+<li>Click &quot;Remind&quot; on a stale/flagged supplier</li>
+<li><input type="checkbox" id="checkbox48"><label for="checkbox48">Button shows &quot;Sending...&quot; with disabled state</label></li>
+<li><input type="checkbox" id="checkbox49"><label for="checkbox49">After success, button returns to normal</label></li>
+<li><input type="checkbox" id="checkbox50"><label for="checkbox50">Check the supplier's email — branded nudge email received</label></li>
+<li><input type="checkbox" id="checkbox51"><label for="checkbox51">Email subject: &quot;{Company} is requesting an update on your supply chain data&quot;</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test rate limiting:</strong></p>
+<ul>
+<li>Click &quot;Remind&quot; on the same supplier again</li>
+<li><input type="checkbox" id="checkbox52"><label for="checkbox52">Error returned — &quot;Reminder already sent X days ago. Please wait 7 days between reminders.&quot;</label></li>
+<li><input type="checkbox" id="checkbox53"><label for="checkbox53">Button is re-enabled (rate limit is server-enforced, not hidden)</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Verify in-app notification (supplier side):</strong></p>
+<ul>
+<li>Log in as the supplier who was nudged</li>
+<li><input type="checkbox" id="checkbox54"><label for="checkbox54">Notification bell shows new notification</label></li>
+<li><input type="checkbox" id="checkbox55"><label for="checkbox55">Notification says &quot;{Company} is requesting an update on your supply chain data&quot;</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="5-automated-supplier-reminders-gap-4--background-worker">5. Automated Supplier Reminders (GAP-4 — Background Worker)</h2>
+<blockquote>
+<p><strong>Note:</strong> The <code>SupplierReminderService</code> runs once every 24 hours. To test it immediately, you would need to restart the worker service or temporarily reduce the interval. For manual verification, check the following:</p>
+</blockquote>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li>
+<p><strong>Check worker logs</strong> in Render dashboard for the Background Worker service</p>
+<ul>
+<li><input type="checkbox" id="checkbox56"><label for="checkbox56">Look for </label><code>SupplierReminderService</code> log entries</li>
+<li><input type="checkbox" id="checkbox57"><label for="checkbox57">Verify it runs without errors</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Verify inactivity reminder setup:</strong></p>
+<ul>
+<li>Create a batch with no events, with a <code>CreatedAt</code> date &gt;30 days ago (via database)</li>
+<li>After the worker runs:</li>
+<li><input type="checkbox" id="checkbox58"><label for="checkbox58">Supplier receives &quot;Your batch {batchNumber} needs attention&quot; email</label></li>
+<li><input type="checkbox" id="checkbox59"><label for="checkbox59">In-app notification created with type </label><code>INACTIVITY_REMINDER</code></li>
+<li><input type="checkbox" id="checkbox60"><label for="checkbox60"></label><code>LastReminderSentAt</code> column updated on the batch</li>
+</ul>
+</li>
+<li>
+<p><strong>Verify stale warning setup:</strong></p>
+<ul>
+<li>Ensure a supplier has no events across any batch for 60+ days</li>
+<li>After the worker runs:</li>
+<li><input type="checkbox" id="checkbox61"><label for="checkbox61">Tenant admins receive in-app notification: &quot;Supplier going stale&quot;</label></li>
+<li><input type="checkbox" id="checkbox62"><label for="checkbox62">Notification type is </label><code>STALE_WARNING</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Verify deduplication:</strong></p>
+<ul>
+<li><input type="checkbox" id="checkbox63"><label for="checkbox63">Running the worker again does NOT send duplicate reminders (checks </label><code>LastReminderSentAt</code> and existing notifications)</li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="6-cmrt-v6x-import-gap-1">6. CMRT v6.x Import (GAP-1)</h2>
+<p><strong>Login as:</strong> <code>buyer@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p><strong>Navigate to CMRT Import:</strong></p>
+<ul>
+<li><input type="checkbox" id="checkbox64"><label for="checkbox64">&quot;CMRT Import&quot; link visible in the buyer sidebar (after Form SD)</label></li>
+<li>Click it</li>
+<li><input type="checkbox" id="checkbox65"><label for="checkbox65">Page loads at </label><code>/buyer/cmrt-import</code> with upload dropzone and import history</li>
+</ul>
+</li>
+<li>
+<p><strong>Test file validation:</strong></p>
+<ul>
+<li>Try uploading a <code>.pdf</code> file</li>
+<li><input type="checkbox" id="checkbox66"><label for="checkbox66">Error: &quot;Only .xlsx files are supported&quot;</label></li>
+<li>Try uploading without a file</li>
+<li><input type="checkbox" id="checkbox67"><label for="checkbox67">Error shown appropriately</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test upload and preview</strong> (requires a CMRT v6.x .xlsx file):</p>
+<ul>
+<li>Drag and drop a CMRT v6.x file onto the dropzone (or click to browse)</li>
+<li><input type="checkbox" id="checkbox68"><label for="checkbox68">&quot;Parsing CMRT file...&quot; spinner appears</label></li>
+<li><input type="checkbox" id="checkbox69"><label for="checkbox69">Preview loads with:</label>
+<ul>
+<li>Declaration summary (company, reporting year, scope)</li>
+<li>Match summary cards (Total Smelters, Matched in RMAP, Unmatched)</li>
+<li>Smelter preview table with row numbers, metal types, names, IDs, countries</li>
+<li>Matched smelters show green badge with conformance status</li>
+<li>Unmatched smelters show amber &quot;Unmatched&quot; badge and light amber row background</li>
+</ul>
+</li>
+<li><input type="checkbox" id="checkbox70"><label for="checkbox70">Any parsing errors shown in red section</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test cancel:</strong></p>
+<ul>
+<li>Click &quot;Cancel&quot;</li>
+<li><input type="checkbox" id="checkbox71"><label for="checkbox71">Preview clears, returns to upload dropzone</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test confirm:</strong></p>
+<ul>
+<li>Upload the file again</li>
+<li>Click &quot;Confirm Import&quot;</li>
+<li><input type="checkbox" id="checkbox72"><label for="checkbox72">Button shows &quot;Importing...&quot;</label></li>
+<li><input type="checkbox" id="checkbox73"><label for="checkbox73">Success message: &quot;Import complete: X associations created, Y skipped&quot;</label></li>
+<li><input type="checkbox" id="checkbox74"><label for="checkbox74">Import history table below updates with the new import</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test import history:</strong></p>
+<ul>
+<li><input type="checkbox" id="checkbox75"><label for="checkbox75">History shows: file name, company, matched count, unmatched count, import date</label></li>
+<li><input type="checkbox" id="checkbox76"><label for="checkbox76">Most recent import appears first</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test duplicate import:</strong></p>
+<ul>
+<li>Upload and confirm the same file again</li>
+<li><input type="checkbox" id="checkbox77"><label for="checkbox77">Associations that already exist are skipped (skipped count increases)</label></li>
+<li><input type="checkbox" id="checkbox78"><label for="checkbox78">No duplicate </label><code>TenantSmelterAssociation</code> records created</li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="7-tenantadmin-sidebar-fix">7. TENANT_ADMIN Sidebar Fix</h2>
+<p><strong>Login as:</strong> <code>admin@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li><strong>Check sidebar navigation:</strong>
+<ul>
+<li><input type="checkbox" id="checkbox79"><label for="checkbox79">Sidebar shows &quot;Overview&quot; group with Dashboard link</label></li>
+<li><input type="checkbox" id="checkbox80"><label for="checkbox80">Sidebar shows &quot;Management&quot; group with Users and Compliance links</label></li>
+<li><input type="checkbox" id="checkbox81"><label for="checkbox81">Links navigate correctly</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="8-batch-id-typeahead-submit-event">8. Batch ID Typeahead (Submit Event)</h2>
+<p><strong>Login as:</strong> <code>supplier@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p>Navigate to Submit Custody Event (<code>/supplier/submit</code>)</p>
+</li>
+<li>
+<p><strong>Test batch search:</strong></p>
+<ul>
+<li><input type="checkbox" id="checkbox82"><label for="checkbox82">Batch field shows &quot;Search by batch number, mineral, or country...&quot;</label></li>
+<li>Start typing a batch number</li>
+<li><input type="checkbox" id="checkbox83"><label for="checkbox83">Dropdown appears with matching batches</label></li>
+<li><input type="checkbox" id="checkbox84"><label for="checkbox84">Each result shows: batch number, mineral type, country, weight, compliance status</label></li>
+<li>Select a batch</li>
+<li><input type="checkbox" id="checkbox85"><label for="checkbox85">Green confirmation bar appears with batch details</label></li>
+<li><input type="checkbox" id="checkbox86"><label for="checkbox86">X button to clear selection</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test search by different fields:</strong></p>
+<ul>
+<li>Clear and type a mineral type (e.g., &quot;Tungsten&quot;)</li>
+<li><input type="checkbox" id="checkbox87"><label for="checkbox87">Batches with that mineral type appear</label></li>
+<li>Clear and type a country (e.g., &quot;Rwanda&quot;)</li>
+<li><input type="checkbox" id="checkbox88"><label for="checkbox88">Batches from that country appear</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test pre-filled batch ID:</strong></p>
+<ul>
+<li>Navigate from a batch detail page via &quot;Add Event&quot; button</li>
+<li><input type="checkbox" id="checkbox89"><label for="checkbox89">Batch is pre-selected in the typeahead</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="9-country-typeahead-create-batch">9. Country Typeahead (Create Batch)</h2>
+<p><strong>Login as:</strong> <code>supplier@auditraks.com</code> / <code>Demo1234!</code></p>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>
+<p>Navigate to Create Batch (<code>/supplier/batches/new</code>)</p>
+</li>
+<li>
+<p><strong>Test country search:</strong></p>
+<ul>
+<li><input type="checkbox" id="checkbox90"><label for="checkbox90">Origin Country field shows &quot;Search country...&quot;</label></li>
+<li>Type &quot;Con&quot;</li>
+<li><input type="checkbox" id="checkbox91"><label for="checkbox91">Dropdown shows &quot;Congo (DRC) CD&quot; and &quot;Congo (Republic) CG&quot;</label></li>
+<li>Select &quot;Congo (DRC)&quot;</li>
+<li><input type="checkbox" id="checkbox92"><label for="checkbox92">Field shows &quot;Congo (DRC) (CD)&quot;</label></li>
+<li><input type="checkbox" id="checkbox93"><label for="checkbox93">Field border turns green</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test search by ISO code:</strong></p>
+<ul>
+<li>Clear and type &quot;RW&quot;</li>
+<li><input type="checkbox" id="checkbox94"><label for="checkbox94">Rwanda appears in dropdown</label></li>
+</ul>
+</li>
+<li>
+<p><strong>Test no match:</strong></p>
+<ul>
+<li>Type &quot;XYZ&quot;</li>
+<li><input type="checkbox" id="checkbox95"><label for="checkbox95">&quot;No matching country found&quot; message appears</label></li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="10-email-reply-to-header">10. Email Reply-To Header</h2>
+<h3 id="test-steps">Test Steps</h3>
+<ol>
+<li>Trigger any transactional email (e.g., invite a user, reset password)</li>
+<li>Check the received email headers
+<ul>
+<li><input type="checkbox" id="checkbox96"><label for="checkbox96"></label><code>Reply-To</code> header is set to <code>support@auditraks.com</code></li>
+<li><input type="checkbox" id="checkbox97"><label for="checkbox97"></label><code>From</code> is <code>noreply@auditraks.com</code></li>
+</ul>
+</li>
+<li>Hit reply on the email
+<ul>
+<li><input type="checkbox" id="checkbox98"><label for="checkbox98">Reply is addressed to </label><code>support@auditraks.com</code></li>
+<li><input type="checkbox" id="checkbox99"><label for="checkbox99">Check Zoho Mail inbox — reply arrives in </label><code>support@auditraks.com</code> mailbox</li>
+</ul>
+</li>
+</ol>
+<p><strong>Result:</strong> PASS / FAIL</p>
+<hr>
+<h2 id="summary-checklist">Summary Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Feature</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Supplier Onboarding Checklist (GAP-5)</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Material Passport Sharing (GAP-2)</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Supplier Engagement Metrics (GAP-3)</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Manual Supplier Nudge (GAP-4)</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Automated Supplier Reminders (GAP-4)</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>CMRT v6.x Import (GAP-1)</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>TENANT_ADMIN Sidebar Fix</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Batch ID Typeahead</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Country Typeahead</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Email Reply-To Header</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tested by:</strong> _______________
+<strong>Date:</strong> _______________
+<strong>Overall result:</strong> PASS / FAIL</p>
+
+</body>
+</html>

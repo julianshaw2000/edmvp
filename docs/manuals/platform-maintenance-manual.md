@@ -13,7 +13,7 @@
 3. [Monthly Tasks](#3-monthly-tasks)
 4. [Tenant Management](#4-tenant-management)
 5. [Stripe Operations](#5-stripe-operations)
-6. [Auth0 Operations](#6-auth0-operations)
+6. [Authentication Operations](#6-authentication-operations)
 7. [Troubleshooting](#7-troubleshooting)
 8. [Emergency Procedures](#8-emergency-procedures)
 9. [Useful Commands](#9-useful-commands)
@@ -277,11 +277,11 @@ This gives you a quick snapshot of platform size and tenant health.
    - Endpoints that have not received a successful delivery in more than 30 days
 3. Contact the relevant tenant admin for stale endpoints.
 
-**Auth0 login activity:**
+**Login activity review:**
 
-1. Go to **Auth0 Dashboard > Activity > Logs**.
-2. Review failed login attempts. A spike in failed logins (type `fp` — failed password) could indicate credential stuffing.
-3. If a specific user account is being targeted, block it from Auth0 until the account holder is notified.
+1. Check the **Audit Log** (Admin Dashboard > Audit Log) for failed login attempts.
+2. A spike in failed logins could indicate credential stuffing. Review the IP addresses and user emails involved.
+3. If a specific user account is being targeted, deactivate it in the Users table until the account holder is notified.
 
 **Render environment variable check:**
 
@@ -289,7 +289,7 @@ Verify all critical env vars are set on the `accutrac-api` service. The absence 
 
 | Variable | Effect if missing |
 |---|---|
-| `Auth0__Domain` | API starts with NO token validation — anyone can call any endpoint |
+| `Jwt__Key` | API will fail to start — no fallback mode |
 | `Stripe__SecretKey` | All billing endpoints fail |
 | `Stripe__WebhookSecret` | All Stripe webhook events are rejected |
 | `R2__AccountId` | File uploads write to local disk (lost on redeploy) |
@@ -313,7 +313,7 @@ Use this when a customer needs an account created outside of the self-serve sign
    - **Admin email** — the email of the first user (will be created as TENANT_ADMIN)
 5. Submit the form.
 
-The system creates the tenant and a TENANT_ADMIN user with a pending Auth0 link. Tell the customer to go to `https://auditraks.com` and sign in with the email you provided (using either Google or email/password — whichever matches that email).
+The system creates the tenant and a TENANT_ADMIN user with a pending identity link. A setup email is sent via Resend — the admin clicks the link to set their password and log in.
 
 **Via API (if dashboard is unavailable):**
 
@@ -434,7 +434,9 @@ The platform is currently using Stripe test mode (`sk_test_...`). When you are r
 
 ---
 
-## 6. Auth0 Operations
+## 6. Authentication Operations
+
+Authentication is self-hosted using ASP.NET Core Identity. There is no external identity provider dashboard to manage.
 
 ### Adding a User Manually
 
@@ -445,7 +447,7 @@ The platform is currently using Stripe test mode (`sk_test_...`). When you are r
 3. Enter the user's email and select their role (Supplier or Buyer).
 4. Click **Send Invitation**.
 
-The user receives an email with a 7-day activation link. They click it and complete sign-in (Google or email/password). On first login, their Auth0 identity is linked to the invitation record automatically.
+The user receives an email with a 7-day activation link. They click it, set their password, and log in. On first login, their Identity user record is linked to the invitation record automatically.
 
 **If an invitation email was not received:**
 
@@ -456,76 +458,35 @@ The user receives an email with a 7-day activation link. They click it and compl
 
 ### Resetting a User's Password
 
-Users handle this themselves. Auth0 provides a self-service flow:
+Users handle this themselves via a self-service flow:
 
 1. User goes to `https://auditraks.com/login`.
 2. They click **Forgot password?**
-3. Auth0 sends a password reset email directly.
+3. The API sends a password reset email via Resend.
 
-You do not need to intervene. If a user claims the reset email never arrived, check the Auth0 Activity logs (see below) and verify the email address is correct in the platform.
-
-### Unlocking a Blocked User
-
-Auth0 blocks users after repeated failed login attempts. To unblock:
-
-1. Go to **Auth0 Dashboard > User Management > Users**.
-2. Search for the user by email.
-3. Click on the user → click **Unblock**.
-
-The user can log in immediately after unblocking.
+You do not need to intervene. If a user claims the reset email never arrived, check the Resend dashboard for delivery status and verify the email address is correct in the platform.
 
 ### Reviewing Login Activity
 
-1. Go to **Auth0 Dashboard > Activity > Logs**.
-2. Use the filter to select event types:
-   - `s` — successful login
-   - `fp` — failed password login
-   - `ss` — successful signup
-   - `f` — general failure
+1. Check the **Audit Log** (Admin Dashboard > Audit Log) for login-related events.
+2. Filter by action type to find failed logins.
 
 Useful for diagnosing:
 - A user who "can't log in" — check for recent failed events for their email
 - Unusual login volumes from unexpected IP addresses
-- Whether a new user has successfully activated their account (look for `ss` or `s` after their invitation was sent)
+- Whether a new user has successfully activated their account
 
-### Fixing a Mislinked Auth0 Account
+### Fixing a Mislinked Identity Account
 
-This happens occasionally when a user first signs in with Google, then later with email/password (or vice versa). The `/api/me` endpoint self-heals most cases automatically.
-
-If a user is stuck:
-
-1. In the Neon SQL Editor, reset their Auth0 sub:
+If a user's `IdentityUserId` becomes mislinked, reset it in the Neon SQL Editor:
 
 ```sql
 UPDATE "Users"
-SET "Auth0Sub" = 'pending|' || gen_random_uuid(), "UpdatedAt" = now()
+SET "IdentityUserId" = 'pending-' || gen_random_uuid(), "UpdatedAt" = now()
 WHERE "Email" = 'affected.user@example.com';
 ```
 
-2. Ask the user to sign in again. The `/api/me` endpoint will re-link their identity.
-
-### Post Login Action — Critical Config
-
-The Auth0 Post Login Action must be deployed for the platform to work. It injects `email` and `name` as custom claims into the JWT. Without it, the API cannot identify users.
-
-**To verify it is active:**
-
-1. Go to **Auth0 Dashboard > Actions > Flows > Login**.
-2. Check that the Post Login action appears in the Login flow and shows "Deployed".
-
-**The action code** (for reference if it ever needs to be recreated):
-
-```javascript
-exports.onExecutePostLogin = async (event, api) => {
-  const namespace = 'https://auditraks.com';
-  api.idToken.setCustomClaim(`${namespace}/email`, event.user.email);
-  api.idToken.setCustomClaim(`${namespace}/name`, event.user.name);
-  api.accessToken.setCustomClaim(`${namespace}/email`, event.user.email);
-  api.accessToken.setCustomClaim(`${namespace}/name`, event.user.name);
-  api.idToken.setCustomClaim('email', event.user.email);
-  api.idToken.setCustomClaim('name', event.user.name);
-};
-```
+Ask the user to sign in again. The `/api/me` endpoint will re-link their identity.
 
 ---
 
@@ -545,9 +506,9 @@ Work through this in order:
 
 1. **Check the user exists** — Admin Dashboard > Users. If they are not listed, they have not been invited.
 2. **Check tenant status** — if the tenant is SUSPENDED or CANCELLED, all users get a 403 after login. Verify tenant status in Admin Dashboard > Tenants.
-3. **Check Auth0 logs** — Auth0 Dashboard > Activity > Logs. Search for the user's email. Look for recent failed logins (`fp`) or errors.
-4. **Email mismatch** — the user must sign in with exactly the same email used in the invitation. If they have a Google account under a different email than they were invited with, the link will fail. Check both the invitation email and their Google account email.
-5. **"Back button" error / redirect loop** — this is a browser cookie issue. Ask the user to clear cookies and site data for `auditraks.com` and try again.
+3. **Check the Audit Log** — look for failed login events for the user's email address.
+4. **Email mismatch** — the user must sign in with exactly the same email used in the invitation.
+5. **Check `IdentityUserId`** — if it still starts with `pending-`, the user has not completed account setup. Resend the invitation.
 6. **Invitation expired** — invitation links are valid for 7 days. Resend from Admin > Users.
 
 ### Signup Not Working
@@ -642,7 +603,7 @@ Act quickly and in this order:
 
 1. **Revoke all API keys** — Admin Dashboard > API Keys > Revoke all active keys. This immediately cuts off any programmatic access.
 2. **Rotate Stripe webhook secret** — go to Stripe Dashboard > Developers > Webhooks > your endpoint > Reveal signing secret > Roll secret. Update `Stripe__WebhookSecret` on Render immediately.
-3. **Rotate Auth0 client secret** if you believe Auth0 credentials are compromised — Auth0 Dashboard > Applications > your app > Settings > Rotate Secret. Update the frontend environment and redeploy.
+3. **Rotate `Jwt__Key`** if you believe the signing key is compromised — generate a new random string (min 32 characters), update `Jwt__Key` on the Render API service, and redeploy. All existing tokens will be immediately invalidated and users will need to log in again.
 4. **Check the audit log** — export the full audit log (Admin Dashboard > Audit Log > Export CSV) for the past 24–72 hours. Look for actions you do not recognize.
 5. **Suspend affected tenants** if unauthorized data access is confirmed, to prevent further exposure while you investigate.
 6. **Contact affected tenants** once you understand the scope. Be direct about what happened, what data was affected, and what you have done.
@@ -655,7 +616,6 @@ Check status pages first before assuming the problem is yours:
 |---|---|
 | Render | https://status.render.com |
 | Neon | https://status.neon.tech |
-| Auth0 | https://status.auth0.com |
 | Stripe | https://status.stripe.com |
 | Cloudflare | https://www.cloudflarestatus.com |
 | Resend | https://resend-status.com |
@@ -756,11 +716,11 @@ SET "Role" = 'PLATFORM_ADMIN', "UpdatedAt" = now()
 WHERE "Email" = 'user@example.com';
 ```
 
-### Reset a Mislinked Auth0 Account
+### Reset a Mislinked Identity Account
 
 ```sql
 UPDATE "Users"
-SET "Auth0Sub" = 'pending|' || gen_random_uuid(), "UpdatedAt" = now()
+SET "IdentityUserId" = 'pending-' || gen_random_uuid(), "UpdatedAt" = now()
 WHERE "Email" = 'affected.user@example.com';
 ```
 
@@ -791,7 +751,7 @@ WHERE "Email" = 'user@example.com';
 |---|---|---|
 | Render (hosting) | https://dashboard.render.com | https://status.render.com |
 | Neon (database) | https://console.neon.tech | https://status.neon.tech |
-| Auth0 (auth) | https://manage.auth0.com | https://status.auth0.com |
+| Auth (Identity) | Self-hosted (API) | N/A |
 | Stripe (billing) | https://dashboard.stripe.com | https://status.stripe.com |
 | Cloudflare (DNS + R2) | https://dash.cloudflare.com | https://www.cloudflarestatus.com |
 | Resend (email) | https://resend.com/emails | https://resend-status.com |
@@ -804,7 +764,7 @@ All credential files are in `docs/` and are gitignored. Never commit them.
 
 | File | Contains |
 |---|---|
-| `docs/auth0.secrets` | Auth0 domain, client ID, audience |
+| `docs/jwt.secrets` | JWT signing key, issuer, audience |
 | `docs/neon.secrets` | PostgreSQL connection string |
 | `docs/cloudfare.secrets` | Cloudflare R2 bucket endpoint (includes account ID) |
 | `docs/stripe.secrets` | Stripe keys, price IDs, webhook secret |
@@ -814,8 +774,9 @@ All credential files are in `docs/` and are gitignored. Never commit them.
 
 | Variable | Service | Effect if missing |
 |---|---|---|
-| `Auth0__Domain` | API | No token validation — critical security gap |
-| `Auth0__Audience` | API | All JWT validation fails |
+| `Jwt__Key` | API | API will fail to start — no fallback mode |
+| `Jwt__Issuer` | API | All JWT validation fails |
+| `Jwt__Audience` | API | All JWT validation fails |
 | `ConnectionStrings__DefaultConnection` | API | No database access — full outage |
 | `R2__AccountId` | API | File uploads go to local disk (lost on redeploy) |
 | `R2__AccessKeyId` | API | File uploads fail |

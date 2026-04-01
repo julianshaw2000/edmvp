@@ -11,7 +11,7 @@
 1. [Architecture Overview](#1-architecture-overview)
 2. [Environment Configuration](#2-environment-configuration)
 3. [Deployment](#3-deployment)
-4. [Auth0 Administration](#4-auth0-administration)
+4. [Authentication (ASP.NET Core Identity)](#4-authentication-aspnet-core-identity)
 5. [Stripe Administration](#5-stripe-administration)
 6. [Tenant Management](#6-tenant-management)
 7. [Database](#7-database)
@@ -34,7 +34,7 @@ auditraks is a three-tier SaaS application deployed entirely on managed cloud in
 | API | ASP.NET Core (.NET 10), Minimal APIs, MediatR CQRS | Render Web Service |
 | Background Worker | .NET 10 hosted service | Render Background Worker |
 | Database | PostgreSQL | Neon (serverless) |
-| Auth | Auth0 (JWT bearer, RS256) | Auth0 cloud |
+| Auth | ASP.NET Core Identity (self-issued JWT, HS256) | Self-hosted (API) |
 | File Storage | Cloudflare R2 (S3-compatible) | Cloudflare |
 | Email | Resend | Resend cloud |
 | Billing | Stripe Subscriptions + Webhooks | Stripe cloud |
@@ -52,11 +52,11 @@ packages/
 
 ### Request Flow
 
-1. Browser authenticates against Auth0 and receives a JWT (RS256, 8-hour expiry).
-2. Angular sends `Authorization: Bearer <token>` with every API request.
-3. The API validates the JWT (issuer + audience), then resolves the user's role and tenant from the database via the `/api/me` endpoint — never from JWT claims alone.
+1. User authenticates via `POST /api/auth/login` with email and password. The API issues a 15-minute JWT access token (HS256) and sets a 14-day HttpOnly refresh token cookie.
+2. Angular includes the JWT in the `Authorization: Bearer <token>` header with every API request.
+3. The API validates the JWT (issuer + audience + symmetric key), then resolves the user's role and tenant from the database via the `/api/me` endpoint — never from JWT claims alone.
 4. Every API endpoint enforces role requirements server-side independently of any client-side route guard.
-5. Write operations are logged by `AuditLoggingMiddleware` (SHA-256 of request body + user sub).
+5. Write operations are logged by `AuditLoggingMiddleware` (SHA-256 of request body + IdentityUserId).
 6. Background worker processes compliance checks and document generation jobs asynchronously.
 
 ### Multi-Tenancy Model
@@ -75,10 +75,11 @@ All configuration is injected as environment variables on the Render services. T
 
 | Variable | Description | Example |
 |---|---|---|
-| `Auth0__Domain` | Auth0 tenant domain (no `https://`) | `your-tenant.auth0.com` |
-| `Auth0__Audience` | Auth0 API audience identifier | `https://api.auditraks.com` |
+| `Jwt__Key` | Symmetric signing key for JWT tokens (HS256) | A long random string (min 32 characters) |
+| `Jwt__Issuer` | JWT issuer claim | `https://accutrac-api.onrender.com` |
+| `Jwt__Audience` | JWT audience claim | `https://api.auditraks.com` |
 
-**Note:** If `Auth0__Domain` is absent, the API starts in dev mode with no token validation — never deploy to production without this set.
+**Note:** The API will fail to start without `Jwt__Key`. This is intentional — there is no dev mode that skips token validation.
 
 #### Database
 
@@ -155,15 +156,10 @@ The Angular app reads configuration from `packages/web/src/environments/environm
 export const environment = {
   production: true,
   apiUrl: 'https://<render-api-service>.onrender.com',
-  auth0: {
-    domain: 'YOUR_TENANT.auth0.com',
-    clientId: 'YOUR_SPA_CLIENT_ID',
-    audience: 'https://api.auditraks.com',
-  },
 };
 ```
 
-These are baked into the build artefact. To change them, update the file and trigger a new deployment.
+Authentication is handled entirely by the API (ASP.NET Core Identity). The Angular app calls `POST /api/auth/login` directly — there is no external auth provider or SDK to configure. These values are baked into the build artefact. To change them, update the file and trigger a new deployment.
 
 ---
 
@@ -231,81 +227,47 @@ If migrations fail (step 2), the service throws and Render will restart it.
 
 ---
 
-## 4. Auth0 Administration
+## 4. Authentication (ASP.NET Core Identity)
 
-### Tenant and Application Setup
+### Overview
 
-The production Auth0 tenant is configured with:
+Authentication is self-hosted using ASP.NET Core Identity. There is no external identity provider. Users authenticate with email and password via `POST /api/auth/login`. The API issues:
 
-- **Application type:** Single Page Application (SPA)
-- **Application name:** `Tungsten Web` (or similar)
-- **Domain:** `<your-tenant>.auth0.com`
+- A **15-minute JWT access token** (HS256, signed with `Jwt__Key`)
+- A **14-day HttpOnly refresh token cookie** (automatically renewed on use)
 
-#### Required SPA Settings
+The Angular app stores the access token in memory and includes it as `Authorization: Bearer <token>` on every API request. When the access token expires, the app calls `POST /api/auth/refresh` to obtain a new one using the refresh cookie.
 
-In Auth0 Dashboard > Applications > `<your app>` > Settings:
+### JWT Configuration
 
-| Setting | Value |
+| Environment Variable | Purpose |
 |---|---|
-| Allowed Callback URLs | `https://auditraks.com, http://localhost:4200` |
-| Allowed Logout URLs | `https://auditraks.com, http://localhost:4200` |
-| Allowed Web Origins | `https://auditraks.com, http://localhost:4200` |
-| ID Token Expiration | `28800` (8 hours) |
-| Refresh Token grant | **Disabled** (uncheck in Advanced Settings > Grant Types) |
+| `Jwt__Key` | Symmetric signing key (HS256). Must be at least 32 characters. The API will fail to start without this. |
+| `Jwt__Issuer` | Issuer claim written into and validated on every token. |
+| `Jwt__Audience` | Audience claim written into and validated on every token. |
 
-#### API Configuration
+There is no JWKS endpoint — the signing key is symmetric and shared only within the API process.
 
-In Auth0 Dashboard > Applications > APIs > Create API:
+### Password Reset
 
-| Setting | Value |
-|---|---|
-| Name | `auditraks API` |
-| Identifier (Audience) | `https://api.auditraks.com` |
-| Signing Algorithm | RS256 |
+Users reset their own passwords via a self-service flow:
 
-The API audience must match the `Auth0__Audience` environment variable exactly.
+1. User clicks **Forgot password?** on the login page.
+2. The API sends a password reset email via Resend.
+3. The user clicks the link and sets a new password.
 
-### Connections
-
-- **Database connection:** Username-Password-Authentication (email + password sign-up/in)
-- **Social connection:** Google OAuth2 (`google-oauth2`) — enable in Connections > Social
-
-### Actions — Post Login
-
-A Post Login Action must add `email` and `name` claims to the ID token and access token. Without this, the `/api/me` endpoint cannot resolve the user's email from the JWT claims.
-
-Create a new Action (Triggers > Login > Post Login):
-
-```javascript
-exports.onExecutePostLogin = async (event, api) => {
-  const namespace = 'https://auditraks.com';
-  api.idToken.setCustomClaim(`${namespace}/email`, event.user.email);
-  api.idToken.setCustomClaim(`${namespace}/name`, event.user.name);
-  api.accessToken.setCustomClaim(`${namespace}/email`, event.user.email);
-  api.accessToken.setCustomClaim(`${namespace}/name`, event.user.name);
-  // Also set standard claims for fallback resolution
-  api.idToken.setCustomClaim('email', event.user.email);
-  api.idToken.setCustomClaim('name', event.user.name);
-};
-```
-
-Add this Action to the Login flow and deploy it.
-
-The API resolves email and name from the token in the following priority order:
-
-1. `email` claim (plain)
-2. `ClaimTypes.Email` (.NET standard)
-3. `https://auditraks.com/email` (namespaced custom claim)
+No admin intervention is required. If a user claims the reset email never arrived, check the Resend dashboard for delivery status and verify the email address is correct in the platform.
 
 ### User Management
 
-Auth0 users are not the source of truth for roles or tenant membership — the auditraks database is. The Auth0 `sub` (subject identifier) is stored on `UserEntity.Auth0Sub` as the link.
+The auditraks database is the sole source of truth for users, roles, and tenant membership. Each user has an `IdentityUserId` column that links to the ASP.NET Core Identity user record.
 
 **User lifecycle:**
 
-1. A new user is invited via the Admin or Platform Admin UI. A `UserEntity` is created with `Auth0Sub = "pending|<guid>"`.
-2. The user signs up in Auth0 (via email/password or Google).
-3. On first login, the `/api/me` endpoint matches the Auth0 JWT's email to the pending user, updates `Auth0Sub` to the real sub, and returns the user profile.
+1. Admin invites a user via the Admin UI. A `UserEntity` is created with `IdentityUserId = "pending-<guid>"`.
+2. The platform sends a setup email via Resend with a link to set their password.
+3. The user sets their password and logs in.
+4. On first login, the `/api/me` endpoint matches the email to the pending user, updates `IdentityUserId` to the real Identity user ID, and returns the user profile.
 
 **To manually promote a user to PLATFORM_ADMIN:**
 
@@ -323,17 +285,15 @@ SET "IsActive" = false, "UpdatedAt" = now()
 WHERE "Email" = 'user@example.com';
 ```
 
-**If a user's Auth0Sub becomes mislinked** (e.g. they used Google login then email/password, or the fallback email was applied):
+**If a user's IdentityUserId becomes mislinked:**
 
-The `/api/me` endpoint detects a sub/email mismatch and automatically unlinks the stale sub by prefixing it with `unlinked|`. The user then re-links on their next login. If this does not self-heal, manually reset the sub:
+Reset it so the user re-links on their next login:
 
 ```sql
 UPDATE "Users"
-SET "Auth0Sub" = 'pending|' || gen_random_uuid(), "UpdatedAt" = now()
+SET "IdentityUserId" = 'pending-' || gen_random_uuid(), "UpdatedAt" = now()
 WHERE "Email" = 'affected.user@example.com';
 ```
-
-The user will re-link on their next login.
 
 ---
 
@@ -461,7 +421,7 @@ Response (201 Created):
 }
 ```
 
-The admin user is created with `Auth0Sub = "pending|<guid>"` and will link to a real Auth0 identity on first login. No email invitation is sent automatically — you must notify the admin separately to sign up at `https://auditraks.com`.
+The admin user is created with `IdentityUserId = "pending-<guid>"` and will link to a real Identity user on first login. A setup email is sent via Resend — the admin clicks the link to set their password.
 
 #### Via Stripe Checkout (self-serve)
 
@@ -564,7 +524,7 @@ pg_dump "Host=ep-xxx.neon.tech;Database=auditraks;Username=...;Password=...;SSL 
 | Table | Description |
 |---|---|
 | `Tenants` | One row per organisation. Central to row-level multi-tenancy. |
-| `Users` | One row per user. `Auth0Sub` is the link to Auth0 identity. |
+| `Users` | One row per user. `IdentityUserId` links to the ASP.NET Core Identity user record. |
 | `Batches` | Tungsten batches tracked through the custody chain. |
 | `CustodyEvents` | Custody transfer events, each with a SHA-256 hash chain. |
 | `ComplianceChecks` | Results of RMAP/OECD compliance evaluation per batch. |
@@ -595,20 +555,20 @@ Use `/health/live` as the Render health check URL. Use `/health/ready` to confir
 
 ### Sentry Error Tracking
 
-All unhandled exceptions are forwarded to Sentry. Sentry user context is set to the Auth0 `sub` (no PII such as email or name). Traces sample rate is 20%.
+All unhandled exceptions are forwarded to Sentry. Sentry user context is set to the `IdentityUserId` (no PII such as email or name). Traces sample rate is 20%.
 
 To investigate an error:
 
 1. Open the Sentry project for `tungsten-api`.
 2. Filter by the relevant release (each deploy creates a new release automatically if Sentry release integration is configured).
-3. The `User.Id` field in Sentry corresponds to the `Auth0Sub` in the `Users` table.
+3. The `User.Id` field in Sentry corresponds to the `IdentityUserId` in the `Users` table.
 
 ### Audit Log
 
 All write operations (POST, PUT, PATCH, DELETE) are logged by `AuditLoggingMiddleware`. Log entries contain:
 
 - Timestamp (UTC, ISO 8601)
-- Auth0 sub of the caller
+- IdentityUserId of the caller
 - HTTP method and path
 - SHA-256 hash of the request body
 - HTTP status code
@@ -637,14 +597,14 @@ Access live and historical logs in the Render dashboard under each service > Log
 
 ## 9. Security
 
-### JWT Authentication (Auth0)
+### JWT Authentication (ASP.NET Core Identity)
 
-All API endpoints except health checks require a valid Auth0 JWT bearer token. Token validation parameters:
+All API endpoints except health checks require a valid JWT bearer token. Token validation parameters:
 
-- Issuer must be `https://<auth0-domain>/`
-- Audience must match `Auth0__Audience`
-- Signature verified with Auth0's JWKS (RS256)
-- Lifetime validated (8-hour expiry, no refresh tokens)
+- Issuer must match `Jwt__Issuer`
+- Audience must match `Jwt__Audience`
+- Signature verified with the symmetric key from `Jwt__Key` (HS256)
+- Access token lifetime: 15 minutes. Refresh token (HttpOnly cookie): 14 days.
 
 ### API Key Authentication
 
@@ -653,7 +613,7 @@ Machine-to-machine callers may use an API key instead of a JWT. Keys are passed 
 1. Checks if the request is not already JWT-authenticated.
 2. Computes SHA-256 of the provided key.
 3. Looks up the hash in the `ApiKeys` table (only active keys).
-4. If found, synthesises a `ClaimsPrincipal` from the key owner's Auth0 sub, allowing all downstream auth logic to function identically.
+4. If found, synthesises a `ClaimsPrincipal` from the key owner's IdentityUserId, allowing all downstream auth logic to function identically.
 5. Updates `LastUsedAt` asynchronously (fire-and-forget, non-critical).
 
 API keys are never stored in plaintext — only the SHA-256 hex digest is persisted.
@@ -669,7 +629,7 @@ There are four roles, enforced by `RoleAuthorizationHandler`:
 | `SUPPLIER` | Create/edit batches and custody events within their tenant |
 | `BUYER` | Read batches and documents within their tenant |
 
-Roles are stored on `UserEntity.Role` in the database. They are not encoded in Auth0 tokens or JWT claims.
+Roles are stored on `UserEntity.Role` in the database. They are not encoded in JWT claims.
 
 ### Tenant Isolation
 
@@ -702,18 +662,6 @@ The CI pipeline runs `dotnet test` and `dotnet format --verify-no-changes`. The 
 - **Test failure:** check the GitHub Actions log for the failing test name.
 - **Format failure:** run `dotnet format` in `packages/api` locally and commit the changes.
 
-### Auth0 "Back Button" Error (Stale State)
-
-**Symptom:** After a user clicks the browser back button after Auth0 login, they see an error such as "Invalid state" or "Callback error."
-
-**Cause:** The Auth0 PKCE state nonce has already been consumed. The Angular Auth0 SDK uses a one-time state parameter that is invalidated after the callback is processed.
-
-**Fix:** The user should navigate to the app root (`https://auditraks.com`) rather than using the browser back button from the Auth0 callback. The Angular app should redirect to `/dashboard` or `/login` on callback completion, not expose the callback URL directly.
-
-Ensure these are set in Auth0 SPA settings:
-- Allowed Callback URLs include `https://auditraks.com` (not a sub-path like `/callback`)
-- The Angular Auth0 SDK `redirectUri` points to the app root.
-
 ### Health Check Timeout on Render
 
 **Symptom:** Render marks the service as unhealthy during deployment because the health check times out before the service responds.
@@ -732,7 +680,7 @@ The API is designed to degrade gracefully when optional integrations are absent:
 - Missing `Sentry__Dsn` → no error tracking
 - Missing `Stripe__SecretKey` → billing endpoints throw exceptions
 
-**Missing `Auth0__Domain`** is the most critical — without it, the API starts in dev mode with no authentication, meaning all endpoints are accessible without a token. This must never be absent in production.
+**Missing `Jwt__Key`** is the most critical — without it, the API will fail to start. This is intentional — there is no fallback mode that skips token validation.
 
 Verify all required environment variables are set in Render under Service > Environment.
 
@@ -785,20 +733,19 @@ WHERE "Id" = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
 **Symptom:** User sees "No account found. Contact your administrator to get access."
 
-**Cause:** The `/api/me` endpoint found no matching user record for the Auth0 sub or email.
+**Cause:** The `/api/me` endpoint found no matching user record for the IdentityUserId or email.
 
 **Diagnosis:**
 
 1. Verify the user exists in the `Users` table with the correct email.
 2. Check that `IsActive = true`.
-3. Check `Auth0Sub` — if it starts with `unlinked|`, the sub was mislinked and the user needs to log in again to re-link.
-4. Verify the Post Login Action is deployed and adding the `email` claim to the access token. Without the email claim, the `/api/me` fallback matching cannot work.
+3. Check `IdentityUserId` — if it still starts with `pending-`, the user has not yet completed their first login.
 
-**Fix:** If the user exists but `Auth0Sub` is wrong, reset it:
+**Fix:** If the user exists but `IdentityUserId` is wrong, reset it:
 
 ```sql
 UPDATE "Users"
-SET "Auth0Sub" = 'pending|' || gen_random_uuid(), "UpdatedAt" = now()
+SET "IdentityUserId" = 'pending-' || gen_random_uuid(), "UpdatedAt" = now()
 WHERE "Email" = 'user@example.com';
 ```
 
@@ -948,10 +895,6 @@ If the webhook secret is rotated in the Stripe dashboard:
 1. In Stripe: Developers > Webhooks > select the endpoint > roll the signing secret.
 2. In Render: update `Stripe__WebhookSecret` to the new `whsec_...` value.
 3. Trigger a manual redeploy so the API picks up the new secret.
-
-### Rotating Auth0 Client Secret
-
-Auth0 SPA applications use PKCE and do not have a client secret used server-side. No rotation is needed for the API. If the SPA Client ID changes (e.g. after recreating the Auth0 application), update `clientId` in `packages/web/src/environments/environment.prod.ts` and redeploy the frontend.
 
 ---
 

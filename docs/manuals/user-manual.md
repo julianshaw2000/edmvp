@@ -49,10 +49,7 @@ auditraks is a SaaS platform. To create a new organization account:
 
 ### How to Sign In
 
-auditraks uses secure authentication via Auth0. Navigate to `/login` and sign in with either:
-
-- **Google** — click **Continue with Google** and authenticate with your Google account.
-- **Email and password** — enter the email and password associated with your auditraks account.
+Navigate to `/login` and sign in with your email and password. Enter the credentials associated with your auditraks account and click **Sign In**.
 
 **Forgot your password?** Click **Forgot password?** on the login screen. A reset link will be sent to your email.
 

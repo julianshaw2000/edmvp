@@ -12,7 +12,7 @@
 
 - Browser: Chrome recommended (also test in Firefox or Safari if available)
 - App URL: `https://auditraks.com`
-- A Google account for testing — **do not use** `julianshaw2000@gmail.com` (that is the platform admin account)
+- An email account for testing — **do not use** `julianshaw2000@gmail.com` (that is the platform admin account)
 - A second email address you can receive mail at (for invite testing)
 - Stripe test card: `4242 4242 4242 4242` — expiry `12/28`, CVC `123`, postcode `12345`
 - Optional: a mobile phone for Test 20
@@ -35,7 +35,7 @@
    - A pricing section showing two plans: **Starter ($99/month)** and **Pro ($249/month)**
    - A footer
 4. Click the **Login** button (top-right or in the navigation).
-5. Verify: you are taken to the login page (URL should change to `/login` or an Auth0-hosted login URL).
+5. Verify: you are taken to the login page (URL should change to `/login`).
 6. Use the browser back button to return to the landing page.
 7. Click **Start Free Trial** (or the equivalent call-to-action button in the hero).
 8. Verify: you are taken to the signup page (URL should contain `/signup`).
@@ -87,8 +87,8 @@
 **Steps:**
 
 1. From the success page, click the sign-in button (or navigate to `/login`).
-2. Click **Continue with Google** (or **Sign in with Google**).
-3. Authenticate with the Google account matching the email you used to sign up in Test 2.
+2. Enter the email address you used to sign up in Test 2 and the password you set during account setup.
+3. Click **Sign In**.
 4. Verify: you are redirected to the Admin Dashboard at `/admin`.
 5. Verify: a **Getting Started wizard** or onboarding overlay appears. It should have 4 steps:
    - Welcome
@@ -497,7 +497,7 @@
 
 **Browser A — Platform Admin:**
 
-1. Log in as `julianshaw2000@gmail.com` via Google.
+1. Log in as `julianshaw2000@gmail.com` with email and password.
 2. Verify: you land on the Admin Dashboard with Platform Admin access.
 3. Navigate to **Tenants** (in the admin navigation or a dedicated Platform Admin section).
 4. Find the test tenant created in Test 2 (`QA Test Company`).
@@ -564,7 +564,7 @@
    - Navigation adapts to mobile (hamburger menu or bottom navigation)
    - Text is readable without horizontal scrolling
    - Buttons are tappable (not too small)
-3. Log in using Google authentication on mobile.
+3. Log in using email and password on mobile.
 4. Navigate to the Supplier Dashboard and verify batch cards display correctly.
 5. Open a batch and verify the Events tab, Compliance tab, and Activity tab are accessible and usable.
 6. Attempt to log a custody event on mobile — verify the form is usable on a small screen.
