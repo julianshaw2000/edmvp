@@ -1,11 +1,15 @@
 name: CI/CD
 
 on:
-  workflow_dispatch:  # Manual trigger only — disabled automatic runs
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
+  # Build & test — manual only (saves Actions minutes)
   api:
     name: API — Build & Test
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +23,7 @@ jobs:
 
   web:
     name: Web — Build
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,9 +37,9 @@ jobs:
       - run: npx ng build
         working-directory: packages/web
 
+  # Deploy — runs on every push to main
   deploy:
     name: Deploy to Render
-    needs: [api, web]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
