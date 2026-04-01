@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, input, signal } from '@angular/core';
+import { Component, inject, OnInit, input, signal, computed } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { EventTimelineComponent } from './ui/event-timeline.component';
 import { DocumentListComponent } from './ui/document-list.component';
 import { ActivityFeedComponent } from './ui/activity-feed.component';
 import { PassportShareCardComponent } from './ui/passport-share-card.component';
+import { EventMapComponent, MapEvent } from '../../shared/ui/event-map.component';
 import { BatchActivity } from '../admin/data/audit-log.models';
 
 @Component({
@@ -23,6 +24,7 @@ import { BatchActivity } from '../admin/data/audit-log.models';
     FormsModule, DatePipe, RouterLink,
     PageHeaderComponent, StatusBadgeComponent, LoadingSpinnerComponent,
     EventTimelineComponent, DocumentListComponent, ActivityFeedComponent, PassportShareCardComponent,
+    EventMapComponent,
   ],
   template: `
     @if (facade.detailLoading()) {
@@ -186,6 +188,11 @@ import { BatchActivity } from '../admin/data/audit-log.models';
         </div>
       }
 
+      <!-- Tab: Map -->
+      @if (activeTab() === 'map') {
+        <app-event-map [events]="mapEvents()" />
+      }
+
       <!-- Tab: Activity -->
       @if (activeTab() === 'activity') {
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
@@ -260,8 +267,19 @@ export class BatchDetailComponent implements OnInit {
     { id: 'documents', label: 'Documents' },
     { id: 'compliance', label: 'Compliance' },
     { id: 'activity', label: 'Activity' },
+    { id: 'map', label: 'Map' },
   ];
   activeTab = signal('overview');
+
+  mapEvents = computed<MapEvent[]>(() =>
+    this.facade.events().map(e => ({
+      eventType: e.eventType,
+      location: e.location ?? '',
+      actorName: e.actorName,
+      eventDate: e.eventDate,
+      gpsCoordinates: (e as any).metadata?.gpsCoordinates as string | undefined,
+    }))
+  );
 
   protected batchActivity = toSignal(
     toObservable(this.id).pipe(
