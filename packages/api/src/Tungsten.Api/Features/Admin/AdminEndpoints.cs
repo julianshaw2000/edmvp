@@ -65,6 +65,14 @@ public static class AdminEndpoints
                 : Results.BadRequest(new { error = result.Error });
         }).RequireAuthorization(AuthorizationPolicies.RequireAdmin);
 
+        app.MapPost("/api/admin/send-email", async (SendEmail.Command command, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new { message = "Email sent" })
+                : Results.BadRequest(new { error = result.Error });
+        }).RequireAuthorization(AuthorizationPolicies.RequirePlatformAdmin);
+
         return app;
     }
 }
