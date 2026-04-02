@@ -17,4 +17,16 @@ export function registerAuditTools(server, api) {
         const data = await api.get(`/api/admin/audit-logs?${params}`);
         return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     });
+    server.tool('export_audit_logs', 'Export audit logs as CSV', {
+        from: z.string().optional().describe('Start date (ISO 8601)'),
+        to: z.string().optional().describe('End date (ISO 8601)'),
+    }, async ({ from, to }) => {
+        const params = new URLSearchParams();
+        if (from)
+            params.set('from', from);
+        if (to)
+            params.set('to', to);
+        const data = await api.get(`/api/admin/audit-logs/export?${params}`);
+        return { content: [{ type: 'text', text: typeof data === 'string' ? data : JSON.stringify(data, null, 2) }] };
+    });
 }
