@@ -19,4 +19,39 @@ export function registerEngagementTools(server: McpServer, api: AuditraksApiClie
     const data = await api.get('/api/form-sd/filing-cycles');
     return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
   });
+
+  server.tool('get_form_sd_status', 'Check if a batch is ready for Form SD filing (buyer role)', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/form-sd/batches/${batchId}/status`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('get_supply_chain_description', 'Generate AI supply chain narrative for a batch (buyer role)', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/form-sd/batches/${batchId}/supply-chain`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('get_due_diligence_summary', 'Generate AI due diligence summary for a batch (buyer role)', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/form-sd/batches/${batchId}/due-diligence`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('get_risk_assessment', 'Generate AI risk assessment for a batch (buyer role)', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/form-sd/batches/${batchId}/risk-assessment`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('generate_form_sd_package', 'Generate Form SD support package for a reporting year (buyer role)', {
+    reportingYear: z.number().describe('Reporting year (e.g. 2026)'),
+  }, async ({ reportingYear }) => {
+    const data = await api.post(`/api/form-sd/generate/${reportingYear}`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
 }
