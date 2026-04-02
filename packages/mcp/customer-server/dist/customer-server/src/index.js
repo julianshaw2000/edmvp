@@ -8,6 +8,7 @@ import { registerComplianceTools } from './tools/compliance.js';
 import { registerDocumentTools } from './tools/documents.js';
 import { registerSmelterTools } from './tools/smelters.js';
 import { registerEngagementTools } from './tools/engagement.js';
+import { registerNotificationTools } from './tools/notifications.js';
 const apiKey = process.env.AUDITRAKS_API_KEY;
 const apiUrl = process.env.AUDITRAKS_API_URL ?? 'https://accutrac-api.onrender.com';
 if (!apiKey) {
@@ -25,5 +26,6 @@ registerComplianceTools(server, api);
 registerDocumentTools(server, api);
 registerSmelterTools(server, api);
 registerEngagementTools(server, api);
+registerNotificationTools(server, api);
 const transport = new StdioServerTransport();
 await server.connect(transport);

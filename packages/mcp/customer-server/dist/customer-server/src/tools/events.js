@@ -25,4 +25,13 @@ export function registerEventTools(server, api) {
         const data = await api.post(`/api/batches/${batchId}/events`, body);
         return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     });
+    server.tool('create_correction', 'Submit a correction for a custody event', {
+        eventId: z.string().describe('Original event ID (UUID) to correct'),
+        location: z.string().describe('Corrected location'),
+        actorName: z.string().describe('Actor name'),
+        description: z.string().describe('Explanation of the correction'),
+    }, async ({ eventId, ...body }) => {
+        const data = await api.post(`/api/events/${eventId}/corrections`, body);
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    });
 }

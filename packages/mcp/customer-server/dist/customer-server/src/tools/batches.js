@@ -35,4 +35,21 @@ export function registerBatchTools(server, api) {
         const data = await api.get(`/api/batches/${batchId}/verify-integrity`);
         return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     });
+    server.tool('update_batch_status', 'Update the status of a batch', {
+        batchId: z.string().describe('Batch ID (UUID)'),
+        status: z.string().describe('New status (e.g. ACTIVE, COMPLETED)'),
+    }, async ({ batchId, status }) => {
+        const data = await api.patch(`/api/batches/${batchId}/status`, { status });
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    });
+    server.tool('split_batch', 'Split a batch into sub-batches', {
+        batchId: z.string().describe('Batch ID (UUID)'),
+        splits: z.array(z.object({
+            batchNumber: z.string().describe('New batch number'),
+            weightKg: z.number().describe('Weight for this split'),
+        })).describe('Array of splits with batch numbers and weights'),
+    }, async ({ batchId, splits }) => {
+        const data = await api.post(`/api/batches/${batchId}/split`, { splits });
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    });
 }
