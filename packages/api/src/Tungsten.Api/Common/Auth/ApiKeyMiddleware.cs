@@ -23,13 +23,17 @@ public class ApiKeyMiddleware(RequestDelegate next)
 
             if (key is not null)
             {
-                // Update last used (fire-and-forget — non-critical)
+                // Update last used in a separate scope to avoid DbContext concurrency issues
+                var scopeFactory = context.RequestServices.GetRequiredService<IServiceScopeFactory>();
+                var keyId = key.Id;
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        await db.ApiKeys
-                            .Where(k => k.Id == key.Id)
+                        using var scope = scopeFactory.CreateScope();
+                        var scopedDb = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                        await scopedDb.ApiKeys
+                            .Where(k => k.Id == keyId)
                             .ExecuteUpdateAsync(s => s.SetProperty(k => k.LastUsedAt, DateTime.UtcNow));
                     }
                     catch
