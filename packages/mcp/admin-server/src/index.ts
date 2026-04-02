@@ -10,6 +10,7 @@ import { registerRmapTools } from './tools/rmap.js';
 import { registerBatchTools } from './tools/batches.js';
 import { registerJobTools } from './tools/jobs.js';
 import { registerAiTools } from './tools/ai.js';
+import { registerEmailTools } from './tools/email.js';
 
 const email = process.env.AUDITRAKS_EMAIL;
 const password = process.env.AUDITRAKS_PASSWORD;
@@ -36,6 +37,7 @@ registerRmapTools(server, api);
 registerBatchTools(server, api);
 registerJobTools(server, api);
 registerAiTools(server, api);
+registerEmailTools(server, api);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
