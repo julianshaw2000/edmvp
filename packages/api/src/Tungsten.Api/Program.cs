@@ -63,7 +63,11 @@ builder.Services.AddHostedService<FormSdFilingCycleService>();
 
 // Identity
 builder.Services.AddDbContext<IdentityDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, npgsql =>
+    {
+        npgsql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorCodesToAdd: null);
+        npgsql.CommandTimeout(30);
+    }));
 
 builder.Services.AddIdentity<AppIdentityUser, IdentityRole>(options =>
 {
