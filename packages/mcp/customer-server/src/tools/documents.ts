@@ -32,4 +32,25 @@ export function registerDocumentTools(server: McpServer, api: AuditraksApiClient
     const data = await api.post(`/api/generated-documents/${documentId}/share-email`, body);
     return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
   });
+
+  server.tool('generate_dossier', 'Generate an Audit Dossier PDF for a batch (buyer role)', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.post(`/api/batches/${batchId}/dossier`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('generate_dpp', 'Generate a Digital Product Passport (JSON-LD) for a batch (buyer role)', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.post(`/api/batches/${batchId}/dpp`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
+
+  server.tool('list_generated_documents', 'List all generated documents for a batch', {
+    batchId: z.string().describe('Batch ID (UUID)'),
+  }, async ({ batchId }) => {
+    const data = await api.get(`/api/generated-documents?batchId=${batchId}`);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
+  });
 }
