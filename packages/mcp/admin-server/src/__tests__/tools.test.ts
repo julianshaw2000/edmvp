@@ -8,6 +8,7 @@ import { registerRmapTools } from '../tools/rmap.js';
 import { registerBatchTools } from '../tools/batches.js';
 import { registerJobTools } from '../tools/jobs.js';
 import { registerAiTools } from '../tools/ai.js';
+import { registerEmailTools } from '../tools/email.js';
 
 function createFakeServer() {
   const tools: Record<string, { handler: Function; description: string }> = {};
@@ -41,6 +42,7 @@ describe('Admin MCP Tools', () => {
     registerBatchTools(server as any, api);
     registerJobTools(server as any, api);
     registerAiTools(server as any, api);
+    registerEmailTools(server as any, api);
   });
 
   // === TENANT TOOLS (4) ===
@@ -225,11 +227,31 @@ describe('Admin MCP Tools', () => {
     });
   });
 
+  // === EMAIL TOOLS (1) ===
+  describe('Email Tools', () => {
+    it('send_email calls POST /api/admin/send-email', async () => {
+      await server.callTool('send_email', {
+        recipientEmail: 'test@example.com',
+        subject: 'Test Subject',
+        body: 'Hello, this is a test email.',
+      });
+      expect(api._lastCall?.method).toBe('POST');
+      expect(api._lastCall?.path).toBe('/api/admin/send-email');
+      expect(api._lastCall?.body).toEqual({
+        recipientEmail: 'test@example.com',
+        subject: 'Test Subject',
+        body: 'Hello, this is a test email.',
+        attachmentFileName: null,
+        attachmentBase64: null,
+      });
+    });
+  });
+
   // === TOOL REGISTRATION ===
   describe('Tool Registration', () => {
     it('registers all 23 admin tools', () => {
       const toolNames = Object.keys(server.tools);
-      expect(toolNames.length).toBe(23);
+      expect(toolNames.length).toBe(24);
     });
 
     it('all tools return content with text type', async () => {
@@ -241,6 +263,7 @@ describe('Admin MCP Tools', () => {
           displayName: 'T', role: 'SUPPLIER', status: 'ACTIVE',
           isActive: true, action: 'x', entityType: 'x',
           query: 'x', question: 'x', from: '2026-01-01', to: '2026-12-31',
+          recipientEmail: 'a@b.com', subject: 'Test', body: 'Test',
         });
         expect(result.content).toBeDefined();
         expect(result.content[0].type).toBe('text');
